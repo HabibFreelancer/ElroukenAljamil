@@ -1,0 +1,15 @@
+# Visual Studio
+.vs/
+
+# .NET
+**/bin/
+**/obj/
+
+# Angular
+elrouken-aljamil-client/node_modules/
+elrouken-aljamil-client/dist/
+elrouken-aljamil-client/.angular/
+
+# OS
+Thumbs.db
+.DS_Store

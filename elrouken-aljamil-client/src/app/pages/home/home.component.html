@@ -1,0 +1,349 @@
+<div class="ad-banner">
+  <div class="ad-content">
+    <span class="ad-label">Publicité</span>
+    <div class="ad-placeholder">
+      <p>Espace publicitaire</p>
+    </div>
+  </div>
+</div>
+
+<div class="cta-panel">
+  <h2>C'est le moment de vendre</h2>
+  <a routerLink="/deposer" class="btn-deposer">Déposer une annonce</a>
+</div>
+
+<div class="recent-searches">
+  <h2>Recherches récentes</h2>
+  <div class="empty-state">
+    <p>Vos recherches s'afficheront ici pour y accéder facilement à tout moment.</p>
+  </div>
+</div>
+
+<div class="scroll-list">
+  <div class="scroll-container">
+    <div class="scroll-item">
+      <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=192&h=240&fit=crop" alt="Immobilier" />
+      <span class="item-label">Immobilier</span>
+    </div>
+    <div class="scroll-item">
+      <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=192&h=240&fit=crop" alt="Véhicules" />
+      <span class="item-label">Véhicules</span>
+    </div>
+    <div class="scroll-item">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=192&h=240&fit=crop" alt="Vacances" />
+      <span class="item-label">Vacances</span>
+    </div>
+    <div class="scroll-item">
+      <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=192&h=240&fit=crop" alt="Emploi" />
+      <span class="item-label">Emploi</span>
+    </div>
+    <div class="scroll-item">
+      <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=192&h=240&fit=crop" alt="Mode" />
+      <span class="item-label">Mode</span>
+    </div>
+  </div>
+</div>
+
+<div class="moment-section">
+  <h2>En ce moment sur ElroukenAljamil</h2>
+</div>
+
+<div class="moment-categories">
+  <div class="category-section" *ngFor="let cat of categories">
+    <h3>{{ cat.name }}</h3>
+    <div class="ads-scroll">
+      <article class="ad-card" *ngFor="let ad of cat.ads">
+        <div class="ad-card-image">
+          <img [src]="ad.image" [alt]="ad.title" loading="lazy" />
+          <button class="btn-fav" aria-label="Ajouter aux favoris">
+            <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="ad-card-body">
+          <p class="ad-title">{{ ad.title }}</p>
+          <p class="ad-price">{{ ad.price }}</p>
+          <p class="ad-location">{{ ad.location }}</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
+
+<section class="about-section">
+  <p>Avec ElroukenAljamil, trouvez la bonne affaire sur le site référent de petites annonces de particulier à particulier et de professionnels. Avec des millions de petites annonces, trouvez la bonne occasion dans nos catégories voitures, immobilier, emploi, location de vacances, vêtements, meubles, bricolage, téléphonie, jeux vidéo, etc. Déposez une annonce gratuite en toute simplicité pour vendre, rechercher, donner vos biens de seconde main ou promouvoir vos services. Pour cet été, découvrez nos idées de destination avec notre guide de vacances en France. Achetez en toute sécurité avec notre système de paiement en ligne et de livraison pour les annonces éligibles.</p>
+</section>
+
+<section class="categories-footer">
+  <div class="categories-grid">
+    <div class="categories-column">
+      <h4>Emploi</h4>
+      <ul>
+        <li><a routerLink="/emploi/offres">Offres d'emploi</a></li>
+        <li><a routerLink="/emploi/formations">Formations professionnelles</a></li>
+      </ul>
+      <h4>Véhicules</h4>
+      <ul>
+        <li><a routerLink="/vehicules/voitures">Voitures</a></li>
+        <li><a routerLink="/vehicules/motos">Motos</a></li>
+        <li><a routerLink="/vehicules/caravaning">Caravaning</a></li>
+        <li><a routerLink="/vehicules/utilitaires">Utilitaires</a></li>
+        <li><a routerLink="/vehicules/camions">Camions</a></li>
+        <li><a routerLink="/vehicules/nautisme">Nautisme</a></li>
+        <li><a routerLink="/vehicules/equipement-auto">Équipement auto</a></li>
+        <li><a routerLink="/vehicules/equipement-moto">Équipement moto</a></li>
+        <li><a routerLink="/vehicules/equipement-caravaning">Équipement caravaning</a></li>
+        <li><a routerLink="/vehicules/equipement-nautisme">Équipement nautisme</a></li>
+      </ul>
+      <h4>Immobilier</h4>
+      <ul>
+        <li><a routerLink="/immobilier/ventes">Ventes immobilières</a></li>
+        <li><a routerLink="/immobilier/location">Locations</a></li>
+        <li><a routerLink="/immobilier/colocation">Colocations</a></li>
+        <li><a routerLink="/immobilier/bureau-commerce">Bureaux & Commerces</a></li>
+      </ul>
+      <h4>Mode</h4>
+      <ul>
+        <li><a routerLink="/mode/vetements">Vêtements</a></li>
+        <li><a routerLink="/mode/chaussures">Chaussures</a></li>
+        <li><a routerLink="/mode/accessoires">Accessoires & Bagagerie</a></li>
+        <li><a routerLink="/mode/montres-bijoux">Montres & Bijoux</a></li>
+      </ul>
+    </div>
+
+    <div class="categories-column">
+      <h4>Locations de vacances</h4>
+      <ul>
+        <li><a routerLink="/vacances/locations">Locations saisonnières</a></li>
+      </ul>
+      <h4>Loisirs</h4>
+      <ul>
+        <li><a routerLink="/loisirs/antiquites">Antiquités</a></li>
+        <li><a routerLink="/loisirs/collection">Collection</a></li>
+        <li><a routerLink="/loisirs/cd-musique">CD - Musique</a></li>
+        <li><a routerLink="/loisirs/dvd-films">DVD - Films</a></li>
+        <li><a routerLink="/loisirs/instruments-musique">Instruments de musique</a></li>
+        <li><a routerLink="/loisirs/livres">Livres</a></li>
+        <li><a routerLink="/loisirs/modelisme">Modélisme</a></li>
+        <li><a routerLink="/loisirs/vins-gastronomie">Vins & Gastronomie</a></li>
+        <li><a routerLink="/loisirs/jeux-jouets">Jeux & Jouets</a></li>
+        <li><a routerLink="/loisirs/loisirs-creatifs">Loisirs créatifs</a></li>
+        <li><a routerLink="/loisirs/sport-plein-air">Sport & Plein air</a></li>
+        <li><a routerLink="/loisirs/velos">Vélos</a></li>
+        <li><a routerLink="/loisirs/equipements-velos">Équipements vélos</a></li>
+      </ul>
+      <h4>Animaux</h4>
+      <ul>
+        <li><a routerLink="/autre/animaux/animaux">Animaux</a></li>
+        <li><a routerLink="/autre/animaux/accessoires">Accessoires animaux</a></li>
+        <li><a routerLink="/autre/animaux/perdus">Animaux perdus</a></li>
+      </ul>
+    </div>
+
+    <div class="categories-column">
+      <h4>Électronique</h4>
+      <ul>
+        <li><a routerLink="/electronique/ordinateurs">Ordinateurs</a></li>
+        <li><a routerLink="/electronique/accessoires-informatique">Accessoires informatique</a></li>
+        <li><a routerLink="/electronique/tablettes-liseuses">Tablettes & Liseuses</a></li>
+        <li><a routerLink="/electronique/photo-audio-video">Photo, audio & vidéo</a></li>
+        <li><a routerLink="/electronique/telephones">Téléphones & Objets connectés</a></li>
+        <li><a routerLink="/electronique/accessoires-telephone">Accessoires téléphone & Objets connectés</a></li>
+        <li><a routerLink="/electronique/consoles">Consoles</a></li>
+        <li><a routerLink="/electronique/jeux-video">Jeux vidéo</a></li>
+      </ul>
+      <h4>Services</h4>
+      <ul>
+        <li><a routerLink="/autre/services/artistes-musiciens">Artistes & Musiciens</a></li>
+        <li><a routerLink="/autre/services/baby-sitting">Baby-Sitting</a></li>
+        <li><a routerLink="/autre/services/billetterie">Billetterie</a></li>
+        <li><a routerLink="/autre/services/covoiturage">Covoiturage</a></li>
+        <li><a routerLink="/autre/services/cours-particuliers">Cours particuliers</a></li>
+        <li><a routerLink="/autre/services/entraide-voisins">Entraide entre voisins</a></li>
+        <li><a routerLink="/autre/services/evenements">Évènements</a></li>
+        <li><a routerLink="/autre/services/personne">Services à la personne</a></li>
+        <li><a routerLink="/autre/services/animaux">Services aux animaux</a></li>
+        <li><a routerLink="/autre/services/demenagement">Services de déménagement</a></li>
+        <li><a routerLink="/autre/services/reparations-electroniques">Services de réparations électroniques</a></li>
+        <li><a routerLink="/autre/services/reparations-mecaniques">Services de réparations mécaniques</a></li>
+        <li><a routerLink="/autre/services/jardinerie-bricolage">Services de jardinerie & bricolage</a></li>
+        <li><a routerLink="/autre/services/evenementiels">Services évènementiels</a></li>
+        <li><a routerLink="/autre/services/autres">Autres services</a></li>
+      </ul>
+    </div>
+
+    <div class="categories-column">
+      <h4>Famille</h4>
+      <ul>
+        <li><a routerLink="/famille/equipement-bebe">Équipement bébé</a></li>
+        <li><a routerLink="/famille/mobilier-enfant">Mobilier enfant</a></li>
+        <li><a routerLink="/famille/vetements-bebe">Vêtements bébé</a></li>
+      </ul>
+      <h4>Maison & Jardin</h4>
+      <ul>
+        <li><a routerLink="/maison-jardin/ameublement">Ameublement</a></li>
+        <li><a routerLink="/maison-jardin/papeterie">Papeterie & Fournitures scolaires</a></li>
+        <li><a routerLink="/maison-jardin/electromenager">Électroménager</a></li>
+        <li><a routerLink="/maison-jardin/arts-table">Arts de la table</a></li>
+        <li><a routerLink="/maison-jardin/decoration">Décoration</a></li>
+        <li><a routerLink="/maison-jardin/linge">Linge de maison</a></li>
+        <li><a routerLink="/maison-jardin/bricolage">Bricolage</a></li>
+        <li><a routerLink="/maison-jardin/jardin-plantes">Jardin & Plantes</a></li>
+      </ul>
+      <h4>Matériel professionnel</h4>
+      <ul>
+        <li><a routerLink="/autre/materiel-professionnel/tracteurs">Tracteurs</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/agricole">Matériel agricole</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/btp">BTP - Chantier gros-oeuvre</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/poids-lourds">Poids lourds</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/manutention">Manutention - Levage</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/industriels">Équipements industriels</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/restaurants">Équipements pour restaurants & hôtels</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/bureau">Équipements & Fournitures de bureau</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/commerces">Équipements pour commerces & marchés</a></li>
+        <li><a routerLink="/autre/materiel-professionnel/medical">Matériel médical</a></li>
+      </ul>
+      <h4>Divers</h4>
+      <ul>
+        <li><a routerLink="/autre/autres">Autres</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <div class="categories-grid locations-grid">
+    <div class="categories-column">
+      <h4>Nord</h4>
+      <ul>
+        <li><a routerLink="/region/tunis">Tunis</a></li>
+        <li><a routerLink="/region/ariana">Ariana</a></li>
+        <li><a routerLink="/region/ben-arous">Ben Arous</a></li>
+        <li><a routerLink="/region/manouba">Manouba</a></li>
+        <li><a routerLink="/region/bizerte">Bizerte</a></li>
+      </ul>
+      <h4>Nord-Ouest</h4>
+      <ul>
+        <li><a routerLink="/region/beja">Béja</a></li>
+        <li><a routerLink="/region/jendouba">Jendouba</a></li>
+        <li><a routerLink="/region/kef">Le Kef</a></li>
+        <li><a routerLink="/region/siliana">Siliana</a></li>
+      </ul>
+    </div>
+
+    <div class="categories-column">
+      <h4>Centre-Est</h4>
+      <ul>
+        <li><a routerLink="/region/sousse">Sousse</a></li>
+        <li><a routerLink="/region/monastir">Monastir</a></li>
+        <li><a routerLink="/region/mahdia">Mahdia</a></li>
+        <li><a routerLink="/region/sfax">Sfax</a></li>
+      </ul>
+      <h4>Centre-Ouest</h4>
+      <ul>
+        <li><a routerLink="/region/kairouan">Kairouan</a></li>
+        <li><a routerLink="/region/kasserine">Kasserine</a></li>
+        <li><a routerLink="/region/sidi-bouzid">Sidi Bouzid</a></li>
+      </ul>
+    </div>
+
+    <div class="categories-column">
+      <h4>Sud-Est</h4>
+      <ul>
+        <li><a routerLink="/region/gabes">Gabès</a></li>
+        <li><a routerLink="/region/medenine">Médenine</a></li>
+        <li><a routerLink="/region/tataouine">Tataouine</a></li>
+      </ul>
+      <h4>Sud-Ouest</h4>
+      <ul>
+        <li><a routerLink="/region/gafsa">Gafsa</a></li>
+        <li><a routerLink="/region/tozeur">Tozeur</a></li>
+        <li><a routerLink="/region/kebili">Kébili</a></li>
+      </ul>
+    </div>
+
+    <div class="categories-column">
+      <h4>Cap Bon</h4>
+      <ul>
+        <li><a routerLink="/region/nabeul">Nabeul</a></li>
+        <li><a routerLink="/region/hammamet">Hammamet</a></li>
+        <li><a routerLink="/region/kelibia">Kélibia</a></li>
+      </ul>
+      <h4>Sahel</h4>
+      <ul>
+        <li><a routerLink="/region/zaghouan">Zaghouan</a></li>
+        <li><a routerLink="/region/djerba">Djerba</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="footer-section">
+  <div class="footer-grid">
+    <div class="footer-column">
+      <h4>À propos d'ElroukenAljamil</h4>
+      <ul>
+        <li><a routerLink="/plan-du-site">Plan du site</a></li>
+        <li><a routerLink="/qui-sommes-nous">Qui sommes-nous ?</a></li>
+        <li><a routerLink="/nouveautes">Nouveautés</a></li>
+        <li><a routerLink="/nous-rejoindre">Nous rejoindre</a></li>
+        <li><a routerLink="/engagements">Nos engagements</a></li>
+        <li><a routerLink="/presse">Espace presse</a></li>
+        <li><a routerLink="/applications">Nos applications</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h4>Informations légales</h4>
+      <ul>
+        <li><a routerLink="/cgu">Conditions générales d'utilisation</a></li>
+        <li><a routerLink="/referencement">Référencement et classement des annonces</a></li>
+        <li><a routerLink="/cgv">Conditions générales de vente</a></li>
+        <li><a routerLink="/confidentialite">Politique de confidentialité</a></li>
+        <li><a routerLink="/cookies">Gestion des cookies</a></li>
+        <li><a routerLink="/droits-obligations">Vos droits et obligations</a></li>
+        <li><a routerLink="/avis">Avis utilisateurs</a></li>
+        <li><a routerLink="/securite">Confiance et sécurité</a></li>
+        <li><a routerLink="/paiement-plusieurs-fois">Paiement en plusieurs fois</a></li>
+      </ul>
+      <h4>Accessibilité</h4>
+      <ul>
+        <li><a routerLink="/accessibilite">Accessibilité : partiellement conforme</a></li>
+        <li><a routerLink="/parametres-accessibilite">Paramètres d'accessibilité</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h4>Nos solutions pros</h4>
+      <ul>
+        <li><a routerLink="/pro/automobile">Automobile</a></li>
+        <li><a routerLink="/pro/immobilier">Immobilier</a></li>
+        <li><a routerLink="/pro/emploi">Emploi</a></li>
+        <li><a routerLink="/pro/emploi-tpe">Emploi TPE</a></li>
+        <li><a routerLink="/pro/commerces-services">Commerces & Services</a></li>
+        <li><a routerLink="/pro/publicite">Publicité</a></li>
+        <li><a routerLink="/pro/tourisme">Tourisme</a></li>
+        <li><a routerLink="/pro/annuaire">Annuaire des Pros</a></li>
+        <li><a routerLink="/pro/nouveautes-immo">Nouveautés ElroukenAljamil immo</a></li>
+        <li><a routerLink="/pro/nouveautes-vehicules">Nouveautés ElroukenAljamil véhicules</a></li>
+        <li><a routerLink="/pro/technologies">Fournisseur de technologies</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h4>Des questions ?</h4>
+      <ul>
+        <li><a routerLink="/aide">Aide</a></li>
+        <li><a routerLink="/transaction-securisee">La transaction sécurisée et la livraison</a></li>
+        <li><a routerLink="/porte-monnaie">Le porte-monnaie</a></li>
+        <li><a routerLink="/reservation-vacances">Le service de réservation de vacances en ligne pour les hôtes</a></li>
+        <li><a routerLink="/dossier-location">Votre dossier de location en ligne</a></li>
+        <li><a routerLink="/pass-locataire">Votre Pass Locataire+</a></li>
+        <li><a routerLink="/espace-bailleur">Votre espace bailleur</a></li>
+        <li><a routerLink="/cote-argus">La Cote Argus®</a></li>
+        <li><a routerLink="/statut-services">Statut de nos services</a></li>
+        <li><a routerLink="/securite">Sécurité</a></li>
+        <li><a routerLink="/sans-publicite">Navigation sans publicité</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
