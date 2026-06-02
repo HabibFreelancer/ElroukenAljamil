@@ -1,0 +1,124 @@
+<div class="deposer-wrapper">
+  <!-- Header simplifié -->
+  <div class="deposer-header-wrapper">
+    <div class="deposer-header">
+      <a routerLink="/" class="logo">ElroukenAljamil</a>
+      <span class="header-title">Déposer une annonce</span>
+      <a routerLink="/" class="quit-btn">Quitter</a>
+    </div>
+  </div>
+
+  <div class="deposer-content">
+    <!-- Étape 1 : Titre -->
+    <div class="form-card" *ngIf="currentStep === 1">
+      <h2>Commençons par l'essentiel !</h2>
+      <p class="subtitle">* champs obligatoires</p>
+
+      <div class="input-group">
+        <label for="title">Quel est le titre de l'annonce ? *</label>
+        <input type="text" id="title" [(ngModel)]="annonce.title" maxlength="200" placeholder="Ex: Smartphone reconditionné" />
+        <div class="char-count">{{ annonce.title.length }}/200</div>
+      </div>
+
+      <p class="footer-note">En déposant une annonce, vous acceptez nos conditions générales d'utilisation.</p>
+    </div>
+
+    <!-- Étape 2 : Description & Prix -->
+    <div class="form-card" *ngIf="currentStep === 2">
+      <h2>Décrivez votre annonce</h2>
+      <p class="subtitle">Plus votre annonce est détaillée, plus elle attire d'acheteurs</p>
+
+      <div class="input-group">
+        <label for="description">Description *</label>
+        <textarea id="description" [(ngModel)]="annonce.description" rows="6" maxlength="4000" placeholder="Décrivez votre article : état, dimensions, raison de la vente..."></textarea>
+        <div class="char-count">{{ annonce.description.length }}/4000</div>
+      </div>
+
+      <div class="form-row">
+        <div class="input-group">
+          <label for="price">Prix (TND) *</label>
+          <input type="number" id="price" [(ngModel)]="annonce.price" placeholder="0" />
+        </div>
+        <div class="input-group">
+          <label for="condition">État *</label>
+          <select id="condition" [(ngModel)]="annonce.condition">
+            <option value="">Sélectionnez</option>
+            <option value="Neuf">Neuf avec étiquette</option>
+            <option value="Très bon état">Très bon état</option>
+            <option value="Bon état">Bon état</option>
+            <option value="État correct">État correct</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="location">Localisation *</label>
+        <input type="text" id="location" [(ngModel)]="annonce.location" placeholder="Ex: Tunis, Sousse..." />
+      </div>
+    </div>
+
+    <!-- Étape 3 : Photos -->
+    <div class="form-card" *ngIf="currentStep === 3">
+      <h2>Ajoutez des photos</h2>
+      <p class="subtitle">Une annonce avec photos a 5x plus de chances d'être vendue</p>
+
+      <div class="photos-upload">
+        <div class="photo-slot main">
+          <i class="fa-solid fa-camera"></i>
+          <span>Photo principale</span>
+        </div>
+        <div class="photo-slot" *ngFor="let i of [1,2,3,4,5,6,7]">
+          <i class="fa-solid fa-plus"></i>
+        </div>
+      </div>
+
+      <p class="footer-note">Formats acceptés : JPG, PNG. Taille max : 5 Mo par photo.</p>
+    </div>
+
+    <!-- Étape 4 : Récapitulatif -->
+    <div class="form-card" *ngIf="currentStep === 4">
+      <h2>Vérifiez votre annonce</h2>
+      <p class="subtitle">Voici un résumé avant publication</p>
+
+      <div class="recap">
+        <div class="recap-item">
+          <span class="label">Catégorie</span>
+          <span class="value">{{ annonce.category }}</span>
+        </div>
+        <div class="recap-item">
+          <span class="label">Titre</span>
+          <span class="value">{{ annonce.title }}</span>
+        </div>
+        <div class="recap-item">
+          <span class="label">Description</span>
+          <span class="value description">{{ annonce.description }}</span>
+        </div>
+        <div class="recap-item">
+          <span class="label">Prix</span>
+          <span class="value">{{ annonce.price }} TND</span>
+        </div>
+        <div class="recap-item">
+          <span class="label">État</span>
+          <span class="value">{{ annonce.condition }}</span>
+        </div>
+        <div class="recap-item">
+          <span class="label">Localisation</span>
+          <span class="value">{{ annonce.location }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button class="btn-back" *ngIf="currentStep > 1" (click)="prevStep()">
+        <i class="fa-solid fa-arrow-left"></i> Retour
+      </button>
+      <button class="btn-continue" *ngIf="currentStep < 4" (click)="nextStep()">
+        Continuer <i class="fa-solid fa-arrow-right"></i>
+      </button>
+      <button class="btn-publish" *ngIf="currentStep === 4" (click)="submit()">
+        <i class="fa-solid fa-check"></i> Publier mon annonce
+      </button>
+    </div>
+  </div>
+</div>

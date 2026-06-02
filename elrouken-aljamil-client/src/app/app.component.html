@@ -1,5 +1,6 @@
-<app-navbar></app-navbar>
-<div class="page-layout">
+<app-navbar *ngIf="showMainLayout"></app-navbar>
+
+<div class="page-layout" *ngIf="showMainLayout">
   <aside class="sidebar sidebar-left">
     <div class="sidebar-ad">
       <span class="ad-label">Publicité</span>
@@ -36,3 +37,5 @@
     </div>
   </aside>
 </div>
+
+<router-outlet *ngIf="!showMainLayout"></router-outlet>

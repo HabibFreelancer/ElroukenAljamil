@@ -73,3 +73,13 @@
   list-style: none !important;
   padding-left: 0 !important;
 }
+
+.categories-footer .categories-column ul {
+  padding-bottom: 0.75rem !important;
+  border-bottom: 1px solid #ddd !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.categories-footer .categories-column ul:last-child {
+  border-bottom: none !important;
+}
