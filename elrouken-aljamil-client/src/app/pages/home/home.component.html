@@ -64,19 +64,32 @@
 
 <div class="moment-categories">
   <div class="category-section" *ngFor="let cat of categories">
-    <h3>{{ cat.name }}</h3>
-    <div class="ads-scroll">
-      <article class="ad-card" *ngFor="let ad of cat.ads">
-        <div class="ad-card-image">
+    <div class="section-header">
+      <h3>{{ cat.name }}</h3>
+      <a routerLink="/">Voir plus d'annonces →</a>
+    </div>
+    <div class="listings-grid">
+      <article class="product-card" *ngFor="let ad of cat.ads">
+        <div class="seller-info">
+          <div class="seller-avatar">{{ ad.title.charAt(0) }}</div>
+          <span class="seller-name">{{ ad.title.split(' ')[0] }}</span>
+          <div class="seller-rating">
+            <i class="fa-solid fa-star"></i>
+            <span>4.5</span>
+            <span class="rating-count">(12)</span>
+          </div>
+        </div>
+        <div class="product-img">
           <img [src]="ad.image" [alt]="ad.title" loading="lazy" />
           <button class="btn-fav" aria-label="Ajouter aux favoris">
             <i class="fa-regular fa-heart" aria-hidden="true"></i>
           </button>
         </div>
-        <div class="ad-card-body">
-          <p class="ad-title">{{ ad.title }}</p>
-          <p class="ad-price">{{ ad.price }}</p>
-          <p class="ad-location">{{ ad.location }}</p>
+        <div class="product-info">
+          <h4>{{ ad.title }}</h4>
+          <p class="price">{{ ad.price }}</p>
+          <p class="delivery"><i class="fa-solid fa-truck"></i> Livraison possible</p>
+          <p class="meta">{{ ad.location }}</p>
         </div>
       </article>
     </div>
