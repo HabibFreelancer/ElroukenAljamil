@@ -1,545 +1,307 @@
-<nav class="navbar">
-  <div class="navbar-brand">
-    <a routerLink="/">ElroukenAljamil</a>
-  </div>
+<div class="header-wrapper">
+  <header class="main-header container">
+    <div class="logo"><a routerLink="/">ElroukenAljamil</a></div>
+    <button class="btn-post" routerLink="/deposer"><i class="fa-solid fa-plus"></i> Déposer une annonce</button>
+    <div class="search-container">
+      <input type="text" placeholder="Rechercher sur ElroukenAljamil">
+    </div>
+    <nav class="user-nav">
+      <a routerLink="/recherches" class="nav-item"><i class="fa-regular fa-bell"></i><span>Mes recherches</span></a>
+      <a routerLink="/favoris" class="nav-item"><i class="fa-regular fa-heart"></i><span>Favoris</span></a>
+      <a routerLink="/messages" class="nav-item"><i class="fa-regular fa-envelope"></i><span>Messages</span></a>
+      <a routerLink="/login" class="nav-item"><i class="fa-regular fa-user"></i><span>Se connecter</span></a>
+    </nav>
+  </header>
 
-  <a routerLink="/deposer" class="btn-deposer">Déposer une annonce</a>
-
-  <div class="search-box">
-    <input type="text" placeholder="Recherche sur elroukenaljamil" />
-    <button class="search-btn">🔍</button>
-  </div>
-
-  <div class="navbar-actions">
-    <a routerLink="/recherches" class="nav-action">
-      <span class="icon">🔎</span>
-      <span>Mes recherches</span>
-    </a>
-    <a routerLink="/favoris" class="nav-action">
-      <span class="icon">❤️</span>
-      <span>Favoris</span>
-    </a>
-    <a routerLink="/messages" class="nav-action">
-      <span class="icon">✉️</span>
-      <span>Messages</span>
-    </a>
-    <a routerLink="/login" class="nav-action btn-connect">
-      <span class="icon">👤</span>
-      <span>Se connecter</span>
-    </a>
-  </div>
-</nav>
-
-<div class="menu-bar" (mouseleave)="activePanel = null">
-  <ul class="menu-list">
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'immobilier'">
-      <a routerLink="/immobilier">Immobilier</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'immobilier'">
-        <div class="panel-sidebar">
-          <h3>Immobilier</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/immobilier">Tout immobilier</a>
-
-            <a class="section-title" routerLink="/immobilier/ventes">Ventes immobilières</a>
-            <ul>
-              <li><a routerLink="/immobilier/appartement">Appartement</a></li>
-              <li><a routerLink="/immobilier/maison">Maison</a></li>
-              <li><a routerLink="/immobilier/terrain">Terrain</a></li>
-              <li><a routerLink="/immobilier/ventes">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/immobilier/neuf">Immobilier Neuf</a>
-            <ul>
-              <li><a routerLink="/immobilier/neuf/appartement">Appartement</a></li>
-              <li><a routerLink="/immobilier/neuf/maison">Maison</a></li>
-              <li><a routerLink="/immobilier/neuf/programmes">Programme logement neufs</a></li>
-              <li><a routerLink="/immobilier/neuf/promoteurs">Promoteurs immobiliers</a></li>
-            </ul>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/immobilier/location">Locations</a>
-            <ul>
-              <li><a routerLink="/immobilier/location/appartement">Appartement</a></li>
-              <li><a routerLink="/immobilier/location/maison">Maison</a></li>
-              <li><a routerLink="/immobilier/location/parking">Parking</a></li>
-              <li><a routerLink="/immobilier/location">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/immobilier/colocation">Colocations</a>
-            <a class="section-title" routerLink="/immobilier/bureau-commerce">Bureau & Commerce</a>
-            <a class="section-title" routerLink="/immobilier/demenagement">Service de déménagement</a>
+  <nav class="category-nav-wrapper" (mouseleave)="activePanel = null">
+    <div class="container">
+      <ul class="cat-list">
+      <li class="cat-item" (mouseenter)="activePanel = 'immobilier'">Immobilier
+        <div class="dropdown-panel" *ngIf="activePanel === 'immobilier'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-house"></i> Immobilier</h4>
+              <div class="action-card"><i class="fa-solid fa-calculator"></i><span>Estimer votre bien</span></div>
+              <div class="action-card"><i class="fa-solid fa-map-location-dot"></i><span>Rechercher par carte</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/immobilier">Tout Immobilier</a>
+                <a class="sec-title" routerLink="/immobilier/ventes">Ventes immobilières</a>
+                <ul>
+                  <li><a routerLink="/immobilier/appartement">Appartement</a></li>
+                  <li><a routerLink="/immobilier/maison">Maison</a></li>
+                  <li><a routerLink="/immobilier/terrain">Terrain</a></li>
+                  <li><a routerLink="/immobilier/ventes">Voir tout</a></li>
+                </ul>
+                <a class="sec-title" routerLink="/immobilier/neuf">Immobilier Neuf</a>
+                <ul>
+                  <li><a routerLink="/immobilier/neuf/appartement">Appartement</a></li>
+                  <li><a routerLink="/immobilier/neuf/maison">Maison</a></li>
+                  <li><a routerLink="/immobilier/neuf/programmes">Programme logement neufs</a></li>
+                  <li><a routerLink="/immobilier/neuf/promoteurs">Promoteurs immobiliers</a></li>
+                </ul>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/immobilier/location">Locations</a>
+                <ul>
+                  <li><a routerLink="/immobilier/location/appartement">Appartement</a></li>
+                  <li><a routerLink="/immobilier/location/maison">Maison</a></li>
+                  <li><a routerLink="/immobilier/location/parking">Parking</a></li>
+                  <li><a routerLink="/immobilier/location">Voir tout</a></li>
+                </ul>
+                <a class="sec-title" routerLink="/immobilier/colocation">Colocations</a>
+                <a class="sec-title" routerLink="/immobilier/bureau-commerce">Bureau & Commerce</a>
+                <a class="sec-title" routerLink="/immobilier/demenagement">Service de déménagement</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'vehicules'">
-      <a routerLink="/vehicules">Véhicules</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'vehicules'">
-        <div class="panel-sidebar">
-          <h3>Véhicules</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/vehicules">Tout Véhicules</a>
-
-            <a class="section-title" routerLink="/vehicules/voitures">Voitures</a>
-            <ul>
-              <li><a routerLink="/vehicules/voitures/audi">Audi</a></li>
-              <li><a routerLink="/vehicules/voitures/bmw">BMW</a></li>
-              <li><a routerLink="/vehicules/voitures/mercedes">Mercedes</a></li>
-              <li><a routerLink="/vehicules/voitures/peugeot">Peugeot</a></li>
-              <li><a routerLink="/vehicules/voitures/renault">Renault</a></li>
-              <li><a routerLink="/vehicules/voitures/volkswagen">Volkswagen</a></li>
-              <li><a routerLink="/vehicules/voitures">Voir toutes les marques</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/vehicules/motos">Motos</a>
-            <ul>
-              <li><a routerLink="/vehicules/motos/bmw">BMW</a></li>
-              <li><a routerLink="/vehicules/motos/honda">Honda</a></li>
-              <li><a routerLink="/vehicules/motos/kawasaki">Kawasaki</a></li>
-              <li><a routerLink="/vehicules/motos/suzuki">Suzuki</a></li>
-              <li><a routerLink="/vehicules/motos/yamaha">Yamaha</a></li>
-              <li><a routerLink="/vehicules/motos">Voir toutes les marques</a></li>
-            </ul>
-          </div>
-          <div class="panel-column">
-            <a class="section-title" routerLink="/vehicules/caravaning">Caravaning</a>
-            <a class="section-title" routerLink="/vehicules/utilitaires">Utilitaires</a>
-            <a class="section-title" routerLink="/vehicules/camions">Camions</a>
-            <a class="section-title" routerLink="/vehicules/nautisme">Nautisme</a>
-            <a class="section-title" routerLink="/vehicules/velos">Vélos</a>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/vehicules/equipement-auto">Équipement auto</a>
-            <a class="section-title" routerLink="/vehicules/equipement-moto">Équipement moto</a>
-            <a class="section-title" routerLink="/vehicules/equipement-caravaning">Équipement caravaning</a>
-            <a class="section-title" routerLink="/vehicules/equipement-nautisme">Équipement nautisme</a>
-            <a class="section-title" routerLink="/vehicules/equipements-velos">Équipements vélos</a>
-            <a class="section-title" routerLink="/vehicules/reparations">Services de réparations mécaniques</a>
-          </div>
-        </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'vacances'">
-      <a routerLink="/vacances">Vacances</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'vacances'">
-        <div class="panel-sidebar">
-          <h3>Vacances</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/vacances/locations">Tout Locations saisonnières</a>
-
-            <span class="section-title">Types d'hébergements</span>
-            <ul>
-              <li><a routerLink="/vacances/maisons-villas">Maisons et villas</a></li>
-              <li><a routerLink="/vacances/appartements">Appartements</a></li>
-              <li><a routerLink="/vacances/chalets">Chalets</a></li>
-              <li><a routerLink="/vacances/chambres-hotes">Chambres d'hôtes</a></li>
-              <li><a routerLink="/vacances/campings">Campings</a></li>
-            </ul>
-
-            <span class="section-title">Caractéristiques recherchées</span>
-            <ul>
-              <li><a routerLink="/vacances/piscine">Piscine</a></li>
-              <li><a routerLink="/vacances/jardin">Jardin</a></li>
-              <li><a routerLink="/vacances/animaux">Animaux acceptés</a></li>
-            </ul>
-          </div>
-          <div class="panel-column">
-            <span class="section-title">Nombre de voyageurs</span>
-            <ul>
-              <li><a routerLink="/vacances/solo">Solo</a></li>
-              <li><a routerLink="/vacances/a-deux">À deux</a></li>
-              <li><a routerLink="/vacances/a-quatre">À quatre</a></li>
-              <li><a routerLink="/vacances/a-six">À six</a></li>
-              <li><a routerLink="/vacances/plus-de-six">Plus de six</a></li>
-            </ul>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'vehicules'">Véhicules
+        <div class="dropdown-panel" *ngIf="activePanel === 'vehicules'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-car"></i> Véhicules</h4>
+              <div class="action-card"><i class="fa-solid fa-gauge-high"></i><span>Estimer votre véhicule</span></div>
+              <div class="action-card"><i class="fa-solid fa-shield-halved"></i><span>Garantie véhicule</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/vehicules">Tout Véhicules</a>
+                <a class="sec-title" routerLink="/vehicules/voitures">Voitures</a>
+                <ul>
+                  <li><a routerLink="/vehicules/voitures/audi">Audi</a></li>
+                  <li><a routerLink="/vehicules/voitures/bmw">BMW</a></li>
+                  <li><a routerLink="/vehicules/voitures/mercedes">Mercedes</a></li>
+                  <li><a routerLink="/vehicules/voitures/peugeot">Peugeot</a></li>
+                  <li><a routerLink="/vehicules/voitures/renault">Renault</a></li>
+                  <li><a routerLink="/vehicules/voitures/volkswagen">Volkswagen</a></li>
+                  <li><a routerLink="/vehicules/voitures">Voir toutes les marques</a></li>
+                </ul>
+                <a class="sec-title" routerLink="/vehicules/motos">Motos</a>
+                <ul>
+                  <li><a routerLink="/vehicules/motos/bmw">BMW</a></li>
+                  <li><a routerLink="/vehicules/motos/honda">Honda</a></li>
+                  <li><a routerLink="/vehicules/motos/kawasaki">Kawasaki</a></li>
+                  <li><a routerLink="/vehicules/motos/suzuki">Suzuki</a></li>
+                  <li><a routerLink="/vehicules/motos/yamaha">Yamaha</a></li>
+                  <li><a routerLink="/vehicules/motos">Voir toutes les marques</a></li>
+                </ul>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/vehicules/caravaning">Caravaning</a>
+                <a class="sec-title" routerLink="/vehicules/utilitaires">Utilitaires</a>
+                <a class="sec-title" routerLink="/vehicules/camions">Camions</a>
+                <a class="sec-title" routerLink="/vehicules/nautisme">Nautisme</a>
+                <a class="sec-title" routerLink="/vehicules/velos">Vélos</a>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/vehicules/equipement-auto">Équipement auto</a>
+                <a class="sec-title" routerLink="/vehicules/equipement-moto">Équipement moto</a>
+                <a class="sec-title" routerLink="/vehicules/equipement-caravaning">Équipement caravaning</a>
+                <a class="sec-title" routerLink="/vehicules/equipement-nautisme">Équipement nautisme</a>
+                <a class="sec-title" routerLink="/vehicules/equipements-velos">Équipements vélos</a>
+                <a class="sec-title" routerLink="/vehicules/reparations">Services de réparations mécaniques</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'emploi'">
-      <a routerLink="/emploi">Emploi</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'emploi'">
-        <div class="panel-sidebar">
-          <h3>Emploi</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/emploi">Tout Emploi</a>
-
-            <a class="section-title" routerLink="/emploi/offres">Offres d'emploi</a>
-            <ul>
-              <li><a routerLink="/emploi/interim">Intérim</a></li>
-              <li><a routerLink="/emploi/cdi">CDI</a></li>
-              <li><a routerLink="/emploi/cdd">CDD</a></li>
-              <li><a routerLink="/emploi/benevolat">Bénévolat</a></li>
-              <li><a routerLink="/emploi/autre">Autre (indépendant, apprentissage, stage...)</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/emploi/formations">Formations professionnelles</a>
-            <a class="section-title" routerLink="/emploi/profil">Profil Candidat</a>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'vacances'">Vacances
+        <div class="dropdown-panel" *ngIf="activePanel === 'vacances'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-umbrella-beach"></i> Vacances</h4>
+              <div class="action-card"><i class="fa-solid fa-sun"></i><span>Guide des destinations</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/vacances/locations">Tout Locations saisonnières</a>
+                <span class="sec-title">Types d'hébergements</span>
+                <ul>
+                  <li><a routerLink="/vacances/maisons-villas">Maisons et villas</a></li>
+                  <li><a routerLink="/vacances/appartements">Appartements</a></li>
+                  <li><a routerLink="/vacances/chalets">Chalets</a></li>
+                  <li><a routerLink="/vacances/chambres-hotes">Chambres d'hôtes</a></li>
+                  <li><a routerLink="/vacances/campings">Campings</a></li>
+                </ul>
+              </div>
+              <div class="panel-column">
+                <span class="sec-title">Nombre de voyageurs</span>
+                <ul>
+                  <li><a routerLink="/vacances/solo">Solo</a></li>
+                  <li><a routerLink="/vacances/a-deux">À deux</a></li>
+                  <li><a routerLink="/vacances/a-quatre">À quatre</a></li>
+                  <li><a routerLink="/vacances/a-six">À six</a></li>
+                  <li><a routerLink="/vacances/plus-de-six">Plus de six</a></li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'mode'">
-      <a routerLink="/mode">Mode</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'mode'">
-        <div class="panel-sidebar">
-          <h3>Mode</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/mode">Tout Mode</a>
-
-            <a class="section-title" routerLink="/mode/vetements">Vêtements</a>
-            <ul>
-              <li><a routerLink="/mode/vetements/femme">Femme</a></li>
-              <li><a routerLink="/mode/vetements/maternite">Maternité</a></li>
-              <li><a routerLink="/mode/vetements/homme">Homme</a></li>
-              <li><a routerLink="/mode/vetements/enfant">Enfant</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/mode/chaussures">Chaussures</a>
-            <ul>
-              <li><a routerLink="/mode/chaussures/femme">Femme</a></li>
-              <li><a routerLink="/mode/chaussures/homme">Homme</a></li>
-              <li><a routerLink="/mode/chaussures/enfant">Enfant</a></li>
-            </ul>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/mode/montres-bijoux">Montres & Bijoux</a>
-            <ul>
-              <li><a routerLink="/mode/montres-bijoux/femme">Femme</a></li>
-              <li><a routerLink="/mode/montres-bijoux/homme">Homme</a></li>
-              <li><a routerLink="/mode/montres-bijoux/enfant">Enfant</a></li>
-              <li><a routerLink="/mode/montres-bijoux/mixte">Mixte</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/mode/accessoires">Accessoires & Bagagerie</a>
-            <ul>
-              <li><a routerLink="/mode/accessoires/femme">Femme</a></li>
-              <li><a routerLink="/mode/accessoires/homme">Homme</a></li>
-              <li><a routerLink="/mode/accessoires/enfant">Enfant</a></li>
-              <li><a routerLink="/mode/accessoires/mixte">Mixte</a></li>
-            </ul>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'emploi'">Emploi
+        <div class="dropdown-panel" *ngIf="activePanel === 'emploi'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-briefcase"></i> Emploi</h4>
+              <div class="action-card"><i class="fa-solid fa-file-lines"></i><span>Créer votre CV</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/emploi">Tout Emploi</a>
+                <a class="sec-title" routerLink="/emploi/offres">Offres d'emploi</a>
+                <ul>
+                  <li><a routerLink="/emploi/interim">Intérim</a></li>
+                  <li><a routerLink="/emploi/cdi">CDI</a></li>
+                  <li><a routerLink="/emploi/cdd">CDD</a></li>
+                  <li><a routerLink="/emploi/benevolat">Bénévolat</a></li>
+                  <li><a routerLink="/emploi/autre">Autre</a></li>
+                </ul>
+                <a class="sec-title" routerLink="/emploi/formations">Formations professionnelles</a>
+                <a class="sec-title" routerLink="/emploi/profil">Profil Candidat</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'maison-jardin'">
-      <a routerLink="/maison-jardin">Maison & jardin</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'maison-jardin'">
-        <div class="panel-sidebar">
-          <h3>Maison & Jardin</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/maison-jardin">Tout Maison & Jardin</a>
-
-            <a class="section-title" routerLink="/maison-jardin/ameublement">Ameublement</a>
-            <ul>
-              <li><a routerLink="/maison-jardin/ameublement/armoire">Armoire</a></li>
-              <li><a routerLink="/maison-jardin/ameublement/buffet">Buffet</a></li>
-              <li><a routerLink="/maison-jardin/ameublement/canape">Canapé</a></li>
-              <li><a routerLink="/maison-jardin/ameublement/chaise">Chaise, tabouret et banc</a></li>
-              <li><a routerLink="/maison-jardin/ameublement/fauteuil">Fauteuil</a></li>
-              <li><a routerLink="/maison-jardin/ameublement/lit">Lit</a></li>
-              <li><a routerLink="/maison-jardin/ameublement/cuisine">Meuble de cuisine</a></li>
-              <li><a routerLink="/maison-jardin/ameublement/table">Table de salle à manger</a></li>
-              <li><a routerLink="/maison-jardin/ameublement">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/maison-jardin/papeterie">Papeterie & Fournitures scolaires</a>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/maison-jardin/electromenager">Électroménager</a>
-            <ul>
-              <li><a routerLink="/maison-jardin/electromenager/aspirateur">Aspirateur</a></li>
-              <li><a routerLink="/maison-jardin/electromenager/congelateur">Congélateur</a></li>
-              <li><a routerLink="/maison-jardin/electromenager/four">Four</a></li>
-              <li><a routerLink="/maison-jardin/electromenager/lave-linge">Lave-linge</a></li>
-              <li><a routerLink="/maison-jardin/electromenager/lave-vaisselle">Lave-vaisselle</a></li>
-              <li><a routerLink="/maison-jardin/electromenager/micro-ondes">Micro-ondes</a></li>
-              <li><a routerLink="/maison-jardin/electromenager/refrigerateur">Réfrigérateur</a></li>
-              <li><a routerLink="/maison-jardin/electromenager">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/maison-jardin/arts-table">Arts de la table</a>
-            <ul>
-              <li><a routerLink="/maison-jardin/arts-table/assiette">Assiette</a></li>
-              <li><a routerLink="/maison-jardin/arts-table/service-vaisselle">Service de vaisselle</a></li>
-              <li><a routerLink="/maison-jardin/arts-table/verre">Verre</a></li>
-              <li><a routerLink="/maison-jardin/arts-table">Voir tout</a></li>
-            </ul>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/maison-jardin/decoration">Décoration</a>
-            <ul>
-              <li><a routerLink="/maison-jardin/decoration/applique">Applique</a></li>
-              <li><a routerLink="/maison-jardin/decoration/horloge">Horloge, pendule et réveil</a></li>
-              <li><a routerLink="/maison-jardin/decoration/lampadaire">Lampadaire</a></li>
-              <li><a routerLink="/maison-jardin/decoration/lampe">Lampe à poser</a></li>
-              <li><a routerLink="/maison-jardin/decoration/lustre">Lustre</a></li>
-              <li><a routerLink="/maison-jardin/decoration/miroir">Miroir</a></li>
-              <li><a routerLink="/maison-jardin/decoration/rideaux">Rideaux, voilage et store</a></li>
-              <li><a routerLink="/maison-jardin/decoration/sculpture">Sculpture et statue</a></li>
-              <li><a routerLink="/maison-jardin/decoration/suspension">Suspension</a></li>
-              <li><a routerLink="/maison-jardin/decoration/tableau">Tableau et toile</a></li>
-              <li><a routerLink="/maison-jardin/decoration/tapis">Tapis</a></li>
-              <li><a routerLink="/maison-jardin/decoration/vase">Vase, cache pot et céramique</a></li>
-              <li><a routerLink="/maison-jardin/decoration">Voir tout</a></li>
-            </ul>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/maison-jardin/linge">Linge de maison</a>
-            <ul>
-              <li><a routerLink="/maison-jardin/linge/equipement-lit">Équipement du lit</a></li>
-              <li><a routerLink="/maison-jardin/linge/deco-textile">Déco textile</a></li>
-              <li><a routerLink="/maison-jardin/linge/bain">Linge de bain</a></li>
-              <li><a routerLink="/maison-jardin/linge/lit">Linge de lit</a></li>
-              <li><a routerLink="/maison-jardin/linge/table">Linge de table</a></li>
-              <li><a routerLink="/maison-jardin/linge/autre">Autre</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/maison-jardin/bricolage">Bricolage</a>
-            <a class="section-title" routerLink="/maison-jardin/jardin-plantes">Jardin & Plantes</a>
-            <a class="section-title" routerLink="/maison-jardin/services">Services de jardinerie & bricolage</a>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'mode'">Mode
+        <div class="dropdown-panel" *ngIf="activePanel === 'mode'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-shirt"></i> Mode</h4>
+              <div class="action-card"><i class="fa-solid fa-tag"></i><span>Bons plans mode</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/mode">Tout Mode</a>
+                <a class="sec-title" routerLink="/mode/vetements">Vêtements</a>
+                <ul>
+                  <li><a routerLink="/mode/vetements/femme">Femme</a></li>
+                  <li><a routerLink="/mode/vetements/homme">Homme</a></li>
+                  <li><a routerLink="/mode/vetements/enfant">Enfant</a></li>
+                </ul>
+                <a class="sec-title" routerLink="/mode/chaussures">Chaussures</a>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/mode/montres-bijoux">Montres & Bijoux</a>
+                <a class="sec-title" routerLink="/mode/accessoires">Accessoires & Bagagerie</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'famille'">
-      <a routerLink="/famille">Famille</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'famille'">
-        <div class="panel-sidebar">
-          <h3>Famille</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/famille">Tout Famille</a>
-
-            <a class="section-title" routerLink="/famille/equipement-bebe">Équipement bébé</a>
-            <ul>
-              <li><a routerLink="/famille/equipement-bebe/poussette">Poussette</a></li>
-              <li><a routerLink="/famille/equipement-bebe/siege-auto">Siège auto</a></li>
-              <li><a routerLink="/famille/equipement-bebe">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/famille/mobilier-enfant">Mobilier enfant</a>
-            <ul>
-              <li><a routerLink="/famille/mobilier-enfant/baignoire">Baignoire</a></li>
-              <li><a routerLink="/famille/mobilier-enfant/chaise-haute">Chaise haute</a></li>
-              <li><a routerLink="/famille/mobilier-enfant/lit-bebe">Lit bébé</a></li>
-              <li><a routerLink="/famille/mobilier-enfant">Voir tout</a></li>
-            </ul>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/famille/vetements-bebe">Vêtements bébé</a>
-            <ul>
-              <li><a routerLink="/famille/vetements-bebe/0-3">0 mois à 3 mois</a></li>
-              <li><a routerLink="/famille/vetements-bebe/3-6">3 mois à 6 mois</a></li>
-              <li><a routerLink="/famille/vetements-bebe/6-9">6 mois à 9 mois</a></li>
-              <li><a routerLink="/famille/vetements-bebe/9-12">9 mois à 12 mois</a></li>
-              <li><a routerLink="/famille/vetements-bebe/12-18">12 mois à 18 mois</a></li>
-              <li><a routerLink="/famille/vetements-bebe/18-24">18 mois à 24 mois</a></li>
-              <li><a routerLink="/famille/vetements-bebe/24-plus">Plus de 24 mois</a></li>
-              <li><a routerLink="/famille/vetements-bebe">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/famille/vetements-enfants">Vêtements enfants</a>
-            <a class="section-title" routerLink="/famille/vetements-maternite">Vêtements maternité</a>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/famille/chaussures-enfants">Chaussures enfants</a>
-            <a class="section-title" routerLink="/famille/montres-bijoux-enfants">Montres & bijoux enfants</a>
-            <a class="section-title" routerLink="/famille/accessoires-enfants">Accessoires & bagagerie enfants</a>
-            <a class="section-title" routerLink="/famille/jeux-jouets">Jeux & Jouets</a>
-            <a class="section-title" routerLink="/famille/baby-sitting">Baby-Sitting</a>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'maison-jardin'">Maison & Jardin
+        <div class="dropdown-panel" *ngIf="activePanel === 'maison-jardin'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-couch"></i> Maison & Jardin</h4>
+              <div class="action-card"><i class="fa-solid fa-paint-roller"></i><span>Idées déco</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/maison-jardin">Tout Maison & Jardin</a>
+                <a class="sec-title" routerLink="/maison-jardin/ameublement">Ameublement</a>
+                <a class="sec-title" routerLink="/maison-jardin/electromenager">Électroménager</a>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/maison-jardin/decoration">Décoration</a>
+                <a class="sec-title" routerLink="/maison-jardin/bricolage">Bricolage</a>
+                <a class="sec-title" routerLink="/maison-jardin/jardin-plantes">Jardin & Plantes</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'electronique'">
-      <a routerLink="/electronique">Electronique</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'electronique'">
-        <div class="panel-sidebar">
-          <h3>Electronique</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/electronique">Tout Électronique</a>
-
-            <a class="section-title" routerLink="/electronique/ordinateurs">Ordinateurs</a>
-            <a class="section-title" routerLink="/electronique/accessoires-informatique">Accessoires informatique</a>
-            <a class="section-title" routerLink="/electronique/tablettes-liseuses">Tablettes & Liseuses</a>
-
-            <a class="section-title" routerLink="/electronique/photo-audio-video">Photo, audio & vidéo</a>
-            <ul>
-              <li><a routerLink="/electronique/photo-audio-video/television">Télévision</a></li>
-              <li><a routerLink="/electronique/photo-audio-video/enceintes">Enceintes</a></li>
-              <li><a routerLink="/electronique/photo-audio-video/appareil-photo">Appareil photo</a></li>
-              <li><a routerLink="/electronique/photo-audio-video/casque">Casque</a></li>
-              <li><a routerLink="/electronique/photo-audio-video/videoprojecteur">Vidéoprojecteur</a></li>
-              <li><a routerLink="/electronique/photo-audio-video/accessoires">Accessoires</a></li>
-              <li><a routerLink="/electronique/photo-audio-video/ecouteurs">Écouteurs</a></li>
-              <li><a routerLink="/electronique/photo-audio-video">Voir tout</a></li>
-            </ul>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/electronique/telephones">Téléphones & Objets connectés</a>
-            <ul>
-              <li><a routerLink="/electronique/telephones/apple">Apple</a></li>
-              <li><a routerLink="/electronique/telephones/samsung">Samsung</a></li>
-              <li><a routerLink="/electronique/telephones/huawei">Huawei</a></li>
-              <li><a routerLink="/electronique/telephones/sony">Sony</a></li>
-              <li><a routerLink="/electronique/telephones/oneplus">One plus</a></li>
-              <li><a routerLink="/electronique/telephones/google">Google</a></li>
-              <li><a routerLink="/electronique/telephones">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/electronique/accessoires-telephone">Accessoires téléphone & Objets connectés</a>
-            <a class="section-title" routerLink="/electronique/consoles">Consoles</a>
-            <a class="section-title" routerLink="/electronique/jeux-video">Jeux vidéo</a>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/electronique/electromenager">Électroménager</a>
-            <a class="section-title" routerLink="/electronique/reparations">Services de réparations électroniques</a>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'famille'">Famille
+        <div class="dropdown-panel" *ngIf="activePanel === 'famille'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-baby"></i> Famille</h4>
+              <div class="action-card"><i class="fa-solid fa-hand-holding-heart"></i><span>Conseils parents</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/famille">Tout Famille</a>
+                <a class="sec-title" routerLink="/famille/equipement-bebe">Équipement bébé</a>
+                <a class="sec-title" routerLink="/famille/vetements-bebe">Vêtements bébé</a>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/famille/jeux-jouets">Jeux & Jouets</a>
+                <a class="sec-title" routerLink="/famille/baby-sitting">Baby-Sitting</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'loisirs'">
-      <a routerLink="/loisirs">Loisirs</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'loisirs'">
-        <div class="panel-sidebar">
-          <h3>Loisirs</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="column-title" routerLink="/loisirs">Tout Loisirs</a>
-
-            <a class="section-title" routerLink="/loisirs/antiquites">Antiquités</a>
-            <a class="section-title" routerLink="/loisirs/artistes-musiciens">Artistes & Musiciens</a>
-            <a class="section-title" routerLink="/loisirs/billetterie">Billetterie</a>
-            <a class="section-title" routerLink="/loisirs/collection">Collection</a>
-            <a class="section-title" routerLink="/loisirs/cd-musique">CD - Musique</a>
-            <a class="section-title" routerLink="/loisirs/dvd-films">DVD - Films</a>
-            <a class="section-title" routerLink="/loisirs/instruments-musique">Instruments de musique</a>
-            <a class="section-title" routerLink="/loisirs/livres">Livres</a>
-            <a class="section-title" routerLink="/loisirs/modelisme">Modélisme</a>
-            <a class="section-title" routerLink="/loisirs/vins-gastronomie">Vins & Gastronomie</a>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/loisirs/jeux-jouets">Jeux & Jouets</a>
-            <ul>
-              <li><a routerLink="/loisirs/jeux-jouets/jeux-societe">Jeux de société</a></li>
-              <li><a routerLink="/loisirs/jeux-jouets/poupees">Poupées et accessoires</a></li>
-              <li><a routerLink="/loisirs/jeux-jouets/porteurs">Porteurs, trotteurs et draisiennes</a></li>
-              <li><a routerLink="/loisirs/jeux-jouets/eveil">Jouets d'éveil</a></li>
-              <li><a routerLink="/loisirs/jeux-jouets/cuisines">Cuisines et dînettes</a></li>
-              <li><a routerLink="/loisirs/jeux-jouets/construction">Jeux de construction</a></li>
-              <li><a routerLink="/loisirs/jeux-jouets/voitures-circuits">Voitures et circuits</a></li>
-              <li><a routerLink="/loisirs/jeux-jouets/puzzle">Puzzle</a></li>
-              <li><a routerLink="/loisirs/jeux-jouets">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/loisirs/loisirs-creatifs">Loisirs créatifs</a>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/loisirs/sport-plein-air">Sport & Plein air</a>
-
-            <a class="section-title" routerLink="/loisirs/velos">Vélos</a>
-            <ul>
-              <li><a routerLink="/loisirs/velos/route">Vélo de route</a></li>
-              <li><a routerLink="/loisirs/velos/vtt">VTT</a></li>
-              <li><a routerLink="/loisirs/velos/electrique">Vélo électrique</a></li>
-              <li><a routerLink="/loisirs/velos/enfant">Vélo enfant</a></li>
-              <li><a routerLink="/loisirs/velos/vtc">VTC</a></li>
-              <li><a routerLink="/loisirs/velos/ville">Vélo de ville</a></li>
-              <li><a routerLink="/loisirs/velos">Voir tout</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/loisirs/equipements-velos">Équipements vélos</a>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'electronique'">Électronique
+        <div class="dropdown-panel" *ngIf="activePanel === 'electronique'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-mobile-screen"></i> Électronique</h4>
+              <div class="action-card"><i class="fa-solid fa-recycle"></i><span>Reconditionné certifié</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/electronique">Tout Électronique</a>
+                <a class="sec-title" routerLink="/electronique/ordinateurs">Ordinateurs</a>
+                <a class="sec-title" routerLink="/electronique/telephones">Téléphones & Objets connectés</a>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/electronique/consoles">Consoles</a>
+                <a class="sec-title" routerLink="/electronique/jeux-video">Jeux vidéo</a>
+                <a class="sec-title" routerLink="/electronique/reparations">Services de réparations</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li class="menu-item has-panel" (mouseenter)="activePanel = 'autre'">
-      <a routerLink="/autre">Autre</a>
-      <div class="dropdown-panel" *ngIf="activePanel === 'autre'">
-        <div class="panel-sidebar">
-          <h3>Autres</h3>
-        </div>
-        <div class="panel-content">
-          <div class="panel-column">
-            <a class="section-title" routerLink="/autre/materiel-professionnel">Matériel professionnel</a>
-            <ul>
-              <li><a routerLink="/autre/materiel-professionnel/tracteurs">Tracteurs</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/agricole">Matériel agricole</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/btp">BTP - Chantier gros-oeuvre</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/poids-lourds">Poids lourds</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/manutention">Manutention - Levage</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/industriels">Équipements industriels</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/restaurants">Équipements pour restaurants & hôtels</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/bureau">Équipements & Fournitures de bureau</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/commerces">Équipements pour commerces & marchés</a></li>
-              <li><a routerLink="/autre/materiel-professionnel/medical">Matériel médical</a></li>
-            </ul>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/autre/services">Services</a>
-            <ul>
-              <li><a routerLink="/autre/services/demenagement">Services de déménagement</a></li>
-              <li><a routerLink="/autre/services/reparations-mecaniques">Services de réparations mécaniques</a></li>
-              <li><a routerLink="/autre/services/jardinerie-bricolage">Services de jardinerie & bricolage</a></li>
-              <li><a routerLink="/autre/services/personne">Services à la personne</a></li>
-              <li><a routerLink="/autre/services/animaux">Services aux animaux</a></li>
-              <li><a routerLink="/autre/services/baby-sitting">Baby-Sitting</a></li>
-              <li><a routerLink="/autre/services/artistes-musiciens">Artistes & Musiciens</a></li>
-              <li><a routerLink="/autre/services/evenementiels">Services évènementiels</a></li>
-              <li><a routerLink="/autre/services/reparations-electroniques">Services de réparations électroniques</a></li>
-              <li><a routerLink="/autre/services/entraide-voisins">Entraide entre voisins</a></li>
-              <li><a routerLink="/autre/services/billetterie">Billetterie</a></li>
-              <li><a routerLink="/autre/services/evenements">Évènements</a></li>
-              <li><a routerLink="/autre/services/covoiturage">Covoiturage</a></li>
-              <li><a routerLink="/autre/services/cours-particuliers">Cours particuliers</a></li>
-              <li><a routerLink="/autre/services/autres">Autres services</a></li>
-            </ul>
-          </div>
-
-          <div class="panel-column">
-            <a class="section-title" routerLink="/autre/animaux">Animaux</a>
-            <ul>
-              <li><a routerLink="/autre/animaux/animaux">Animaux</a></li>
-              <li><a routerLink="/autre/animaux/accessoires">Accessoires animaux</a></li>
-              <li><a routerLink="/autre/animaux/perdus">Animaux perdus</a></li>
-            </ul>
-
-            <a class="section-title" routerLink="/autre/dons">Dons</a>
-            <a class="section-title" routerLink="/autre/autres">Autres</a>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'loisirs'">Loisirs
+        <div class="dropdown-panel" *ngIf="activePanel === 'loisirs'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-futbol"></i> Loisirs</h4>
+              <div class="action-card"><i class="fa-solid fa-ticket"></i><span>Évènements près de chez vous</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="col-title" routerLink="/loisirs">Tout Loisirs</a>
+                <a class="sec-title" routerLink="/loisirs/sport-plein-air">Sport & Plein air</a>
+                <a class="sec-title" routerLink="/loisirs/velos">Vélos</a>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/loisirs/jeux-jouets">Jeux & Jouets</a>
+                <a class="sec-title" routerLink="/loisirs/livres">Livres</a>
+                <a class="sec-title" routerLink="/loisirs/instruments-musique">Instruments de musique</a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </li>
-    <li><a routerLink="/bons-plans" class="bon-plans">Bon plans !</a></li>
-  </ul>
+      </li>
+      <li class="cat-item" (mouseenter)="activePanel = 'autre'">Autres
+        <div class="dropdown-panel" *ngIf="activePanel === 'autre'">
+          <div class="panel-inner container">
+            <div class="panel-sidebar">
+              <h4><i class="fa-solid fa-ellipsis"></i> Autres</h4>
+              <div class="action-card"><i class="fa-solid fa-handshake"></i><span>Services entre particuliers</span></div>
+            </div>
+            <div class="panel-columns">
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/autre/materiel-professionnel">Matériel professionnel</a>
+                <a class="sec-title" routerLink="/autre/services">Services</a>
+              </div>
+              <div class="panel-column">
+                <a class="sec-title" routerLink="/autre/animaux">Animaux</a>
+                <a class="sec-title" routerLink="/autre/dons">Dons</a>
+                <a class="sec-title" routerLink="/autre/autres">Autres</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li class="cat-item special"><a routerLink="/bons-plans">Bons plans !</a></li>
+      </ul>
+    </div>
+  </nav>
 </div>
