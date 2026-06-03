@@ -6,6 +6,9 @@
       <span class="header-title">Déposer une annonce</span>
       <a routerLink="/" class="quit-btn">Quitter</a>
     </div>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="(currentStep / 4) * 100"></div>
+    </div>
   </div>
 
   <div class="deposer-content">
