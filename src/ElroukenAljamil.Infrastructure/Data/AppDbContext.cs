@@ -17,6 +17,8 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Price).HasPrecision(18, 2);
+            entity.HasIndex(e => e.Title);
+            entity.HasIndex(e => new { e.CategoryId, e.Title });
 
             entity.HasOne(e => e.Category)
                   .WithMany()

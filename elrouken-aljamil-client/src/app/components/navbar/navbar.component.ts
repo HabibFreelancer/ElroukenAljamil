@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { NgIf, NgFor, NgSwitch, NgSwitchCase } from '@angular/common';
 import { MenuService, Menu, Category } from '../../services/menu.service';
 
@@ -16,9 +16,17 @@ export class NavbarComponent implements OnInit {
   menuCategories: { [key: string]: Category[] } = {};
   menuColumns: { [key: string]: Category[][] } = {};
 
-  constructor(private menuService: MenuService) {}
+  constructor(private menuService: MenuService, private router: Router) {}
 
   ngOnInit() {
+    if (this.router.url.startsWith('/deposer') || this.router.url.startsWith('/admin')) {
+      return;
+    }
+    this.loadMenus();
+  }
+
+  loadMenus() {
+    if (this.menus.length > 0) return;
     this.menuService.getMenus().subscribe(menus => {
       this.menus = menus;
       menus.forEach(menu => {

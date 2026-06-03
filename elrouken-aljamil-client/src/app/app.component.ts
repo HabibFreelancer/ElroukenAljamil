@@ -15,6 +15,10 @@ export class AppComponent {
   showMainLayout = true;
 
   constructor(private router: Router) {
+    // Vérifier l'URL initiale immédiatement
+    const url = window.location.pathname;
+    this.showMainLayout = !url.startsWith('/deposer') && !url.startsWith('/admin');
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {

@@ -21,6 +21,7 @@ export class DeposerAnnonceComponent implements OnInit {
   showCategoryBrowser = false;
   browserCategories: any[] = [];
   private searchSubject = new Subject<string>();
+  private searchCache: { [key: string]: any[] } = {};
   private apiUrl = 'https://localhost:7283/api';
 
   annonce = {
@@ -35,12 +36,17 @@ export class DeposerAnnonceComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<any[]>(`${this.apiUrl}/menus`).subscribe(data => this.menus = data);
-
-    this.searchSubject.pipe(debounceTime(400)).subscribe(query => {
+    this.searchSubject.pipe(debounceTime(300)).subscribe(query => {
       if (query.length >= 2) {
-        this.http.get<any[]>(`${this.apiUrl}/annonces/suggest-categories?query=${encodeURIComponent(query)}`)
-          .subscribe(data => this.suggestedCategories = data);
+        if (this.searchCache[query]) {
+          this.suggestedCategories = this.searchCache[query];
+        } else {
+          this.http.get<any[]>(`${this.apiUrl}/annonces/suggest-categories?query=${encodeURIComponent(query)}`)
+            .subscribe(data => {
+              this.searchCache[query] = data;
+              this.suggestedCategories = data;
+            });
+        }
       } else {
         this.suggestedCategories = [];
       }
@@ -59,6 +65,9 @@ export class DeposerAnnonceComponent implements OnInit {
   openCategoryBrowser() {
     this.showCategoryBrowser = true;
     this.suggestedCategories = [];
+    if (this.menus.length === 0) {
+      this.http.get<any[]>(`${this.apiUrl}/menus`).subscribe(data => this.menus = data);
+    }
   }
 
   selectMenu(menu: any) {
