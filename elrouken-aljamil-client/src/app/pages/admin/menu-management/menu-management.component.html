@@ -1,0 +1,70 @@
+<div class="management-page">
+  <div class="page-header">
+    <h1>Gestion des Menus</h1>
+    <button class="btn-add" (click)="showForm = !showForm">
+      <i class="fa-solid fa-plus"></i> Ajouter un menu
+    </button>
+  </div>
+
+  <div class="form-card" *ngIf="showForm">
+    <h3>{{ editingMenu ? 'Modifier' : 'Nouveau' }} menu</h3>
+    <div class="form-row">
+      <input [(ngModel)]="currentMenu.name" placeholder="Nom du menu" />
+      <input [(ngModel)]="currentMenu.slug" placeholder="Slug (URL)" />
+      <input [(ngModel)]="currentMenu.icon" placeholder="Icône (ex: fa-solid fa-house)" />
+      <input [(ngModel)]="currentMenu.displayOrder" type="number" placeholder="Ordre" />
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" (click)="save()">{{ editingMenu ? 'Modifier' : 'Créer' }}</button>
+      <button class="btn-cancel" (click)="cancel()">Annuler</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <input type="text" [(ngModel)]="searchText" placeholder="Rechercher..." class="search-input" />
+      <button class="btn-filter" (click)="applyFilter()"><i class="fa-solid fa-filter"></i> Filtrer</button>
+      <button class="btn-refresh" (click)="loadMenus()"><i class="fa-solid fa-rotate-right"></i> Rafraîchir</button>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn-export" (click)="exportExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Slug</th>
+        <th>Icône</th>
+        <th>Ordre</th>
+        <th>Actif</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let menu of paginatedMenus">
+        <td>{{ menu.id }}</td>
+        <td>{{ menu.name }}</td>
+        <td>{{ menu.slug }}</td>
+        <td><i [class]="menu.icon"></i> {{ menu.icon }}</td>
+        <td>{{ menu.displayOrder }}</td>
+        <td>{{ menu.isActive ? 'Oui' : 'Non' }}</td>
+        <td class="actions">
+          <button class="btn-edit" (click)="edit(menu)"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-delete" (click)="delete(menu.id)"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <span class="page-info">{{ filteredMenus.length }} résultat(s) - Page {{ currentPage }} / {{ totalPages }}</span>
+    <div class="page-buttons">
+      <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">← Précédent</button>
+      <button *ngFor="let p of pages" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+      <button [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Suivant →</button>
+    </div>
+  </div>
+</div>

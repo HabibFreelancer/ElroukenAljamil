@@ -1,8 +1,20 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { DeposerAnnonceComponent } from './pages/deposer-annonce/deposer-annonce.component';
+import { AdminComponent } from './pages/admin/admin.component';
+import { MenuManagementComponent } from './pages/admin/menu-management/menu-management.component';
+import { CategoryManagementComponent } from './pages/admin/category-management/category-management.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'deposer', component: DeposerAnnonceComponent },
+  {
+    path: 'admin',
+    component: AdminComponent,
+    children: [
+      { path: '', redirectTo: 'menus', pathMatch: 'full' },
+      { path: 'menus', component: MenuManagementComponent },
+      { path: 'categories', component: CategoryManagementComponent },
+    ]
+  },
 ];

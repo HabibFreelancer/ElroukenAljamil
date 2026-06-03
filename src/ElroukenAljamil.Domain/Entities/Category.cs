@@ -10,7 +10,7 @@ public class Category
     public bool IsLink { get; set; } = true;
     public int DisplayOrder { get; set; }
     public bool IsActive { get; set; } = true;
-    public Menu Menu { get; set; } = null!;
+    public Menu? Menu { get; set; }
     public Category? ParentCategory { get; set; }
     public ICollection<Category> SubCategories { get; set; } = new List<Category>();
 }

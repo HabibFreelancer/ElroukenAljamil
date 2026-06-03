@@ -18,7 +18,7 @@ export class AppComponent {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      this.showMainLayout = !event.url.startsWith('/deposer');
+      this.showMainLayout = !event.url.startsWith('/deposer') && !event.url.startsWith('/admin');
     });
   }
 }
