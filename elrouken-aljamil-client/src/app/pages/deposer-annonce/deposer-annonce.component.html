@@ -12,15 +12,58 @@
   </div>
 
   <div class="deposer-content">
-    <!-- Étape 1 : Titre -->
+    <!-- Étape 1 : Titre + Suggestion catégories -->
     <div class="form-card" *ngIf="currentStep === 1">
       <h2>Commençons par l'essentiel !</h2>
       <p class="subtitle">* champs obligatoires</p>
 
       <div class="input-group">
         <label for="title">Quel est le titre de l'annonce ? *</label>
-        <input type="text" id="title" [(ngModel)]="annonce.title" maxlength="200" placeholder="Ex: Smartphone reconditionné" />
+        <input type="text" id="title" [(ngModel)]="annonce.title" maxlength="200" placeholder="Ex: Smartphone reconditionné" (input)="onTitleChange()" />
         <div class="char-count">{{ annonce.title.length }}/200</div>
+      </div>
+
+      <!-- Section suggestion catégories -->
+      <div class="category-suggestion" *ngIf="suggestedCategories.length > 0 && !showCategoryBrowser">
+        <hr class="separator" />
+        <h3>Choisissez une catégorie suggérée</h3>
+
+        <label class="category-option" *ngFor="let cat of suggestedCategories"
+               [class.selected]="selectedCategoryId === cat.categoryId"
+               (click)="selectSuggestedCategory(cat)">
+          <input type="radio" name="category" [checked]="selectedCategoryId === cat.categoryId" />
+          <i [class]="cat.menuIcon"></i>
+          <span><b>{{ cat.menuName }}</b> > {{ cat.categoryName }}</span>
+        </label>
+
+        <p class="other-category">Ou choisissez une autre catégorie *</p>
+        <button class="btn-browse-category" (click)="openCategoryBrowser()">
+          <i class="fa-solid fa-list"></i> Parcourir les catégories
+        </button>
+      </div>
+
+      <!-- Navigateur de catégories -->
+      <div class="category-browser" *ngIf="showCategoryBrowser">
+        <hr class="separator" />
+        <h3>Choisissez une catégorie *</h3>
+        <div class="category-container">
+          <div class="main-categories">
+            <div class="category-item" *ngFor="let menu of menus"
+                 [class.active]="selectedMenuId === menu.id"
+                 (click)="selectMenu(menu)">
+              <i [class]="menu.icon"></i>
+              {{ menu.name }}
+              <span class="arrow">></span>
+            </div>
+          </div>
+          <div class="sub-categories" *ngIf="browserCategories.length > 0">
+            <p *ngFor="let cat of browserCategories"
+               [class.selected]="selectedCategoryId === cat.id"
+               (click)="selectBrowserCategory(cat)">
+              {{ cat.name }}
+            </p>
+          </div>
+        </div>
       </div>
 
       <p class="footer-note">En déposant une annonce, vous acceptez nos conditions générales d'utilisation.</p>

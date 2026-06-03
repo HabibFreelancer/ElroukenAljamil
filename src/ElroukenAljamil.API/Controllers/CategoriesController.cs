@@ -38,9 +38,28 @@ public class CategoriesController : ControllerBase
     public async Task<ActionResult<IEnumerable<Category>>> GetByMenu(int menuId)
     {
         return await _context.Categories
-            .Where(c => c.MenuId == menuId)
+            .Where(c => c.MenuId == menuId && c.IsActive)
             .OrderBy(c => c.DisplayOrder)
             .ToListAsync();
+    }
+
+    [HttpGet("tree/{menuId}")]
+    public async Task<ActionResult<IEnumerable<Category>>> GetTree(int menuId)
+    {
+        var categories = await _context.Categories
+            .Where(c => c.MenuId == menuId && c.IsActive && c.ParentCategoryId == null)
+            .OrderBy(c => c.DisplayOrder)
+            .ToListAsync();
+
+        foreach (var cat in categories)
+        {
+            cat.SubCategories = await _context.Categories
+                .Where(c => c.ParentCategoryId == cat.Id && c.IsActive)
+                .OrderBy(c => c.DisplayOrder)
+                .ToListAsync();
+        }
+
+        return categories;
     }
 
     [HttpPost]

@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-deposer-annonce',
@@ -10,8 +12,16 @@ import { RouterLink } from '@angular/router';
   templateUrl: './deposer-annonce.component.html',
   styleUrl: './deposer-annonce.component.scss'
 })
-export class DeposerAnnonceComponent {
+export class DeposerAnnonceComponent implements OnInit {
   currentStep = 1;
+  suggestedCategories: any[] = [];
+  selectedCategoryId: number | null = null;
+  selectedMenuId: number | null = null;
+  menus: any[] = [];
+  showCategoryBrowser = false;
+  browserCategories: any[] = [];
+  private searchSubject = new Subject<string>();
+  private apiUrl = 'https://localhost:7283/api';
 
   annonce = {
     category: '',
@@ -22,21 +32,47 @@ export class DeposerAnnonceComponent {
     condition: ''
   };
 
-  categoriesList = [
-    { name: 'Immobilier', icon: 'fa-solid fa-house' },
-    { name: 'Véhicules', icon: 'fa-solid fa-car' },
-    { name: 'Électronique', icon: 'fa-solid fa-mobile-screen' },
-    { name: 'Mode', icon: 'fa-solid fa-shirt' },
-    { name: 'Maison & Jardin', icon: 'fa-solid fa-couch' },
-    { name: 'Famille', icon: 'fa-solid fa-baby' },
-    { name: 'Loisirs', icon: 'fa-solid fa-futbol' },
-    { name: 'Emploi', icon: 'fa-solid fa-briefcase' },
-    { name: 'Vacances', icon: 'fa-solid fa-umbrella-beach' },
-    { name: 'Autres', icon: 'fa-solid fa-ellipsis' },
-  ];
+  constructor(private http: HttpClient) {}
 
-  selectCategory(cat: string) {
-    this.annonce.category = cat;
+  ngOnInit() {
+    this.http.get<any[]>(`${this.apiUrl}/menus`).subscribe(data => this.menus = data);
+
+    this.searchSubject.pipe(debounceTime(400)).subscribe(query => {
+      if (query.length >= 2) {
+        this.http.get<any[]>(`${this.apiUrl}/annonces/suggest-categories?query=${encodeURIComponent(query)}`)
+          .subscribe(data => this.suggestedCategories = data);
+      } else {
+        this.suggestedCategories = [];
+      }
+    });
+  }
+
+  onTitleChange() {
+    this.searchSubject.next(this.annonce.title);
+  }
+
+  selectSuggestedCategory(cat: any) {
+    this.selectedCategoryId = cat.categoryId;
+    this.annonce.category = cat.menuName + ' > ' + cat.categoryName;
+  }
+
+  openCategoryBrowser() {
+    this.showCategoryBrowser = true;
+    this.suggestedCategories = [];
+  }
+
+  selectMenu(menu: any) {
+    this.selectedMenuId = menu.id;
+    this.http.get<any[]>(`${this.apiUrl}/categories/by-menu/${menu.id}`)
+      .subscribe(data => {
+        this.browserCategories = data.filter(c => !c.parentCategoryId);
+      });
+  }
+
+  selectBrowserCategory(cat: any) {
+    this.selectedCategoryId = cat.id;
+    const menu = this.menus.find(m => m.id === cat.menuId);
+    this.annonce.category = (menu?.name || '') + ' > ' + cat.name;
   }
 
   nextStep() {
