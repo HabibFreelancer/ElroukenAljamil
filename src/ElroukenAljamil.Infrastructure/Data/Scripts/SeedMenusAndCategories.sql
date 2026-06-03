@@ -1,376 +1,270 @@
 -- ============================================
 -- ElroukenAljamil - Script SQL
--- Création des tables + Insertion des données
+-- Insertion des données : Menus, Categories, Annonces
 -- ============================================
-
--- Table Menu (menu principal du header)
-CREATE TABLE Menu (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(100) NOT NULL,
-    Slug NVARCHAR(100) NOT NULL,
-    Icon NVARCHAR(100) NULL,
-    DisplayOrder INT NOT NULL DEFAULT 0,
-    IsActive BIT NOT NULL DEFAULT 1
-);
-
--- Table Category (catégories / sous-menus dans le megamenu)
-CREATE TABLE Category (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    MenuId INT NOT NULL,
-    ParentCategoryId INT NULL,
-    Name NVARCHAR(200) NOT NULL,
-    Slug NVARCHAR(200) NOT NULL,
-    IsLink BIT NOT NULL DEFAULT 1,
-    DisplayOrder INT NOT NULL DEFAULT 0,
-    IsActive BIT NOT NULL DEFAULT 1,
-    FOREIGN KEY (MenuId) REFERENCES Menu(Id),
-    FOREIGN KEY (ParentCategoryId) REFERENCES Category(Id)
-);
 
 -- ============================================
 -- INSERTION DES MENUS
 -- ============================================
-INSERT INTO Menu (Name, Slug, Icon, DisplayOrder) VALUES
-('Immobilier', 'immobilier', 'fa-solid fa-house', 1),
-('Véhicules', 'vehicules', 'fa-solid fa-car', 2),
-('Vacances', 'vacances', 'fa-solid fa-umbrella-beach', 3),
-('Emploi', 'emploi', 'fa-solid fa-briefcase', 4),
-('Mode', 'mode', 'fa-solid fa-shirt', 5),
-('Maison & Jardin', 'maison-jardin', 'fa-solid fa-couch', 6),
-('Famille', 'famille', 'fa-solid fa-baby', 7),
-('Électronique', 'electronique', 'fa-solid fa-mobile-screen', 8),
-('Loisirs', 'loisirs', 'fa-solid fa-futbol', 9),
-('Autres', 'autre', 'fa-solid fa-ellipsis', 10);
+INSERT INTO Menus (Name, Slug, Icon, DisplayOrder, IsActive) VALUES
+(N'Immobilier', 'immobilier', 'fa-solid fa-house', 1, 1),
+(N'Véhicules', 'vehicules', 'fa-solid fa-car', 2, 1),
+(N'Vacances', 'vacances', 'fa-solid fa-umbrella-beach', 3, 1),
+(N'Emploi', 'emploi', 'fa-solid fa-briefcase', 4, 1),
+(N'Mode', 'mode', 'fa-solid fa-shirt', 5, 1),
+(N'Maison & Jardin', 'maison-jardin', 'fa-solid fa-couch', 6, 1),
+(N'Famille', 'famille', 'fa-solid fa-baby', 7, 1),
+(N'Électronique', 'electronique', 'fa-solid fa-mobile-screen', 8, 1),
+(N'Loisirs', 'loisirs', 'fa-solid fa-futbol', 9, 1),
+(N'Autres', 'autre', 'fa-solid fa-ellipsis', 10, 1);
 
 -- ============================================
 -- IMMOBILIER (MenuId = 1)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(1, NULL, 'Ventes immobilières', 'ventes', 1, 1),
-(1, NULL, 'Immobilier Neuf', 'neuf', 1, 2),
-(1, NULL, 'Locations', 'location', 1, 3),
-(1, NULL, 'Colocations', 'colocation', 1, 4),
-(1, NULL, 'Bureau & Commerce', 'bureau-commerce', 1, 5),
-(1, NULL, 'Service de déménagement', 'demenagement', 1, 6);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(1, NULL, N'Ventes immobilières', 'ventes', 1, 1, 1),
+(1, NULL, N'Immobilier Neuf', 'neuf', 1, 2, 1),
+(1, NULL, N'Locations', 'location', 1, 3, 1),
+(1, NULL, N'Colocations', 'colocation', 1, 4, 1),
+(1, NULL, N'Bureau & Commerce', 'bureau-commerce', 1, 5, 1),
+(1, NULL, N'Service de déménagement', 'demenagement', 1, 6, 1);
 
--- Sous-catégories Ventes immobilières (ParentId = 1)
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(1, 1, 'Appartement', 'appartement', 1, 1),
-(1, 1, 'Maison', 'maison', 1, 2),
-(1, 1, 'Terrain', 'terrain', 1, 3);
+-- Sous-catégories Ventes immobilières
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Ventes immobilières'), N'Appartement', 'appartement', 1, 1, 1),
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Ventes immobilières'), N'Maison', 'maison', 1, 2, 1),
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Ventes immobilières'), N'Terrain', 'terrain', 1, 3, 1);
 
--- Sous-catégories Immobilier Neuf (ParentId = 2)
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(1, 2, 'Appartement', 'neuf/appartement', 1, 1),
-(1, 2, 'Maison', 'neuf/maison', 1, 2),
-(1, 2, 'Programme logement neufs', 'neuf/programmes', 1, 3),
-(1, 2, 'Promoteurs immobiliers', 'neuf/promoteurs', 1, 4);
+-- Sous-catégories Immobilier Neuf
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Immobilier Neuf'), N'Appartement', 'neuf/appartement', 1, 1, 1),
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Immobilier Neuf'), N'Maison', 'neuf/maison', 1, 2, 1),
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Immobilier Neuf'), N'Programme logement neufs', 'neuf/programmes', 1, 3, 1),
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Immobilier Neuf'), N'Promoteurs immobiliers', 'neuf/promoteurs', 1, 4, 1);
 
--- Sous-catégories Locations (ParentId = 3)
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(1, 3, 'Appartement', 'location/appartement', 1, 1),
-(1, 3, 'Maison', 'location/maison', 1, 2),
-(1, 3, 'Parking', 'location/parking', 1, 3);
+-- Sous-catégories Locations
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Locations'), N'Appartement', 'location/appartement', 1, 1, 1),
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Locations'), N'Maison', 'location/maison', 1, 2, 1),
+(1, (SELECT Id FROM Categories WHERE MenuId=1 AND Name=N'Locations'), N'Parking', 'location/parking', 1, 3, 1);
 
 -- ============================================
 -- VÉHICULES (MenuId = 2)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(2, NULL, 'Voitures', 'voitures', 1, 1),
-(2, NULL, 'Motos', 'motos', 1, 2),
-(2, NULL, 'Caravaning', 'caravaning', 1, 3),
-(2, NULL, 'Utilitaires', 'utilitaires', 1, 4),
-(2, NULL, 'Camions', 'camions', 1, 5),
-(2, NULL, 'Nautisme', 'nautisme', 1, 6),
-(2, NULL, 'Vélos', 'velos', 1, 7),
-(2, NULL, 'Équipement auto', 'equipement-auto', 1, 8),
-(2, NULL, 'Équipement moto', 'equipement-moto', 1, 9),
-(2, NULL, 'Équipement caravaning', 'equipement-caravaning', 1, 10),
-(2, NULL, 'Équipement nautisme', 'equipement-nautisme', 1, 11),
-(2, NULL, 'Équipements vélos', 'equipements-velos', 1, 12),
-(2, NULL, 'Services de réparations mécaniques', 'reparations', 1, 13);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(2, NULL, N'Voitures', 'voitures', 1, 1, 1),
+(2, NULL, N'Motos', 'motos', 1, 2, 1),
+(2, NULL, N'Caravaning', 'caravaning', 1, 3, 1),
+(2, NULL, N'Utilitaires', 'utilitaires', 1, 4, 1),
+(2, NULL, N'Camions', 'camions', 1, 5, 1),
+(2, NULL, N'Nautisme', 'nautisme', 1, 6, 1),
+(2, NULL, N'Vélos', 'velos', 1, 7, 1),
+(2, NULL, N'Équipement auto', 'equipement-auto', 1, 8, 1),
+(2, NULL, N'Équipement moto', 'equipement-moto', 1, 9, 1),
+(2, NULL, N'Équipement caravaning', 'equipement-caravaning', 1, 10, 1),
+(2, NULL, N'Équipement nautisme', 'equipement-nautisme', 1, 11, 1),
+(2, NULL, N'Équipements vélos', 'equipements-velos', 1, 12, 1),
+(2, NULL, N'Services de réparations mécaniques', 'reparations', 1, 13, 1);
 
 -- Sous-catégories Voitures
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Voitures'), 'Audi', 'voitures/audi', 1, 1),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Voitures'), 'BMW', 'voitures/bmw', 1, 2),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Voitures'), 'Mercedes', 'voitures/mercedes', 1, 3),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Voitures'), 'Peugeot', 'voitures/peugeot', 1, 4),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Voitures'), 'Renault', 'voitures/renault', 1, 5),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Voitures'), 'Volkswagen', 'voitures/volkswagen', 1, 6);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Voitures'), N'Audi', 'voitures/audi', 1, 1, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Voitures'), N'BMW', 'voitures/bmw', 1, 2, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Voitures'), N'Mercedes', 'voitures/mercedes', 1, 3, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Voitures'), N'Peugeot', 'voitures/peugeot', 1, 4, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Voitures'), N'Renault', 'voitures/renault', 1, 5, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Voitures'), N'Volkswagen', 'voitures/volkswagen', 1, 6, 1);
 
 -- Sous-catégories Motos
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Motos'), 'BMW', 'motos/bmw', 1, 1),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Motos'), 'Honda', 'motos/honda', 1, 2),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Motos'), 'Kawasaki', 'motos/kawasaki', 1, 3),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Motos'), 'Suzuki', 'motos/suzuki', 1, 4),
-(2, (SELECT Id FROM Category WHERE MenuId=2 AND Name='Motos'), 'Yamaha', 'motos/yamaha', 1, 5);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Motos'), N'BMW', 'motos/bmw', 1, 1, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Motos'), N'Honda', 'motos/honda', 1, 2, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Motos'), N'Kawasaki', 'motos/kawasaki', 1, 3, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Motos'), N'Suzuki', 'motos/suzuki', 1, 4, 1),
+(2, (SELECT Id FROM Categories WHERE MenuId=2 AND Name=N'Motos'), N'Yamaha', 'motos/yamaha', 1, 5, 1);
 
 -- ============================================
 -- VACANCES (MenuId = 3)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(3, NULL, 'Types d''hébergements', 'types', 1, 1),
-(3, NULL, 'Caractéristiques recherchées', 'caracteristiques', 0, 2),
-(3, NULL, 'Nombre de voyageurs', 'voyageurs', 0, 3);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(3, NULL, N'Types d''hébergements', 'types', 1, 1, 1),
+(3, NULL, N'Caractéristiques recherchées', 'caracteristiques', 0, 2, 1),
+(3, NULL, N'Nombre de voyageurs', 'voyageurs', 0, 3, 1);
 
--- Sous-catégories Types d'hébergements
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Types d''hébergements'), 'Maisons et villas', 'maisons-villas', 1, 1),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Types d''hébergements'), 'Appartements', 'appartements', 1, 2),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Types d''hébergements'), 'Chalets', 'chalets', 1, 3),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Types d''hébergements'), 'Chambres d''hôtes', 'chambres-hotes', 1, 4),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Types d''hébergements'), 'Campings', 'campings', 1, 5);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Types d''hébergements'), N'Maisons et villas', 'maisons-villas', 1, 1, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Types d''hébergements'), N'Appartements', 'appartements', 1, 2, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Types d''hébergements'), N'Chalets', 'chalets', 1, 3, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Types d''hébergements'), N'Chambres d''hôtes', 'chambres-hotes', 1, 4, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Types d''hébergements'), N'Campings', 'campings', 1, 5, 1);
 
--- Sous-catégories Caractéristiques
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Caractéristiques recherchées'), 'Piscine', 'piscine', 1, 1),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Caractéristiques recherchées'), 'Jardin', 'jardin', 1, 2),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Caractéristiques recherchées'), 'Animaux acceptés', 'animaux', 1, 3);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Caractéristiques recherchées'), N'Piscine', 'piscine', 1, 1, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Caractéristiques recherchées'), N'Jardin', 'jardin', 1, 2, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Caractéristiques recherchées'), N'Animaux acceptés', 'animaux', 1, 3, 1);
 
--- Sous-catégories Nombre de voyageurs
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Nombre de voyageurs'), 'Solo', 'solo', 1, 1),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Nombre de voyageurs'), 'À deux', 'a-deux', 1, 2),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Nombre de voyageurs'), 'À quatre', 'a-quatre', 1, 3),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Nombre de voyageurs'), 'À six', 'a-six', 1, 4),
-(3, (SELECT Id FROM Category WHERE MenuId=3 AND Name='Nombre de voyageurs'), 'Plus de six', 'plus-de-six', 1, 5);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Nombre de voyageurs'), N'Solo', 'solo', 1, 1, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Nombre de voyageurs'), N'À deux', 'a-deux', 1, 2, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Nombre de voyageurs'), N'À quatre', 'a-quatre', 1, 3, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Nombre de voyageurs'), N'À six', 'a-six', 1, 4, 1),
+(3, (SELECT Id FROM Categories WHERE MenuId=3 AND Name=N'Nombre de voyageurs'), N'Plus de six', 'plus-de-six', 1, 5, 1);
 
 -- ============================================
 -- EMPLOI (MenuId = 4)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(4, NULL, 'Offres d''emploi', 'offres', 1, 1),
-(4, NULL, 'Formations professionnelles', 'formations', 1, 2),
-(4, NULL, 'Profil Candidat', 'profil', 1, 3);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(4, NULL, N'Offres d''emploi', 'offres', 1, 1, 1),
+(4, NULL, N'Formations professionnelles', 'formations', 1, 2, 1),
+(4, NULL, N'Profil Candidat', 'profil', 1, 3, 1);
 
--- Sous-catégories Offres d'emploi
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(4, (SELECT Id FROM Category WHERE MenuId=4 AND Name='Offres d''emploi'), 'Intérim', 'interim', 1, 1),
-(4, (SELECT Id FROM Category WHERE MenuId=4 AND Name='Offres d''emploi'), 'CDI', 'cdi', 1, 2),
-(4, (SELECT Id FROM Category WHERE MenuId=4 AND Name='Offres d''emploi'), 'CDD', 'cdd', 1, 3),
-(4, (SELECT Id FROM Category WHERE MenuId=4 AND Name='Offres d''emploi'), 'Bénévolat', 'benevolat', 1, 4),
-(4, (SELECT Id FROM Category WHERE MenuId=4 AND Name='Offres d''emploi'), 'Autre', 'autre', 1, 5);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(4, (SELECT Id FROM Categories WHERE MenuId=4 AND Name=N'Offres d''emploi'), N'Intérim', 'interim', 1, 1, 1),
+(4, (SELECT Id FROM Categories WHERE MenuId=4 AND Name=N'Offres d''emploi'), N'CDI', 'cdi', 1, 2, 1),
+(4, (SELECT Id FROM Categories WHERE MenuId=4 AND Name=N'Offres d''emploi'), N'CDD', 'cdd', 1, 3, 1),
+(4, (SELECT Id FROM Categories WHERE MenuId=4 AND Name=N'Offres d''emploi'), N'Bénévolat', 'benevolat', 1, 4, 1),
+(4, (SELECT Id FROM Categories WHERE MenuId=4 AND Name=N'Offres d''emploi'), N'Autre', 'autre', 1, 5, 1);
 
 -- ============================================
 -- MODE (MenuId = 5)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(5, NULL, 'Vêtements', 'vetements', 1, 1),
-(5, NULL, 'Chaussures', 'chaussures', 1, 2),
-(5, NULL, 'Montres & Bijoux', 'montres-bijoux', 1, 3),
-(5, NULL, 'Accessoires & Bagagerie', 'accessoires', 1, 4);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(5, NULL, N'Vêtements', 'vetements', 1, 1, 1),
+(5, NULL, N'Chaussures', 'chaussures', 1, 2, 1),
+(5, NULL, N'Montres & Bijoux', 'montres-bijoux', 1, 3, 1),
+(5, NULL, N'Accessoires & Bagagerie', 'accessoires', 1, 4, 1);
 
--- Sous-catégories Vêtements
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Vêtements'), 'Femme', 'vetements/femme', 1, 1),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Vêtements'), 'Maternité', 'vetements/maternite', 1, 2),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Vêtements'), 'Homme', 'vetements/homme', 1, 3),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Vêtements'), 'Enfant', 'vetements/enfant', 1, 4);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Vêtements'), N'Femme', 'vetements/femme', 1, 1, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Vêtements'), N'Maternité', 'vetements/maternite', 1, 2, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Vêtements'), N'Homme', 'vetements/homme', 1, 3, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Vêtements'), N'Enfant', 'vetements/enfant', 1, 4, 1);
 
--- Sous-catégories Chaussures
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Chaussures'), 'Femme', 'chaussures/femme', 1, 1),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Chaussures'), 'Homme', 'chaussures/homme', 1, 2),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Chaussures'), 'Enfant', 'chaussures/enfant', 1, 3);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Chaussures'), N'Femme', 'chaussures/femme', 1, 1, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Chaussures'), N'Homme', 'chaussures/homme', 1, 2, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Chaussures'), N'Enfant', 'chaussures/enfant', 1, 3, 1);
 
--- Sous-catégories Montres & Bijoux
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Montres & Bijoux'), 'Femme', 'montres-bijoux/femme', 1, 1),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Montres & Bijoux'), 'Homme', 'montres-bijoux/homme', 1, 2),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Montres & Bijoux'), 'Enfant', 'montres-bijoux/enfant', 1, 3),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Montres & Bijoux'), 'Mixte', 'montres-bijoux/mixte', 1, 4);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Montres & Bijoux'), N'Femme', 'montres-bijoux/femme', 1, 1, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Montres & Bijoux'), N'Homme', 'montres-bijoux/homme', 1, 2, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Montres & Bijoux'), N'Enfant', 'montres-bijoux/enfant', 1, 3, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Montres & Bijoux'), N'Mixte', 'montres-bijoux/mixte', 1, 4, 1);
 
--- Sous-catégories Accessoires & Bagagerie
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Accessoires & Bagagerie'), 'Femme', 'accessoires/femme', 1, 1),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Accessoires & Bagagerie'), 'Homme', 'accessoires/homme', 1, 2),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Accessoires & Bagagerie'), 'Enfant', 'accessoires/enfant', 1, 3),
-(5, (SELECT Id FROM Category WHERE MenuId=5 AND Name='Accessoires & Bagagerie'), 'Mixte', 'accessoires/mixte', 1, 4);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Accessoires & Bagagerie'), N'Femme', 'accessoires/femme', 1, 1, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Accessoires & Bagagerie'), N'Homme', 'accessoires/homme', 1, 2, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Accessoires & Bagagerie'), N'Enfant', 'accessoires/enfant', 1, 3, 1),
+(5, (SELECT Id FROM Categories WHERE MenuId=5 AND Name=N'Accessoires & Bagagerie'), N'Mixte', 'accessoires/mixte', 1, 4, 1);
 
 -- ============================================
 -- MAISON & JARDIN (MenuId = 6)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(6, NULL, 'Ameublement', 'ameublement', 1, 1),
-(6, NULL, 'Papeterie & Fournitures scolaires', 'papeterie', 1, 2),
-(6, NULL, 'Électroménager', 'electromenager', 1, 3),
-(6, NULL, 'Arts de la table', 'arts-table', 1, 4),
-(6, NULL, 'Décoration', 'decoration', 1, 5),
-(6, NULL, 'Linge de maison', 'linge', 1, 6),
-(6, NULL, 'Bricolage', 'bricolage', 1, 7),
-(6, NULL, 'Jardin & Plantes', 'jardin-plantes', 1, 8),
-(6, NULL, 'Services de jardinerie & bricolage', 'services', 1, 9);
-
--- Sous-catégories Ameublement
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Ameublement'), 'Armoire', 'ameublement/armoire', 1, 1),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Ameublement'), 'Buffet', 'ameublement/buffet', 1, 2),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Ameublement'), 'Canapé', 'ameublement/canape', 1, 3),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Ameublement'), 'Chaise, tabouret et banc', 'ameublement/chaise', 1, 4),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Ameublement'), 'Fauteuil', 'ameublement/fauteuil', 1, 5),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Ameublement'), 'Lit', 'ameublement/lit', 1, 6),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Ameublement'), 'Meuble de cuisine', 'ameublement/cuisine', 1, 7),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Ameublement'), 'Table de salle à manger', 'ameublement/table', 1, 8);
-
--- Sous-catégories Électroménager
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Électroménager'), 'Aspirateur', 'electromenager/aspirateur', 1, 1),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Électroménager'), 'Congélateur', 'electromenager/congelateur', 1, 2),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Électroménager'), 'Four', 'electromenager/four', 1, 3),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Électroménager'), 'Lave-linge', 'electromenager/lave-linge', 1, 4),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Électroménager'), 'Lave-vaisselle', 'electromenager/lave-vaisselle', 1, 5),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Électroménager'), 'Micro-ondes', 'electromenager/micro-ondes', 1, 6),
-(6, (SELECT Id FROM Category WHERE MenuId=6 AND Name='Électroménager'), 'Réfrigérateur', 'electromenager/refrigerateur', 1, 7);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(6, NULL, N'Ameublement', 'ameublement', 1, 1, 1),
+(6, NULL, N'Papeterie & Fournitures scolaires', 'papeterie', 1, 2, 1),
+(6, NULL, N'Électroménager', 'electromenager', 1, 3, 1),
+(6, NULL, N'Arts de la table', 'arts-table', 1, 4, 1),
+(6, NULL, N'Décoration', 'decoration', 1, 5, 1),
+(6, NULL, N'Linge de maison', 'linge', 1, 6, 1),
+(6, NULL, N'Bricolage', 'bricolage', 1, 7, 1),
+(6, NULL, N'Jardin & Plantes', 'jardin-plantes', 1, 8, 1),
+(6, NULL, N'Services de jardinerie & bricolage', 'services', 1, 9, 1);
 
 -- ============================================
 -- FAMILLE (MenuId = 7)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(7, NULL, 'Équipement bébé', 'equipement-bebe', 1, 1),
-(7, NULL, 'Mobilier enfant', 'mobilier-enfant', 1, 2),
-(7, NULL, 'Vêtements bébé', 'vetements-bebe', 1, 3),
-(7, NULL, 'Vêtements enfants', 'vetements-enfants', 1, 4),
-(7, NULL, 'Vêtements maternité', 'vetements-maternite', 1, 5),
-(7, NULL, 'Chaussures enfants', 'chaussures-enfants', 1, 6),
-(7, NULL, 'Montres & bijoux enfants', 'montres-bijoux-enfants', 1, 7),
-(7, NULL, 'Accessoires & bagagerie enfants', 'accessoires-enfants', 1, 8),
-(7, NULL, 'Jeux & Jouets', 'jeux-jouets', 1, 9),
-(7, NULL, 'Baby-Sitting', 'baby-sitting', 1, 10);
-
--- Sous-catégories Équipement bébé
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Équipement bébé'), 'Poussette', 'equipement-bebe/poussette', 1, 1),
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Équipement bébé'), 'Siège auto', 'equipement-bebe/siege-auto', 1, 2);
-
--- Sous-catégories Vêtements bébé
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Vêtements bébé'), '0 mois à 3 mois', 'vetements-bebe/0-3', 1, 1),
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Vêtements bébé'), '3 mois à 6 mois', 'vetements-bebe/3-6', 1, 2),
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Vêtements bébé'), '6 mois à 9 mois', 'vetements-bebe/6-9', 1, 3),
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Vêtements bébé'), '9 mois à 12 mois', 'vetements-bebe/9-12', 1, 4),
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Vêtements bébé'), '12 mois à 18 mois', 'vetements-bebe/12-18', 1, 5),
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Vêtements bébé'), '18 mois à 24 mois', 'vetements-bebe/18-24', 1, 6),
-(7, (SELECT Id FROM Category WHERE MenuId=7 AND Name='Vêtements bébé'), 'Plus de 24 mois', 'vetements-bebe/24-plus', 1, 7);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(7, NULL, N'Équipement bébé', 'equipement-bebe', 1, 1, 1),
+(7, NULL, N'Mobilier enfant', 'mobilier-enfant', 1, 2, 1),
+(7, NULL, N'Vêtements bébé', 'vetements-bebe', 1, 3, 1),
+(7, NULL, N'Vêtements enfants', 'vetements-enfants', 1, 4, 1),
+(7, NULL, N'Vêtements maternité', 'vetements-maternite', 1, 5, 1),
+(7, NULL, N'Chaussures enfants', 'chaussures-enfants', 1, 6, 1),
+(7, NULL, N'Montres & bijoux enfants', 'montres-bijoux-enfants', 1, 7, 1),
+(7, NULL, N'Accessoires & bagagerie enfants', 'accessoires-enfants', 1, 8, 1),
+(7, NULL, N'Jeux & Jouets', 'jeux-jouets', 1, 9, 1),
+(7, NULL, N'Baby-Sitting', 'baby-sitting', 1, 10, 1);
 
 -- ============================================
 -- ÉLECTRONIQUE (MenuId = 8)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(8, NULL, 'Ordinateurs', 'ordinateurs', 1, 1),
-(8, NULL, 'Accessoires informatique', 'accessoires-informatique', 1, 2),
-(8, NULL, 'Tablettes & Liseuses', 'tablettes-liseuses', 1, 3),
-(8, NULL, 'Photo, audio & vidéo', 'photo-audio-video', 1, 4),
-(8, NULL, 'Téléphones & Objets connectés', 'telephones', 1, 5),
-(8, NULL, 'Accessoires téléphone & Objets connectés', 'accessoires-telephone', 1, 6),
-(8, NULL, 'Consoles', 'consoles', 1, 7),
-(8, NULL, 'Jeux vidéo', 'jeux-video', 1, 8),
-(8, NULL, 'Électroménager', 'electromenager', 1, 9),
-(8, NULL, 'Services de réparations électroniques', 'reparations', 1, 10);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(8, NULL, N'Ordinateurs', 'ordinateurs', 1, 1, 1),
+(8, NULL, N'Accessoires informatique', 'accessoires-informatique', 1, 2, 1),
+(8, NULL, N'Tablettes & Liseuses', 'tablettes-liseuses', 1, 3, 1),
+(8, NULL, N'Photo, audio & vidéo', 'photo-audio-video', 1, 4, 1),
+(8, NULL, N'Téléphones & Objets connectés', 'telephones', 1, 5, 1),
+(8, NULL, N'Accessoires téléphone & Objets connectés', 'accessoires-telephone', 1, 6, 1),
+(8, NULL, N'Consoles', 'consoles', 1, 7, 1),
+(8, NULL, N'Jeux vidéo', 'jeux-video', 1, 8, 1),
+(8, NULL, N'Électroménager', 'electromenager', 1, 9, 1),
+(8, NULL, N'Services de réparations électroniques', 'reparations', 1, 10, 1);
 
--- Sous-catégories Photo, audio & vidéo
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Photo, audio & vidéo'), 'Télévision', 'photo-audio-video/television', 1, 1),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Photo, audio & vidéo'), 'Enceintes', 'photo-audio-video/enceintes', 1, 2),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Photo, audio & vidéo'), 'Appareil photo', 'photo-audio-video/appareil-photo', 1, 3),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Photo, audio & vidéo'), 'Casque', 'photo-audio-video/casque', 1, 4),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Photo, audio & vidéo'), 'Vidéoprojecteur', 'photo-audio-video/videoprojecteur', 1, 5),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Photo, audio & vidéo'), 'Accessoires', 'photo-audio-video/accessoires', 1, 6),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Photo, audio & vidéo'), 'Écouteurs', 'photo-audio-video/ecouteurs', 1, 7);
-
--- Sous-catégories Téléphones
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Téléphones & Objets connectés'), 'Apple', 'telephones/apple', 1, 1),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Téléphones & Objets connectés'), 'Samsung', 'telephones/samsung', 1, 2),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Téléphones & Objets connectés'), 'Huawei', 'telephones/huawei', 1, 3),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Téléphones & Objets connectés'), 'Sony', 'telephones/sony', 1, 4),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Téléphones & Objets connectés'), 'One plus', 'telephones/oneplus', 1, 5),
-(8, (SELECT Id FROM Category WHERE MenuId=8 AND Name='Téléphones & Objets connectés'), 'Google', 'telephones/google', 1, 6);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(8, (SELECT Id FROM Categories WHERE MenuId=8 AND Name=N'Téléphones & Objets connectés'), N'Apple', 'telephones/apple', 1, 1, 1),
+(8, (SELECT Id FROM Categories WHERE MenuId=8 AND Name=N'Téléphones & Objets connectés'), N'Samsung', 'telephones/samsung', 1, 2, 1),
+(8, (SELECT Id FROM Categories WHERE MenuId=8 AND Name=N'Téléphones & Objets connectés'), N'Huawei', 'telephones/huawei', 1, 3, 1),
+(8, (SELECT Id FROM Categories WHERE MenuId=8 AND Name=N'Téléphones & Objets connectés'), N'Sony', 'telephones/sony', 1, 4, 1),
+(8, (SELECT Id FROM Categories WHERE MenuId=8 AND Name=N'Téléphones & Objets connectés'), N'One plus', 'telephones/oneplus', 1, 5, 1),
+(8, (SELECT Id FROM Categories WHERE MenuId=8 AND Name=N'Téléphones & Objets connectés'), N'Google', 'telephones/google', 1, 6, 1);
 
 -- ============================================
 -- LOISIRS (MenuId = 9)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(9, NULL, 'Antiquités', 'antiquites', 1, 1),
-(9, NULL, 'Artistes & Musiciens', 'artistes-musiciens', 1, 2),
-(9, NULL, 'Billetterie', 'billetterie', 1, 3),
-(9, NULL, 'Collection', 'collection', 1, 4),
-(9, NULL, 'CD - Musique', 'cd-musique', 1, 5),
-(9, NULL, 'DVD - Films', 'dvd-films', 1, 6),
-(9, NULL, 'Instruments de musique', 'instruments-musique', 1, 7),
-(9, NULL, 'Livres', 'livres', 1, 8),
-(9, NULL, 'Modélisme', 'modelisme', 1, 9),
-(9, NULL, 'Vins & Gastronomie', 'vins-gastronomie', 1, 10),
-(9, NULL, 'Jeux & Jouets', 'jeux-jouets', 1, 11),
-(9, NULL, 'Loisirs créatifs', 'loisirs-creatifs', 1, 12),
-(9, NULL, 'Sport & Plein air', 'sport-plein-air', 1, 13),
-(9, NULL, 'Vélos', 'velos', 1, 14),
-(9, NULL, 'Équipements vélos', 'equipements-velos', 1, 15);
-
--- Sous-catégories Jeux & Jouets
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Jeux & Jouets'), 'Jeux de société', 'jeux-jouets/jeux-societe', 1, 1),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Jeux & Jouets'), 'Poupées et accessoires', 'jeux-jouets/poupees', 1, 2),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Jeux & Jouets'), 'Porteurs, trotteurs et draisiennes', 'jeux-jouets/porteurs', 1, 3),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Jeux & Jouets'), 'Jouets d''éveil', 'jeux-jouets/eveil', 1, 4),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Jeux & Jouets'), 'Cuisines et dînettes', 'jeux-jouets/cuisines', 1, 5),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Jeux & Jouets'), 'Jeux de construction', 'jeux-jouets/construction', 1, 6),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Jeux & Jouets'), 'Voitures et circuits', 'jeux-jouets/voitures-circuits', 1, 7),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Jeux & Jouets'), 'Puzzle', 'jeux-jouets/puzzle', 1, 8);
-
--- Sous-catégories Vélos
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Vélos'), 'Vélo de route', 'velos/route', 1, 1),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Vélos'), 'VTT', 'velos/vtt', 1, 2),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Vélos'), 'Vélo électrique', 'velos/electrique', 1, 3),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Vélos'), 'Vélo enfant', 'velos/enfant', 1, 4),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Vélos'), 'VTC', 'velos/vtc', 1, 5),
-(9, (SELECT Id FROM Category WHERE MenuId=9 AND Name='Vélos'), 'Vélo de ville', 'velos/ville', 1, 6);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(9, NULL, N'Antiquités', 'antiquites', 1, 1, 1),
+(9, NULL, N'Artistes & Musiciens', 'artistes-musiciens', 1, 2, 1),
+(9, NULL, N'Billetterie', 'billetterie', 1, 3, 1),
+(9, NULL, N'Collection', 'collection', 1, 4, 1),
+(9, NULL, N'CD - Musique', 'cd-musique', 1, 5, 1),
+(9, NULL, N'DVD - Films', 'dvd-films', 1, 6, 1),
+(9, NULL, N'Instruments de musique', 'instruments-musique', 1, 7, 1),
+(9, NULL, N'Livres', 'livres', 1, 8, 1),
+(9, NULL, N'Modélisme', 'modelisme', 1, 9, 1),
+(9, NULL, N'Vins & Gastronomie', 'vins-gastronomie', 1, 10, 1),
+(9, NULL, N'Jeux & Jouets', 'jeux-jouets', 1, 11, 1),
+(9, NULL, N'Loisirs créatifs', 'loisirs-creatifs', 1, 12, 1),
+(9, NULL, N'Sport & Plein air', 'sport-plein-air', 1, 13, 1),
+(9, NULL, N'Vélos', 'velos', 1, 14, 1),
+(9, NULL, N'Équipements vélos', 'equipements-velos', 1, 15, 1);
 
 -- ============================================
 -- AUTRES (MenuId = 10)
 -- ============================================
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(10, NULL, 'Matériel professionnel', 'materiel-professionnel', 1, 1),
-(10, NULL, 'Services', 'services', 1, 2),
-(10, NULL, 'Animaux', 'animaux', 1, 3),
-(10, NULL, 'Dons', 'dons', 1, 4),
-(10, NULL, 'Autres', 'autres', 1, 5);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(10, NULL, N'Matériel professionnel', 'materiel-professionnel', 1, 1, 1),
+(10, NULL, N'Services', 'services', 1, 2, 1),
+(10, NULL, N'Animaux', 'animaux', 1, 3, 1),
+(10, NULL, N'Dons', 'dons', 1, 4, 1),
+(10, NULL, N'Autres', 'autres', 1, 5, 1);
 
--- Sous-catégories Matériel professionnel
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Tracteurs', 'materiel-professionnel/tracteurs', 1, 1),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Matériel agricole', 'materiel-professionnel/agricole', 1, 2),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'BTP - Chantier gros-oeuvre', 'materiel-professionnel/btp', 1, 3),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Poids lourds', 'materiel-professionnel/poids-lourds', 1, 4),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Manutention - Levage', 'materiel-professionnel/manutention', 1, 5),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Équipements industriels', 'materiel-professionnel/industriels', 1, 6),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Équipements pour restaurants & hôtels', 'materiel-professionnel/restaurants', 1, 7),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Équipements & Fournitures de bureau', 'materiel-professionnel/bureau', 1, 8),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Équipements pour commerces & marchés', 'materiel-professionnel/commerces', 1, 9),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Matériel professionnel'), 'Matériel médical', 'materiel-professionnel/medical', 1, 10);
+INSERT INTO Categories (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder, IsActive) VALUES
+(10, (SELECT Id FROM Categories WHERE MenuId=10 AND Name=N'Animaux'), N'Animaux', 'animaux/animaux', 1, 1, 1),
+(10, (SELECT Id FROM Categories WHERE MenuId=10 AND Name=N'Animaux'), N'Accessoires animaux', 'animaux/accessoires', 1, 2, 1),
+(10, (SELECT Id FROM Categories WHERE MenuId=10 AND Name=N'Animaux'), N'Animaux perdus', 'animaux/perdus', 1, 3, 1);
 
--- Sous-catégories Services
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Services de déménagement', 'services/demenagement', 1, 1),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Services de réparations mécaniques', 'services/reparations-mecaniques', 1, 2),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Services de jardinerie & bricolage', 'services/jardinerie-bricolage', 1, 3),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Services à la personne', 'services/personne', 1, 4),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Services aux animaux', 'services/animaux', 1, 5),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Baby-Sitting', 'services/baby-sitting', 1, 6),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Artistes & Musiciens', 'services/artistes-musiciens', 1, 7),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Services évènementiels', 'services/evenementiels', 1, 8),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Services de réparations électroniques', 'services/reparations-electroniques', 1, 9),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Entraide entre voisins', 'services/entraide-voisins', 1, 10),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Billetterie', 'services/billetterie', 1, 11),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Évènements', 'services/evenements', 1, 12),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Covoiturage', 'services/covoiturage', 1, 13),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Cours particuliers', 'services/cours-particuliers', 1, 14),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Services'), 'Autres services', 'services/autres', 1, 15);
-
--- Sous-catégories Animaux
-INSERT INTO Category (MenuId, ParentCategoryId, Name, Slug, IsLink, DisplayOrder) VALUES
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Animaux'), 'Animaux', 'animaux/animaux', 1, 1),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Animaux'), 'Accessoires animaux', 'animaux/accessoires', 1, 2),
-(10, (SELECT Id FROM Category WHERE MenuId=10 AND Name='Animaux'), 'Animaux perdus', 'animaux/perdus', 1, 3);
+-- ============================================
+-- INSERTION DES ANNONCES
+-- ============================================
+INSERT INTO Annonces (Title, Description, Price, Category, CreatedAt) VALUES
+(N'Peugeot 308 2019 - Excellent état', N'Peugeot 308 année 2019, 45000 km, essence, boîte automatique. Première main, entretien concessionnaire.', 12500.00, N'Véhicules', '2024-06-01 10:30:00'),
+(N'Renault Clio V - Comme neuve', N'Renault Clio V 2021, 20000 km, diesel, GPS intégré, caméra de recul.', 9800.00, N'Véhicules', '2024-06-01 11:00:00'),
+(N'BMW Série 3 320d 2020', N'BMW 320d pack M, cuir, toit ouvrant, 60000 km, carnet entretien complet.', 28000.00, N'Véhicules', '2024-06-01 14:15:00'),
+(N'Appartement S+2 Lac 2', N'Appartement S+2 au Lac 2, 85m², vue sur le lac, 2ème étage avec ascenseur, parking sous-sol.', 350000.00, N'Immobilier', '2024-06-02 09:00:00'),
+(N'Villa avec jardin Soukra', N'Villa S+4 avec jardin 200m², piscine, garage double, quartier résidentiel calme.', 850000.00, N'Immobilier', '2024-06-02 10:30:00'),
+(N'Studio meublé centre Tunis', N'Studio meublé 35m² au centre-ville, idéal étudiant ou jeune professionnel. Charges comprises.', 550.00, N'Immobilier', '2024-06-02 14:00:00'),
+(N'iPhone 14 Pro 128Go', N'iPhone 14 Pro 128Go, couleur noir sidéral, état impeccable, batterie 92%. Avec boîte et accessoires.', 650.00, N'Électronique', '2024-06-03 08:45:00'),
+(N'Samsung Galaxy S23 Ultra', N'Samsung Galaxy S23 Ultra 256Go, acheté neuf en janvier 2024, sous garantie.', 480.00, N'Électronique', '2024-06-03 09:20:00'),
+(N'MacBook Pro M2 2023', N'MacBook Pro 14 pouces M2 Pro, 16Go RAM, 512Go SSD, comme neuf, peu utilisé.', 1200.00, N'Électronique', '2024-06-03 11:00:00'),
+(N'Table basse scandinave en chêne', N'Table basse style scandinave en chêne massif, 120x60cm, très bon état.', 120.00, N'Maison & Jardin', '2024-06-03 15:00:00'),
+(N'Canapé 3 places velours vert', N'Canapé 3 places en velours vert sapin, pieds dorés, acheté il y a 6 mois.', 580.00, N'Maison & Jardin', '2024-06-03 16:30:00'),
+(N'Robe été fleurie taille M', N'Robe été légère motif fleuri, taille M, jamais portée, étiquette encore attachée.', 25.00, N'Mode', '2024-06-04 08:00:00'),
+(N'Nike Air Max 90 neuves', N'Nike Air Max 90, taille 42, blanches, neuves dans leur boîte.', 85.00, N'Mode', '2024-06-04 09:15:00'),
+(N'Montre Casio G-Shock', N'Montre Casio G-Shock modèle GA-2100, noire, neuve avec garantie 2 ans.', 75.00, N'Mode', '2024-06-04 10:30:00'),
+(N'Poussette Yoyo Babyzen', N'Poussette Yoyo Babyzen, pliage compact, nacelle incluse, état parfait.', 280.00, N'Famille', '2024-06-04 14:00:00'),
+(N'Vélo électrique Decathlon', N'VTT électrique Riverside 500E, batterie 400Wh, 500km parcourus.', 900.00, N'Loisirs', '2024-06-05 08:30:00'),
+(N'Guitare acoustique Yamaha', N'Guitare acoustique Yamaha F310, parfaite pour débutant, avec housse.', 95.00, N'Loisirs', '2024-06-05 10:00:00'),
+(N'PlayStation 5 + 2 manettes', N'PS5 version disque, 2 manettes DualSense, 3 jeux inclus.', 350.00, N'Électronique', '2024-06-05 11:45:00'),
+(N'Développeur Web - CDI Tunis', N'Recherche développeur web Angular/Node.js, 3 ans expérience minimum. Salaire attractif.', 0.00, N'Emploi', '2024-06-05 14:00:00'),
+(N'Location vacances Hammamet', N'Appartement S+1 vue mer à Hammamet, climatisé, piscine résidence, disponible juillet-août.', 150.00, N'Vacances', '2024-06-06 09:00:00');
