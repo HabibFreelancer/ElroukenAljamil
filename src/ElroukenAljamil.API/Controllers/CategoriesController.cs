@@ -43,6 +43,15 @@ public class CategoriesController : ControllerBase
             .ToListAsync();
     }
 
+    [HttpGet("for-deposit/{menuId}")]
+    public async Task<ActionResult<IEnumerable<Category>>> GetForDeposit(int menuId)
+    {
+        return await _context.Categories
+            .Where(c => c.MenuId == menuId && c.IsActive && c.ShowInDeposit && c.ParentCategoryId == null)
+            .OrderBy(c => c.DisplayOrder)
+            .ToListAsync();
+    }
+
     [HttpGet("tree/{menuId}")]
     public async Task<ActionResult<IEnumerable<Category>>> GetTree(int menuId)
     {

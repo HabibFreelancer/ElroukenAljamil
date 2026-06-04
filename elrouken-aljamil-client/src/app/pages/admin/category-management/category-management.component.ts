@@ -26,7 +26,7 @@ export class CategoryManagementComponent implements OnInit {
   pageSize = 10;
   totalPages = 1;
   pages: number[] = [];
-  currentCategory = { id: 0, menuId: 0, parentCategoryId: null as number | null, name: '', slug: '', isLink: true, displayOrder: 0, isActive: true };
+  currentCategory = { id: 0, menuId: 0, parentCategoryId: null as number | null, name: '', slug: '', isLink: true, showInDeposit: true, displayOrder: 0, isActive: true };
   private apiUrl = 'https://localhost:7283/api';
 
   constructor(private http: HttpClient) {}
@@ -130,7 +130,7 @@ export class CategoryManagementComponent implements OnInit {
   cancel() {
     this.showForm = false;
     this.editingCategory = false;
-    this.currentCategory = { id: 0, menuId: 0, parentCategoryId: null, name: '', slug: '', isLink: true, displayOrder: 0, isActive: true };
+    this.currentCategory = { id: 0, menuId: 0, parentCategoryId: null, name: '', slug: '', isLink: true, showInDeposit: true, displayOrder: 0, isActive: true };
   }
 
   getMenuName(menuId: number): string {

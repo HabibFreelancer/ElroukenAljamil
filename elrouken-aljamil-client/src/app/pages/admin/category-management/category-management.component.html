@@ -25,6 +25,9 @@
       <label class="checkbox-label">
         <input type="checkbox" [(ngModel)]="currentCategory.isLink" /> Est un lien
       </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="currentCategory.showInDeposit" /> Visible dans dépôt
+      </label>
     </div>
     <div class="form-actions">
       <button class="btn-save" (click)="save()">{{ editingCategory ? 'Modifier' : 'Créer' }}</button>

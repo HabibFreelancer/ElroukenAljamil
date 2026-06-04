@@ -72,9 +72,9 @@ export class DeposerAnnonceComponent implements OnInit {
 
   selectMenu(menu: any) {
     this.selectedMenuId = menu.id;
-    this.http.get<any[]>(`${this.apiUrl}/categories/by-menu/${menu.id}`)
+    this.http.get<any[]>(`${this.apiUrl}/categories/for-deposit/${menu.id}`)
       .subscribe(data => {
-        this.browserCategories = data.filter(c => !c.parentCategoryId);
+        this.browserCategories = data;
       });
   }
 

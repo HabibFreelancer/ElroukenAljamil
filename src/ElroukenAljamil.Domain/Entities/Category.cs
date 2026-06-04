@@ -8,6 +8,7 @@ public class Category
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public bool IsLink { get; set; } = true;
+    public bool ShowInDeposit { get; set; } = true;
     public int DisplayOrder { get; set; }
     public bool IsActive { get; set; } = true;
     public Menu? Menu { get; set; }
