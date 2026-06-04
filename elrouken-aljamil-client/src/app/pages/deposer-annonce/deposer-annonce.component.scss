@@ -60,9 +60,38 @@
 }
 
 .deposer-content {
-  max-width: 900px;
+  max-width: 1066px;
   margin: 40px auto;
   padding: 0 20px;
+  display: flex;
+  gap: 40px;
+}
+
+.deposer-main {
+  flex: 4;
+}
+
+.side-info {
+  flex: 1;
+  padding: 20px;
+  font-size: 14px;
+  color: #555;
+
+  .tip-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .tip-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .tip-text {
+    line-height: 1.6;
+    color: #666;
+  }
 }
 
 .form-card {
@@ -185,47 +214,68 @@
   }
 }
 
-.photos-upload {
+.photo-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 15px;
+  margin-bottom: 20px;
 
-  .photo-slot {
-    aspect-ratio: 1;
-    border: 2px dashed #ddd;
+  .photo-box {
+    border: 1px solid #333;
     border-radius: 8px;
+    height: 130px;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: 6px;
+    align-items: center;
+    text-align: center;
+    font-size: 12px;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    color: #555;
+    position: relative;
+    transition: border-color 0.2s;
+
+    &:hover { border-color: #ff6e14; }
+
+    &.dashed {
+      border-style: dashed;
+      border-color: #999;
+    }
+
+    .cover-badge {
+      position: absolute;
+      top: -10px;
+      background: #003366;
+      color: white;
+      padding: 2px 8px;
+      font-size: 10px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
 
     i {
-      font-size: 1.4rem;
-      color: #bbb;
+      font-size: 24px;
+      color: #003366;
+      margin-bottom: 8px;
     }
+  }
+}
 
-    span {
-      font-size: 0.7rem;
-      color: #999;
-    }
+.info-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 20px;
+  cursor: pointer;
 
-    &:hover {
-      border-color: #ff6e14;
-      background: #fff8f5;
+  i {
+    color: #003366;
+  }
 
-      i { color: #ff6e14; }
-    }
-
-    &.main {
-      border-color: #ff6e14;
-      background: #fff8f5;
-
-      i { color: #ff6e14; }
-      span { color: #ff6e14; }
-    }
+  span {
+    color: #003366;
+    font-weight: 600;
+    font-size: 13px;
   }
 }
 
@@ -556,4 +606,9 @@
       margin-top: 4px;
     }
   }
+}
+
+.form-card h2 + .sub-title {
+  margin-top: 25px;
+  margin-bottom: 20px;
 }

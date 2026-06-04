@@ -105,11 +105,23 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   nextStep() {
-    if (this.currentStep < 4) this.currentStep++;
+    if (this.currentStep === 1 && this.isEmploiCategory()) {
+      this.currentStep = 3;
+    } else if (this.currentStep < 4) {
+      this.currentStep++;
+    }
   }
 
   prevStep() {
-    if (this.currentStep > 1) this.currentStep--;
+    if (this.currentStep === 3 && this.isEmploiCategory()) {
+      this.currentStep = 1;
+    } else if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  private isEmploiCategory(): boolean {
+    return this.annonce.category.toLowerCase().includes('emploi');
   }
 
   submit() {

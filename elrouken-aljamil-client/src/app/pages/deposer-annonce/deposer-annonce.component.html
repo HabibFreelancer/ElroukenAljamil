@@ -12,6 +12,7 @@
   </div>
 
   <div class="deposer-content">
+    <div class="deposer-main">
     <!-- Étape 1 : Titre + Suggestion catégories -->
     <div class="form-card" *ngIf="currentStep === 1">
       <h2>Commençons par l'essentiel !</h2>
@@ -130,20 +131,33 @@
 
     <!-- Étape 3 : Photos -->
     <div class="form-card" *ngIf="currentStep === 3">
-      <h2>Ajoutez des photos</h2>
-      <p class="subtitle">Une annonce avec photos a 5x plus de chances d'être vendue</p>
+      <h2 style="margin-bottom: 25px;">Ajoutez des photos</h2>
+      <span class="sub-title" style="margin-bottom: 20px; display: block;">Vos photos</span>
 
-      <div class="photos-upload">
-        <div class="photo-slot main">
-          <i class="fa-solid fa-camera"></i>
-          <span>Photo principale</span>
+      <div class="photo-grid">
+        <div class="photo-box">
+          <i class="fa-solid fa-camera-retro"></i>
+          <span>Ajouter des photos</span>
         </div>
-        <div class="photo-slot" *ngFor="let i of [1,2,3,4,5,6,7]">
-          <i class="fa-solid fa-plus"></i>
+        <div class="photo-box">
+          <span class="cover-badge">Photo de couverture</span>
+          <i class="fa-solid fa-camera"></i>
+          <span>Photo n° 1</span>
+        </div>
+        <div class="photo-box dashed">
+          <i class="fa-solid fa-camera"></i>
+          <span>Photo n° 2</span>
+        </div>
+        <div class="photo-box dashed">
+          <i class="fa-solid fa-camera"></i>
+          <span>Photo n° 3</span>
         </div>
       </div>
 
-      <p class="footer-note">Formats acceptés : JPG, PNG. Taille max : 5 Mo par photo.</p>
+      <div class="info-link">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>En savoir plus</span>
+      </div>
     </div>
 
     <!-- Étape 4 : Récapitulatif -->
@@ -190,6 +204,13 @@
       <button class="btn-publish" *ngIf="currentStep === 4" (click)="submit()">
         <i class="fa-solid fa-check"></i> Publier mon annonce
       </button>
+    </div>
+    </div>
+
+    <div class="side-info">
+      <p class="tip-icon">💡</p>
+      <p class="tip-title">Votre annonce sera trouvée plus facilement !</p>
+      <p class="tip-text">Vous aurez 50% de chances en plus d'être contacté si votre annonce est dans la bonne catégorie.</p>
     </div>
   </div>
 </div>
