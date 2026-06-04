@@ -46,10 +46,21 @@ public class CategoriesController : ControllerBase
     [HttpGet("for-deposit/{menuId}")]
     public async Task<ActionResult<IEnumerable<Category>>> GetForDeposit(int menuId)
     {
-        return await _context.Categories
+        // Récupérer les catégories racines avec ShowInDeposit
+        var rootCategories = await _context.Categories
             .Where(c => c.MenuId == menuId && c.IsActive && c.ShowInDeposit && c.ParentCategoryId == null)
             .OrderBy(c => c.DisplayOrder)
             .ToListAsync();
+
+        // Récupérer aussi les sous-catégories avec ShowInDeposit
+        var subCategories = await _context.Categories
+            .Where(c => c.MenuId == menuId && c.IsActive && c.ShowInDeposit && c.ParentCategoryId != null)
+            .OrderBy(c => c.DisplayOrder)
+            .ToListAsync();
+
+        // Combiner : racines + sous-catégories
+        var result = rootCategories.Concat(subCategories).ToList();
+        return result;
     }
 
     [HttpGet("tree/{menuId}")]

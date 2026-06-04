@@ -503,3 +503,57 @@
     }
   }
 }
+
+.ad-type-section {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+
+  .section-title {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+
+    &:hover { border-color: #ff6e14; }
+    &.selected { border-color: #ff6e14; background: #fff8f5; }
+
+    input {
+      margin-top: 3px;
+      margin-right: 15px;
+      accent-color: #ff6e14;
+    }
+
+    .radio-label {
+      font-weight: 600;
+      display: block;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .radio-description {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+    }
+  }
+}

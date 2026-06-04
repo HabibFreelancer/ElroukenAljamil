@@ -53,4 +53,28 @@ public class AnnoncesController : ControllerBase
     {
         return await _context.Annonces.OrderByDescending(a => a.CreatedAt).ToListAsync();
     }
+
+    [HttpGet("ad-types/{categoryId}")]
+    public async Task<ActionResult<IEnumerable<AdType>>> GetAdTypes(int categoryId)
+    {
+        var adTypes = await _context.AdTypes
+            .Where(a => a.CategoryId == categoryId && a.IsActive)
+            .OrderBy(a => a.DisplayOrder)
+            .ToListAsync();
+
+        // Si pas de résultat, chercher aussi par le parent
+        if (!adTypes.Any())
+        {
+            var category = await _context.Categories.FindAsync(categoryId);
+            if (category?.ParentCategoryId != null)
+            {
+                adTypes = await _context.AdTypes
+                    .Where(a => a.CategoryId == category.ParentCategoryId && a.IsActive)
+                    .OrderBy(a => a.DisplayOrder)
+                    .ToListAsync();
+            }
+        }
+
+        return adTypes;
+    }
 }

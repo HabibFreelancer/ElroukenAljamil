@@ -59,6 +59,7 @@
         <th>Nom</th>
         <th>Slug</th>
         <th>Lien</th>
+        <th>Dépôt</th>
         <th>Ordre</th>
         <th>Actions</th>
       </tr>
@@ -71,6 +72,7 @@
         <td>{{ cat.name }}</td>
         <td>{{ cat.slug }}</td>
         <td>{{ cat.isLink ? 'Oui' : 'Non' }}</td>
+        <td>{{ cat.showInDeposit ? '✓' : '' }}</td>
         <td>{{ cat.displayOrder }}</td>
         <td class="actions">
           <button class="btn-edit" (click)="edit(cat)"><i class="fa-solid fa-pen"></i></button>

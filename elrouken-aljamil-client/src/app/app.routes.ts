@@ -4,6 +4,7 @@ import { DeposerAnnonceComponent } from './pages/deposer-annonce/deposer-annonce
 import { AdminComponent } from './pages/admin/admin.component';
 import { MenuManagementComponent } from './pages/admin/menu-management/menu-management.component';
 import { CategoryManagementComponent } from './pages/admin/category-management/category-management.component';
+import { AdtypeManagementComponent } from './pages/admin/adtype-management/adtype-management.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -15,6 +16,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'menus', pathMatch: 'full' },
       { path: 'menus', component: MenuManagementComponent },
       { path: 'categories', component: CategoryManagementComponent },
+      { path: 'adtypes', component: AdtypeManagementComponent },
     ]
   },
 ];

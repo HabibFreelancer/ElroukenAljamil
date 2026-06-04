@@ -19,6 +19,8 @@ export class DeposerAnnonceComponent implements OnInit {
   selectedMenuId: number | null = null;
   menus: any[] = [];
   showCategoryBrowser = false;
+  showAdType = false;
+  adTypes: any[] = [];
   browserCategories: any[] = [];
   private searchSubject = new Subject<string>();
   private searchCache: { [key: string]: any[] } = {};
@@ -30,7 +32,8 @@ export class DeposerAnnonceComponent implements OnInit {
     description: '',
     price: null as number | null,
     location: '',
-    condition: ''
+    condition: '',
+    adType: 'offre'
   };
 
   constructor(private http: HttpClient) {}
@@ -60,6 +63,7 @@ export class DeposerAnnonceComponent implements OnInit {
   selectSuggestedCategory(cat: any) {
     this.selectedCategoryId = cat.categoryId;
     this.annonce.category = cat.menuName + ' > ' + cat.categoryName;
+    this.checkAdType(cat.categoryName, cat.menuName);
   }
 
   openCategoryBrowser() {
@@ -83,6 +87,21 @@ export class DeposerAnnonceComponent implements OnInit {
     const menu = this.menus.find(m => m.id === cat.menuId);
     this.annonce.category = (menu?.name || '') + ' > ' + cat.name;
     this.showCategoryBrowser = false;
+    this.checkAdType(cat.name, menu?.name);
+  }
+
+  private checkAdType(categoryName: string, menuName?: string) {
+    if (this.selectedCategoryId) {
+      this.http.get<any[]>(`${this.apiUrl}/annonces/ad-types/${this.selectedCategoryId}`)
+        .subscribe(data => {
+          this.adTypes = data;
+          this.showAdType = data.length > 0;
+          if (data.length > 0) {
+            const defaultType = data.find(t => t.isDefault);
+            this.annonce.adType = defaultType ? defaultType.label : data[0].label;
+          }
+        });
+    }
   }
 
   nextStep() {

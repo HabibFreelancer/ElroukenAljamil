@@ -76,6 +76,21 @@
         </div>
       </div>
 
+      <!-- Section Type d'annonce -->
+      <div class="ad-type-section" *ngIf="showAdType && !showCategoryBrowser">
+        <label class="section-title">Type d'annonce *</label>
+        <div class="radio-group">
+          <label class="radio-option" *ngFor="let adType of adTypes"
+                 [class.selected]="annonce.adType === adType.label">
+            <input type="radio" name="ad-type" [value]="adType.label" [(ngModel)]="annonce.adType" />
+            <div>
+              <span class="radio-label">{{ adType.label }}</span>
+              <div class="radio-description">{{ adType.description }}</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <p class="footer-note">En déposant une annonce, vous acceptez nos conditions générales d'utilisation.</p>
     </div>
 
