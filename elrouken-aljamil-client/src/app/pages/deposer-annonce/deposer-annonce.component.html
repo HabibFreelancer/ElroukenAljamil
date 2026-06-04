@@ -66,6 +66,16 @@
         </div>
       </div>
 
+      <!-- Catégorie sélectionnée -->
+      <div class="selected-category" *ngIf="annonce.category && !showCategoryBrowser">
+        <hr class="separator" />
+        <div class="selected-category-card">
+          <i class="fa-solid fa-check-circle"></i>
+          <span>Catégorie : <b>{{ annonce.category }}</b></span>
+          <button class="btn-change" (click)="openCategoryBrowser()">Modifier</button>
+        </div>
+      </div>
+
       <p class="footer-note">En déposant une annonce, vous acceptez nos conditions générales d'utilisation.</p>
     </div>
 

@@ -82,6 +82,7 @@ export class DeposerAnnonceComponent implements OnInit {
     this.selectedCategoryId = cat.id;
     const menu = this.menus.find(m => m.id === cat.menuId);
     this.annonce.category = (menu?.name || '') + ' > ' + cat.name;
+    this.showCategoryBrowser = false;
   }
 
   nextStep() {
