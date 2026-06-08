@@ -131,28 +131,39 @@
 
     <!-- Étape 3 : Photos -->
     <div class="form-card" *ngIf="currentStep === 3">
-      <h2 style="margin-bottom: 25px;">Ajoutez des photos</h2>
-      <span class="sub-title" style="margin-bottom: 20px; display: block;">Vos photos</span>
+      <h2 style="margin-bottom: 10px;">Ajoutez des photos</h2>
+      <p class="drag-hint" *ngIf="isVehiculeCategory">Faites glisser vos photos pour changer leur ordre</p>
+      <p class="sub-title" style="margin-bottom: 20px; display: block;">Vos photos</p>
 
-      <div class="photo-grid">
-        <div class="photo-box">
-          <i class="fa-solid fa-camera-retro"></i>
-          <span>Ajouter des photos</span>
-        </div>
-        <div class="photo-box">
-          <span class="cover-badge">Photo de couverture</span>
-          <i class="fa-solid fa-camera"></i>
-          <span>Photo n° 1</span>
-        </div>
-        <div class="photo-box dashed">
-          <i class="fa-solid fa-camera"></i>
-          <span>Photo n° 2</span>
-        </div>
-        <div class="photo-box dashed">
-          <i class="fa-solid fa-camera"></i>
-          <span>Photo n° 3</span>
+      <div class="photo-grid" [class.draggable-grid]="isVehiculeCategory">
+        <div *ngFor="let slot of [0,1,2,3,4]" class="photo-slot-item"
+             [attr.draggable]="isVehiculeCategory && photos[slot] ? true : null"
+             (dragstart)="onDragStart($event, slot)"
+             (dragover)="onDragOver($event)"
+             (drop)="onDrop($event, slot)">
+          <!-- Cadre avec image -->
+          <div class="box-filled" *ngIf="photos[slot]">
+            <span class="cover-badge" *ngIf="slot === 0">Photo de couverture</span>
+            <img [src]="photos[slot]" alt="Photo" />
+            <span class="photo-number">{{ slot + 1 }}</span>
+            <span class="edit-btn" (click)="openEditor(slot)"><i class="fa-solid fa-pencil"></i></span>
+            <span class="close-btn" (click)="removePhoto(slot)"><i class="fa-solid fa-xmark"></i></span>
+            <span class="drag-icon" *ngIf="isVehiculeCategory"><i class="fa-solid fa-grip-vertical"></i></span>
+          </div>
+          <!-- Cadre vide -->
+          <div class="box-empty" *ngIf="!photos[slot]" (click)="selectSlot(slot)">
+            <span class="cover-label" *ngIf="slot === 0">Photo de couverture</span>
+            <i class="fa-solid fa-camera"></i>
+            <span>Photo n° {{ slot + 1 }}</span>
+          </div>
         </div>
       </div>
+
+      <input #fileInput type="file" accept="image/*" hidden (change)="onSlotPhotoSelected($event)" />
+
+      <p class="photo-limit" *ngIf="allSlotsFilled">
+        <i class="fa-solid fa-circle-check"></i> Vous avez atteint le maximum de 5 photos.
+      </p>
 
       <div class="info-link">
         <i class="fa-solid fa-circle-info"></i>
@@ -160,35 +171,150 @@
       </div>
     </div>
 
+    <!-- Modal éditeur photo -->
+    <div class="photo-editor-modal" *ngIf="showEditor">
+      <div class="editor-overlay" (click)="closeEditor()"></div>
+      <div class="editor-content">
+        <h3>Éditer la photo</h3>
+        <div class="editor-preview"
+             (mousedown)="onCropMouseDown($event)"
+             (mousemove)="onCropMouseMove($event)"
+             (mouseup)="onCropMouseUp($event)"
+             (mouseleave)="onCropMouseUp($event)">
+          <img #cropImage [src]="photos[editingSlot]" [style.transform]="'rotate(' + editorRotation + 'deg)'" />
+          <div class="crop-selection" *ngIf="isCropping" [ngStyle]="cropStyle"></div>
+        </div>
+        <div class="editor-actions">
+          <button (click)="rotatePhoto(-90)"><i class="fa-solid fa-rotate-left"></i> Gauche</button>
+          <button (click)="rotatePhoto(90)"><i class="fa-solid fa-rotate-right"></i> Droite</button>
+          <button [class.active]="isCropping" (click)="cropPhoto()"><i class="fa-solid fa-crop"></i> Recadrer</button>
+          <button class="btn-save-edit" (click)="saveEdit()"><i class="fa-solid fa-check"></i> Valider</button>
+          <button (click)="closeEditor()"><i class="fa-solid fa-xmark"></i> Annuler</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Étape 4 : Récapitulatif -->
     <div class="form-card" *ngIf="currentStep === 4">
-      <h2>Vérifiez votre annonce</h2>
-      <p class="subtitle">Voici un résumé avant publication</p>
 
-      <div class="recap">
-        <div class="recap-item">
-          <span class="label">Catégorie</span>
-          <span class="value">{{ annonce.category }}</span>
+      <!-- Formulaire spécifique Emploi -->
+      <div *ngIf="isEmploiCategory()">
+        <h2>Dites-nous en plus</h2>
+
+        <div class="field-group">
+          <label>Type de contrat</label>
+          <select [(ngModel)]="emploiForm.contract">
+            <option value="">Choisissez</option>
+            <option value="cdi">CDI</option>
+            <option value="cdd">CDD</option>
+            <option value="interim">Intérim</option>
+            <option value="alternance">Apprentissage / Alternance</option>
+            <option value="stage">Stage</option>
+            <option value="freelance">Indépendant / Franchise</option>
+            <option value="benevolat">Bénévolat</option>
+          </select>
         </div>
-        <div class="recap-item">
-          <span class="label">Titre</span>
-          <span class="value">{{ annonce.title }}</span>
+
+        <div class="field-group">
+          <label>Secteur d'activité</label>
+          <select [(ngModel)]="emploiForm.industry">
+            <option value="">Choisissez</option>
+            <option value="it">Informatique</option>
+            <option value="sales">Commerce / Vente</option>
+            <option value="construction">BTP / Construction</option>
+            <option value="medical">Santé / Médical</option>
+            <option value="logistics">Transport / Logistique</option>
+          </select>
         </div>
-        <div class="recap-item">
-          <span class="label">Description</span>
-          <span class="value description">{{ annonce.description }}</span>
+
+        <div class="field-group">
+          <label>Métier</label>
+          <select [(ngModel)]="emploiForm.job">
+            <option value="">Choisissez</option>
+            <option value="it_digital">Informatique / Digital</option>
+            <option value="commerce">Commerce / Vente / Marketing</option>
+            <option value="sante">Santé / Services à la personne</option>
+            <option value="btp">BTP / Construction / Immobilier</option>
+            <option value="hotellerie">Hôtellerie / Restauration / Tourisme</option>
+            <option value="transport">Transport / Logistique</option>
+            <option value="admin">Administration / RH / Juridique</option>
+            <option value="enseignement">Enseignement / Formation</option>
+            <option value="artisanat">Artisanat / Industrie</option>
+            <option value="finance">Banque / Finance / Comptabilité</option>
+            <option value="agriculture">Agriculture / Environnement</option>
+          </select>
         </div>
-        <div class="recap-item">
-          <span class="label">Prix</span>
-          <span class="value">{{ annonce.price }} TND</span>
+
+        <div class="field-group">
+          <label>Expérience</label>
+          <select [(ngModel)]="emploiForm.experience">
+            <option value="">Choisissez</option>
+            <option value="junior">Junior (0 à 2 ans)</option>
+            <option value="confirme">Confirmé (2 à 5 ans)</option>
+            <option value="senior">Sénior (5 à 10 ans)</option>
+            <option value="expert">Expert / Lead (+ de 10 ans)</option>
+          </select>
         </div>
-        <div class="recap-item">
-          <span class="label">État</span>
-          <span class="value">{{ annonce.condition }}</span>
+
+        <div class="field-group">
+          <label>Niveau d'études</label>
+          <select [(ngModel)]="emploiForm.education">
+            <option value="">Choisissez</option>
+            <option value="no_degree">Sans diplôme</option>
+            <option value="cap_bep">CAP, BEP</option>
+            <option value="bac">Bac, Bac pro, BP</option>
+            <option value="bac_2">Bac +2</option>
+            <option value="bac_3">Bac +3</option>
+            <option value="bac_5">Bac +5 et plus</option>
+          </select>
         </div>
-        <div class="recap-item">
-          <span class="label">Localisation</span>
-          <span class="value">{{ annonce.location }}</span>
+
+        <div class="field-group">
+          <label>Travail à</label>
+          <div class="work-type-radios">
+            <label class="radio-inline">
+              <input type="radio" name="workType" value="temps_plein" [(ngModel)]="emploiForm.workType" /> Temps plein
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="workType" value="temps_partiel" [(ngModel)]="emploiForm.workType" /> Temps partiel
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="workType" value="both" [(ngModel)]="emploiForm.workType" /> Temps plein ou temps partiel
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Récapitulatif standard (non-emploi) -->
+      <div *ngIf="!isEmploiCategory()">
+        <h2>Vérifiez votre annonce</h2>
+        <p class="subtitle">Voici un résumé avant publication</p>
+
+        <div class="recap">
+          <div class="recap-item">
+            <span class="label">Catégorie</span>
+            <span class="value">{{ annonce.category }}</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">Titre</span>
+            <span class="value">{{ annonce.title }}</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">Description</span>
+            <span class="value description">{{ annonce.description }}</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">Prix</span>
+            <span class="value">{{ annonce.price }} TND</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">État</span>
+            <span class="value">{{ annonce.condition }}</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">Localisation</span>
+            <span class="value">{{ annonce.location }}</span>
+          </div>
         </div>
       </div>
     </div>

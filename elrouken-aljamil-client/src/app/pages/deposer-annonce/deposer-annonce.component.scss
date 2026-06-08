@@ -256,7 +256,7 @@
     i {
       font-size: 24px;
       color: #003366;
-      margin-bottom: 8px;
+      margin-bottom: 3px;
     }
   }
 }
@@ -611,4 +611,360 @@
 .form-card h2 + .sub-title {
   margin-top: 25px;
   margin-bottom: 20px;
+}
+
+.photo-grid .photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.photo-grid .photo-box {
+  position: relative;
+  overflow: visible;
+}
+
+.photo-grid .photo-box.has-image {
+  border: 1px solid #333;
+  padding: 0;
+}
+
+.photo-grid .photo-box .delete-photo {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #d32f2f;
+  color: #fff;
+  border: 2px solid #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.photo-limit {
+  font-size: 13px;
+  color: #4caf50;
+  margin-top: 10px;
+
+  i {
+    margin-right: 5px;
+  }
+}
+
+.photo-grid .photo-box .cover-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  z-index: 5;
+  white-space: nowrap;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.photo-slot-item {
+  .box-empty {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #555;
+    font-size: 11px;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.2s;
+
+    &:hover { border-color: #ff6e14; }
+
+    .cover-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #003366;
+      margin-bottom: 6px;
+    }
+
+    i { font-size: 22px; color: #003366; margin-bottom: 6px; }
+  }
+
+  .box-filled {
+    border: 2px solid #003366;
+    border-radius: 8px;
+    height: 130px;
+    position: relative;
+    overflow: visible;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .cover-badge {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 51, 102, 0.8);
+      color: white;
+      padding: 2px 8px;
+      font-size: 9px;
+      font-weight: bold;
+      border-radius: 3px;
+      z-index: 3;
+      white-space: nowrap;
+    }
+
+    .photo-number {
+      position: absolute;
+      bottom: 6px;
+      left: 6px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      z-index: 3;
+    }
+
+    .edit-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.85);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 0.2s;
+
+      i { font-size: 13px; color: #333; }
+    }
+
+    &:hover .edit-btn { opacity: 1; }
+
+    .close-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #333;
+      z-index: 10;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+
+      &:hover { transform: scale(1.15); border-color: #d32f2f; color: #d32f2f; }
+    }
+  }
+}
+
+.photo-editor-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .editor-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+  }
+
+  .editor-content {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    width: 500px;
+    max-width: 90%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+    h3 { margin: 0 0 20px; font-size: 18px; color: #333; }
+
+    .editor-preview {
+      width: 100%;
+      height: 350px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: crosshair;
+      user-select: none;
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+      }
+
+      .crop-selection {
+        position: absolute;
+        border: 2px dashed #ff6e14;
+        background: rgba(255, 110, 20, 0.15);
+        pointer-events: none;
+        z-index: 5;
+      }
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+
+      button {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+        cursor: pointer;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        &:hover { border-color: #ff6e14; color: #ff6e14; }
+      }
+
+      .btn-save-edit {
+        background: #ff6e14;
+        color: #fff;
+        border: none;
+
+        &:hover { background: #e65c00; color: #fff; }
+      }
+    }
+  }
+}
+
+.drag-hint {
+  font-size: 13px;
+  color: #ff6e14;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.draggable-grid .photo-slot-item {
+  cursor: grab;
+
+  &:active { cursor: grabbing; }
+}
+
+.photo-slot-item .box-filled .drag-icon {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(255,255,255,0.85);
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+
+  i { font-size: 10px; color: #555; }
+}
+
+.field-group {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+
+    &:focus { border-color: #ff6e14; }
+  }
+
+  .work-type-radios {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+
+    .radio-inline {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      cursor: pointer;
+
+      input {
+        margin-right: 10px;
+        accent-color: #ff6e14;
+      }
+    }
+  }
 }
