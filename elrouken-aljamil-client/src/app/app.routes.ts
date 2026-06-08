@@ -5,6 +5,7 @@ import { AdminComponent } from './pages/admin/admin.component';
 import { MenuManagementComponent } from './pages/admin/menu-management/menu-management.component';
 import { CategoryManagementComponent } from './pages/admin/category-management/category-management.component';
 import { AdtypeManagementComponent } from './pages/admin/adtype-management/adtype-management.component';
+import { WorkflowManagementComponent } from './pages/admin/workflow-management/workflow-management.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -17,6 +18,7 @@ export const routes: Routes = [
       { path: 'menus', component: MenuManagementComponent },
       { path: 'categories', component: CategoryManagementComponent },
       { path: 'adtypes', component: AdtypeManagementComponent },
+      { path: 'workflows', component: WorkflowManagementComponent },
     ]
   },
 ];

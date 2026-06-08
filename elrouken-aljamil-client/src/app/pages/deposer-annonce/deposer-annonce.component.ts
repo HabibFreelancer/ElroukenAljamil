@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, Subject } from 'rxjs';
 import { WorkflowService, Workflow, WorkflowStep, StepField } from '../../services/workflow.service';
+import { AuthService } from '../../services/auth.service';
 import * as L from 'leaflet';
 
 // Fix Leaflet default icon path issue with bundlers
@@ -86,12 +87,12 @@ export class DeposerAnnonceComponent implements OnInit {
   submitting = false;
 
   contactForm = {
-    email: 'user@example.com',
+    email: '',
     phone: '',
     hidePhone: false
   };
 
-  constructor(private http: HttpClient, private workflowService: WorkflowService) {}
+  constructor(private http: HttpClient, private workflowService: WorkflowService, private authService: AuthService) {}
 
   ngOnInit() {
     // Restore step from sessionStorage
@@ -144,6 +145,10 @@ export class DeposerAnnonceComponent implements OnInit {
     });
 
     this.initGeolocation();
+
+    // Pre-fill contact form with authenticated user data
+    this.contactForm.email = this.authService.getEmail();
+    this.contactForm.phone = this.authService.getPhone();
   }
 
   resetForm() {
@@ -152,7 +157,7 @@ export class DeposerAnnonceComponent implements OnInit {
     this.currentStep = 1;
     this.annonce = { category: '', title: '', description: '', price: null, location: '', condition: '', adType: 'offre' };
     this.emploiForm = { contract: '', industry: '', job: '', experience: '', education: '', workType: 'temps_plein', salary: null, poste: '', experienceDesc: '', profilVisible: true, address: '' };
-    this.contactForm = { email: 'user@example.com', phone: '', hidePhone: false };
+    this.contactForm = { email: this.authService.getEmail(), phone: this.authService.getPhone(), hidePhone: false };
     this.selectedCategoryId = null;
     this.photos = [];
     this.showAdType = false;
@@ -420,6 +425,13 @@ export class DeposerAnnonceComponent implements OnInit {
         // Pre-fill poste with title
         if (this.formData['poste'] !== undefined) {
           this.formData['poste'] = this.annonce.title;
+        }
+        // Pre-fill email/phone from auth
+        if (this.formData['email'] !== undefined) {
+          this.formData['email'] = this.authService.getEmail();
+        }
+        if (this.formData['phone'] !== undefined) {
+          this.formData['phone'] = this.authService.getPhone();
         }
         this.saveState();
       },

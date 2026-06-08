@@ -949,6 +949,20 @@
     &:focus { border-color: #ff6e14; }
   }
 
+  textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    line-height: 1.8;
+    resize: vertical;
+
+    &:focus { border-color: #ff6e14; }
+  }
+
   .work-type-radios {
     display: flex;
     flex-direction: column;

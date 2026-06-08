@@ -1,0 +1,306 @@
+<div class="management-page">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <span (click)="goToWorkflows()" [class.active]="activeView === 'workflows'">
+      <i class="fa-solid fa-diagram-project"></i> Workflows
+    </span>
+    <span *ngIf="selectedWorkflow" (click)="goToSteps()" [class.active]="activeView === 'steps'">
+      <i class="fa-solid fa-chevron-right"></i> {{ selectedWorkflow.name }}
+    </span>
+    <span *ngIf="selectedStep" [class.active]="activeView === 'fields'">
+      <i class="fa-solid fa-chevron-right"></i> {{ selectedStep.title }}
+    </span>
+  </div>
+
+  <!-- ==================== WORKFLOWS VIEW ==================== -->
+  <div *ngIf="activeView === 'workflows'">
+    <div class="page-header">
+      <h1><i class="fa-solid fa-diagram-project"></i> Gestion des Workflows</h1>
+      <button class="btn-add" (click)="showWorkflowForm = !showWorkflowForm">
+        <i class="fa-solid fa-plus"></i> Nouveau workflow
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value">{{ totalWorkflows }}</div>
+        <div class="stat-label">Total workflows</div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-value">{{ activeWorkflows }}</div>
+        <div class="stat-label">Actifs</div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-value">{{ totalWorkflows - activeWorkflows }}</div>
+        <div class="stat-label">Inactifs</div>
+      </div>
+    </div>
+
+    <!-- Workflow Form -->
+    <div class="form-card" *ngIf="showWorkflowForm">
+      <h3>{{ editingWorkflow ? 'Modifier le' : 'Nouveau' }} workflow</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nom *</label>
+          <input [(ngModel)]="currentWorkflow.name" placeholder="Ex: Dépôt Offre emploi" />
+        </div>
+        <div class="form-group">
+          <label>Catégorie *</label>
+          <select [(ngModel)]="currentWorkflow.categoryId">
+            <option [value]="0">-- Sélectionner --</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.menuName }} > {{ cat.name }}</option>
+          </select>
+        </div>
+        <div class="form-group full-width">
+          <label>Description</label>
+          <input [(ngModel)]="currentWorkflow.description" placeholder="Description du workflow" />
+        </div>
+      </div>
+      <div class="form-row" style="margin-top: 10px;">
+        <label class="checkbox-label"><input type="checkbox" [(ngModel)]="currentWorkflow.isActive" /> Actif</label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" (click)="saveWorkflow()"><i class="fa-solid fa-check"></i> {{ editingWorkflow ? 'Modifier' : 'Créer' }}</button>
+        <button class="btn-cancel" (click)="cancelWorkflow()">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <input type="text" [(ngModel)]="searchText" placeholder="Rechercher..." class="search-input" (input)="applyFilter()" />
+        <button class="btn-refresh" (click)="loadWorkflows()"><i class="fa-solid fa-rotate-right"></i></button>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn-export" (click)="exportWorkflows()"><i class="fa-solid fa-file-excel"></i> Export</button>
+      </div>
+    </div>
+
+    <!-- Workflows Table -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Catégorie</th>
+          <th>Étapes</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let wf of filteredWorkflows">
+          <td>{{ wf.id }}</td>
+          <td><strong>{{ wf.name }}</strong></td>
+          <td>{{ wf.categoryName }}</td>
+          <td><span class="count-badge">{{ wf.stepsCount }}</span></td>
+          <td>
+            <span class="status-badge" [ngClass]="wf.isActive ? 'status-active' : 'status-inactive'" (click)="toggleWorkflowActive(wf)">
+              {{ wf.isActive ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn-view" (click)="selectWorkflow(wf)" title="Configurer"><i class="fa-solid fa-gear"></i></button>
+            <button class="btn-edit" (click)="editWorkflow(wf)" title="Modifier"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-copy" (click)="duplicateWorkflow(wf)" title="Dupliquer"><i class="fa-solid fa-copy"></i></button>
+            <button class="btn-delete" (click)="deleteWorkflow(wf.id)" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredWorkflows.length === 0">
+          <td colspan="6" class="empty-state">Aucun workflow trouvé</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ==================== STEPS VIEW ==================== -->
+  <div *ngIf="activeView === 'steps' && selectedWorkflow">
+    <div class="page-header">
+      <h1><i class="fa-solid fa-list-ol"></i> Étapes : {{ selectedWorkflow.name }}</h1>
+      <button class="btn-add" (click)="showStepForm = !showStepForm">
+        <i class="fa-solid fa-plus"></i> Nouvelle étape
+      </button>
+    </div>
+
+    <!-- Step Form -->
+    <div class="form-card" *ngIf="showStepForm">
+      <h3>{{ editingStep ? 'Modifier l\'' : 'Nouvelle ' }}étape</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input [(ngModel)]="currentStep.title" placeholder="Ex: Dites-nous en plus" />
+        </div>
+        <div class="form-group">
+          <label>Clé unique *</label>
+          <select [(ngModel)]="currentStep.stepKey">
+            <option value="">-- Sélectionner --</option>
+            <option *ngFor="let k of stepKeys" [value]="k">{{ k }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ordre</label>
+          <input [(ngModel)]="currentStep.stepOrder" type="number" />
+        </div>
+        <div class="form-group full-width">
+          <label>Sous-titre</label>
+          <input [(ngModel)]="currentStep.subtitle" placeholder="Description affichée sous le titre" />
+        </div>
+      </div>
+      <div class="form-row" style="margin-top: 10px;">
+        <label class="checkbox-label"><input type="checkbox" [(ngModel)]="currentStep.isRequired" /> Obligatoire</label>
+        <label class="checkbox-label"><input type="checkbox" [(ngModel)]="currentStep.isActive" /> Actif</label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" (click)="saveStep()"><i class="fa-solid fa-check"></i> {{ editingStep ? 'Modifier' : 'Créer' }}</button>
+        <button class="btn-cancel" (click)="cancelStep()">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Steps Table -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Clé</th>
+          <th>Titre</th>
+          <th>Sous-titre</th>
+          <th>Champs</th>
+          <th>Requis</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let step of steps" [class.selected-row]="selectedStep?.id === step.id">
+          <td><span class="order-badge">{{ step.stepOrder }}</span></td>
+          <td><code>{{ step.stepKey }}</code></td>
+          <td><strong>{{ step.title }}</strong></td>
+          <td class="subtitle-cell">{{ step.subtitle }}</td>
+          <td><span class="count-badge">{{ step.fieldsCount }}</span></td>
+          <td>{{ step.isRequired ? '✓' : '—' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="step.isActive ? 'status-active' : 'status-inactive'" (click)="toggleStepActive(step)">
+              {{ step.isActive ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn-view" (click)="selectStep(step)" title="Champs"><i class="fa-solid fa-gear"></i></button>
+            <button class="btn-edit" (click)="editStep(step)"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-delete" (click)="deleteStep(step.id)"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>
+        <tr *ngIf="steps.length === 0">
+          <td colspan="8" class="empty-state">Aucune étape configurée</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ==================== FIELDS VIEW ==================== -->
+  <div *ngIf="activeView === 'fields' && selectedStep">
+    <div class="page-header">
+      <h1><i class="fa-solid fa-sliders"></i> Champs : {{ selectedStep.title }}</h1>
+      <button class="btn-add" (click)="showFieldForm = !showFieldForm">
+        <i class="fa-solid fa-plus"></i> Nouveau champ
+      </button>
+    </div>
+
+    <!-- Field Form -->
+    <div class="form-card" *ngIf="showFieldForm">
+      <h3>{{ editingField ? 'Modifier le' : 'Nouveau' }} champ</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Clé unique *</label>
+          <input [(ngModel)]="currentField.fieldKey" placeholder="Ex: contract, salary..." />
+        </div>
+        <div class="form-group">
+          <label>Label *</label>
+          <input [(ngModel)]="currentField.label" placeholder="Label affiché" />
+        </div>
+        <div class="form-group">
+          <label>Type *</label>
+          <select [(ngModel)]="currentField.fieldType">
+            <option *ngFor="let t of fieldTypes" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Ordre</label>
+          <input [(ngModel)]="currentField.displayOrder" type="number" />
+        </div>
+        <div class="form-group">
+          <label>Placeholder</label>
+          <input [(ngModel)]="currentField.placeholder" placeholder="Texte indicatif" />
+        </div>
+        <div class="form-group">
+          <label>Suffixe</label>
+          <input [(ngModel)]="currentField.suffix" placeholder="Ex: TND, H/F" />
+        </div>
+        <div class="form-group">
+          <label>Valeur par défaut</label>
+          <input [(ngModel)]="currentField.defaultValue" />
+        </div>
+        <div class="form-group">
+          <label>Max length</label>
+          <input [(ngModel)]="currentField.maxLength" type="number" />
+        </div>
+        <div class="form-group full-width">
+          <label>Texte d'aide</label>
+          <input [(ngModel)]="currentField.helperText" placeholder="Aide contextuelle sous le champ" />
+        </div>
+        <div class="form-group full-width">
+          <label>Options JSON <small>(pour select/radio)</small></label>
+          <textarea [(ngModel)]="currentField.options" rows="3" placeholder='[{"value":"x","label":"Label X"},{"value":"y","label":"Label Y"}]'></textarea>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top: 10px;">
+        <label class="checkbox-label"><input type="checkbox" [(ngModel)]="currentField.isRequired" /> Obligatoire</label>
+        <label class="checkbox-label"><input type="checkbox" [(ngModel)]="currentField.isActive" /> Actif</label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" (click)="saveField()"><i class="fa-solid fa-check"></i> {{ editingField ? 'Modifier' : 'Créer' }}</button>
+        <button class="btn-cancel" (click)="cancelField()">Annuler</button>
+      </div>
+    </div>
+
+    <!-- Fields Table -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Clé</th>
+          <th>Label</th>
+          <th>Type</th>
+          <th>Suffixe</th>
+          <th>Défaut</th>
+          <th>Requis</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let field of fields">
+          <td><span class="order-badge">{{ field.displayOrder }}</span></td>
+          <td><code>{{ field.fieldKey }}</code></td>
+          <td>{{ field.label }}</td>
+          <td><span class="badge" [ngClass]="getFieldTypeBadgeClass(field.fieldType)">{{ field.fieldType }}</span></td>
+          <td>{{ field.suffix || '—' }}</td>
+          <td class="subtitle-cell">{{ field.defaultValue || '—' }}</td>
+          <td>{{ field.isRequired ? '✓' : '—' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="field.isActive ? 'status-active' : 'status-inactive'" (click)="toggleFieldActive(field)">
+              {{ field.isActive ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn-edit" (click)="editField(field)"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-delete" (click)="deleteField(field.id)"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>
+        <tr *ngIf="fields.length === 0">
+          <td colspan="9" class="empty-state">Aucun champ configuré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

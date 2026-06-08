@@ -185,7 +185,7 @@
             <!-- Textarea -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'textarea'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
-              <textarea [(ngModel)]="formData[field.fieldKey]" rows="8" style="width: 100%; height: 214px;" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 4000" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)"></textarea>
+              <textarea [(ngModel)]="formData[field.fieldKey]" rows="8" style="width: 100%; height: 214px; padding: 14px; line-height: 1.8;" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 4000" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)"></textarea>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
               <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
             </div>
