@@ -192,12 +192,25 @@
 
             <!-- Radio -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'radio'">
-              <label>{{ field.label }}</label>
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
               <div class="work-type-radios">
                 <label class="radio-inline" *ngFor="let opt of field.options">
                   <input type="radio" [name]="field.fieldKey" [value]="opt.value" [(ngModel)]="formData[field.fieldKey]" /> {{ opt.label }}
                 </label>
               </div>
+            </div>
+
+            <!-- Pills (multi-choice buttons like Énergie) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'pills'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="pill-group">
+                <div class="pill" *ngFor="let opt of field.options"
+                     [class.active]="formData[field.fieldKey] === opt.value"
+                     (click)="formData[field.fieldKey] = opt.value; clearFieldError(field.fieldKey)">
+                  {{ opt.label }}
+                </div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
             </div>
 
             <!-- Toggle -->

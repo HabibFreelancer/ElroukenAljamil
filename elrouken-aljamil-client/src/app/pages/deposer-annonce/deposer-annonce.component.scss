@@ -1316,3 +1316,33 @@ textarea.input-error {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+// Pills field type (multi-choice buttons)
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .pill {
+    padding: 9px 16px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+    color: #333;
+
+    &:hover {
+      border-color: #003366;
+      background: #f5f9ff;
+    }
+
+    &.active {
+      background: #eef5ff;
+      border-color: #003366;
+      color: #003366;
+      font-weight: 600;
+    }
+  }
+}
