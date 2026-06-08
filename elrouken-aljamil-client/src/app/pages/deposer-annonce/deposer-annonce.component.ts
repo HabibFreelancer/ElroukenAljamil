@@ -570,15 +570,12 @@ export class DeposerAnnonceComponent implements OnInit {
     if (!this.validateCurrentStep()) return;
 
     if (this.workflow && this.workflowSteps.length > 0) {
-      // Dynamic workflow navigation
       if (this.currentStep === 1) {
-        // Skip to step 2 (first workflow step after title)
         this.currentStep = 2;
       } else if (!this.isLastStep()) {
         this.currentStep++;
       }
     } else {
-      // Legacy hardcoded navigation
       if (this.currentStep === 1 && (this.isEmploiCategory() || this.isVehiculeCategory)) {
         if (this.isEmploiCategory()) {
           this.emploiForm.poste = this.annonce.title;
@@ -594,6 +591,7 @@ export class DeposerAnnonceComponent implements OnInit {
       }
     }
     this.saveState();
+    this.onStepChanged();
   }
 
   prevStep() {
@@ -614,6 +612,34 @@ export class DeposerAnnonceComponent implements OnInit {
         this.saveState();
       }
     }
+    this.onStepChanged();
+  }
+
+  private onStepChanged() {
+    // Re-display map if returning to a location step with address already filled
+    setTimeout(() => {
+      const mapContainer = document.getElementById('map');
+      if (!mapContainer) return;
+
+      // Destroy old map instance if container changed
+      if (this.map) {
+        this.map.remove();
+        this.map = null;
+        this.marker = null;
+      }
+
+      // Check if address is filled (dynamic workflow or legacy)
+      const address = this.formData['address'] || this.emploiForm.address;
+      if (address && this.selectedAddress) {
+        // Re-geocode to get coordinates
+        this.http.get<any[]>(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`)
+          .subscribe(results => {
+            if (results && results.length > 0) {
+              this.showMap(parseFloat(results[0].lat), parseFloat(results[0].lon));
+            }
+          });
+      }
+    }, 300);
   }
 
   isEmploiCategory(): boolean {
