@@ -968,3 +968,250 @@
     }
   }
 }
+
+.input-with-suffix {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  max-width: 250px;
+
+  input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .suffix {
+    padding: 12px;
+    background: #f5f7f9;
+    border-left: 1px solid #ccc;
+    color: #666;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+}
+
+.helper-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.toggle-group {
+  display: flex;
+  align-items: flex-start;
+  margin: 20px 0;
+  gap: 12px;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+
+  .toggle {
+    width: 40px;
+    min-width: 40px;
+    height: 22px;
+    border-radius: 11px;
+    background: #ccc;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &.active {
+      background: #ff6e14;
+
+      .toggle-knob {
+        transform: translateX(18px);
+      }
+    }
+
+    .toggle-knob {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+  }
+}
+
+.address-input {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+
+  i { color: #666; }
+
+  input {
+    flex: 1;
+    padding: 12px 10px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .clear-icon {
+    cursor: pointer;
+    color: #999;
+
+    &:hover { color: #d32f2f; }
+  }
+}
+
+.address-results {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-top: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+  .address-result-item {
+    padding: 10px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+    border-bottom: 1px solid #f5f5f5;
+
+    &:last-child { border-bottom: none; }
+    &:hover { background: #f9f9f9; color: #ff6e14; }
+
+    i { color: #ff6e14; font-size: 12px; }
+  }
+}
+
+.map-placeholder {
+  height: 200px;
+  background: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #999;
+  font-size: 13px;
+}
+
+
+// Improved spacing for step pages
+.step-title {
+  font-size: 1.5rem !important;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px !important;
+}
+
+.step-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.field-group.spaced {
+  margin-bottom: 28px;
+
+  label {
+    margin-bottom: 12px;
+  }
+
+  select, textarea, input {
+    margin-top: 4px;
+  }
+}
+
+// Map container (Leaflet)
+.map-container {
+  height: 400px !important;
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 20px;
+  border: 1px solid #e0e0e0;
+  z-index: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+// Phone input (Vos coordonnées)
+.phone-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+
+  .phone-prefix {
+    padding: 12px 14px;
+    background: #f5f7f9;
+    border-right: 1px solid #ccc;
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+}
+
+// Readonly input
+.input-readonly {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #f9f9f9;
+  font-size: 14px;
+  color: #555;
+  cursor: not-allowed;
+}
+
+// Legal text
+.legal-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 24px;
+  line-height: 1.6;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border-left: 3px solid #ff6e14;
+}
+
+// Validation error styles
+.input-error {
+  border-color: #d32f2f !important;
+}
+
+textarea.input-error {
+  border-color: #d32f2f !important;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #d32f2f;
+  margin-top: 5px;
+  font-weight: 500;
+}

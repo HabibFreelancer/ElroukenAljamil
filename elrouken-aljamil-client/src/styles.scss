@@ -6,6 +6,7 @@
             --max-width: 1200px;
         }
 
+        * { box-sizing: border-box; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: #f5f5f5; }
 
@@ -82,4 +83,32 @@
 
 .categories-footer .categories-column ul:last-child {
   border-bottom: none !important;
+}
+
+/* Leaflet fix - prevent global reset from breaking map tiles */
+#map {
+  height: 400px !important;
+  width: 100%;
+  z-index: 0;
+}
+
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  z-index: 0;
+}
+
+.leaflet-tile-pane {
+  position: absolute !important;
+}
+
+.leaflet-tile {
+  position: absolute !important;
+  width: 256px !important;
+  height: 256px !important;
+}
+
+.leaflet-control-container .leaflet-top,
+.leaflet-control-container .leaflet-bottom {
+  z-index: 999;
 }
