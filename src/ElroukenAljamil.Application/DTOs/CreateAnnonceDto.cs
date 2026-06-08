@@ -1,8 +1,7 @@
-namespace ElroukenAljamil.Domain.Entities;
+namespace ElroukenAljamil.Application.DTOs;
 
-public class Annonce
+public class CreateAnnonceDto
 {
-    public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Price { get; set; }
@@ -13,7 +12,5 @@ public class Annonce
     public string Phone { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public bool HidePhone { get; set; }
-    public string ExtraData { get; set; } = string.Empty; // JSON for workflow-specific fields
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public Category? Category { get; set; }
+    public Dictionary<string, object>? ExtraData { get; set; }
 }

@@ -81,6 +81,9 @@ export class DeposerAnnonceComponent implements OnInit {
   workflowSteps: WorkflowStep[] = [];
   formData: { [key: string]: any } = {};
   fieldErrors: { [key: string]: boolean } = {};
+  submitted = false;
+  submittedAnnonceId: number | null = null;
+  submitting = false;
 
   contactForm = {
     email: 'user@example.com',
@@ -143,7 +146,7 @@ export class DeposerAnnonceComponent implements OnInit {
     this.initGeolocation();
   }
 
-  private resetForm() {
+  resetForm() {
     sessionStorage.removeItem('deposer_step');
     sessionStorage.removeItem('deposer_data');
     this.currentStep = 1;
@@ -157,6 +160,12 @@ export class DeposerAnnonceComponent implements OnInit {
     this.suggestedCategories = [];
     this.showCategoryBrowser = false;
     this.categoryError = false;
+    this.workflow = null;
+    this.workflowSteps = [];
+    this.formData = {};
+    this.fieldErrors = {};
+    this.submitted = false;
+    this.submittedAnnonceId = null;
   }
 
   private saveState() {
@@ -612,6 +621,37 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   submit() {
-    alert('Annonce publiée avec succès !');
+    this.submitting = true;
+    const payload: any = {
+      title: this.annonce.title,
+      categoryId: this.selectedCategoryId,
+      adType: this.annonce.adType,
+      description: this.annonce.description || this.formData['experienceDesc'] || '',
+      price: this.annonce.price || this.formData['salary'] || 0,
+      condition: this.annonce.condition,
+      location: this.annonce.location || this.formData['address'] || this.emploiForm.address || '',
+      phone: this.contactForm.phone || this.formData['phone'] || '',
+      email: this.contactForm.email || this.formData['email'] || '',
+      hidePhone: this.contactForm.hidePhone || this.formData['hidePhone'] === 'true',
+      extraData: this.workflow ? this.formData : {
+        ...this.emploiForm,
+        contactPhone: this.contactForm.phone,
+        contactEmail: this.contactForm.email
+      }
+    };
+
+    this.http.post<any>(`${this.apiUrl}/annonces`, payload).subscribe({
+      next: (res) => {
+        this.submitted = true;
+        this.submittedAnnonceId = res.id;
+        this.submitting = false;
+        sessionStorage.removeItem('deposer_step');
+        sessionStorage.removeItem('deposer_data');
+      },
+      error: () => {
+        this.submitting = false;
+        alert('Une erreur est survenue. Veuillez réessayer.');
+      }
+    });
   }
 }

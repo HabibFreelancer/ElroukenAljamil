@@ -571,15 +571,36 @@
       <p class="legal-text">En validant la diffusion de mon annonce, j'accepte les conditions générales d'utilisation et les règles de diffusion du site ElroukenAljamil et j'autorise ElroukenAljamil à diffuser mon annonce.</p>
     </div>
     </ng-container>
-    <div class="form-actions">
+
+    <!-- Page de succès après dépôt -->
+    <div class="form-card success-card" *ngIf="submitted">
+      <div class="success-content">
+        <div class="success-icon">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h2>Félicitations !</h2>
+        <p class="success-message">Votre annonce a été déposée avec succès.</p>
+        <p class="success-sub">Elle sera visible après validation par notre équipe.</p>
+        <div class="success-ref" *ngIf="submittedAnnonceId">
+          <span>Référence : #{{ submittedAnnonceId }}</span>
+        </div>
+        <div class="success-actions">
+          <a routerLink="/" class="btn-home"><i class="fa-solid fa-house"></i> Retour à l'accueil</a>
+          <button class="btn-new" (click)="resetForm()"><i class="fa-solid fa-plus"></i> Déposer une autre annonce</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions" *ngIf="!submitted">
       <button class="btn-back" *ngIf="currentStep > 1" (click)="prevStep()">
         <i class="fa-solid fa-arrow-left"></i> Retour
       </button>
       <button class="btn-continue" *ngIf="!isLastStep()" (click)="nextStep()">
         Continuer <i class="fa-solid fa-arrow-right"></i>
       </button>
-      <button class="btn-publish" *ngIf="isLastStep()" (click)="submit()">
-        <i class="fa-solid fa-paper-plane"></i> Déposer votre annonce
+      <button class="btn-publish" *ngIf="isLastStep()" (click)="submit()" [disabled]="submitting">
+        <i class="fa-solid" [class.fa-paper-plane]="!submitting" [class.fa-spinner]="submitting" [class.fa-spin]="submitting"></i>
+        {{ submitting ? 'Envoi en cours...' : 'Déposer votre annonce' }}
       </button>
     </div>
     </div>

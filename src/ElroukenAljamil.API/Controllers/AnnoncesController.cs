@@ -1,3 +1,5 @@
+using System.Text.Json;
+using ElroukenAljamil.Application.DTOs;
 using ElroukenAljamil.Domain.Entities;
 using ElroukenAljamil.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +16,34 @@ public class AnnoncesController : ControllerBase
     public AnnoncesController(AppDbContext context)
     {
         _context = context;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<object>> Create([FromBody] CreateAnnonceDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Title) || dto.CategoryId == 0)
+            return BadRequest(new { message = "Le titre et la catégorie sont obligatoires." });
+
+        var annonce = new Annonce
+        {
+            Title = dto.Title,
+            Description = dto.Description,
+            Price = dto.Price,
+            CategoryId = dto.CategoryId,
+            AdType = dto.AdType,
+            Condition = dto.Condition,
+            Location = dto.Location,
+            Phone = dto.Phone,
+            Email = dto.Email,
+            HidePhone = dto.HidePhone,
+            ExtraData = dto.ExtraData != null ? JsonSerializer.Serialize(dto.ExtraData) : "",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Annonces.Add(annonce);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { id = annonce.Id, message = "Annonce déposée avec succès !" });
     }
 
     [HttpGet("suggest-categories")]
