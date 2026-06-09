@@ -136,6 +136,10 @@
             <i class="fa-solid fa-circle-check"></i> Vous avez atteint le maximum de 5 photos.
           </p>
 
+          <p class="error-text" *ngIf="photosError" style="margin-top: 12px;">
+            <i class="fa-solid fa-circle-exclamation"></i> Veuillez ajouter les 5 photos pour continuer.
+          </p>
+
           <div class="info-link">
             <i class="fa-solid fa-circle-info"></i>
             <span>En savoir plus</span>
@@ -164,11 +168,15 @@
             <div class="field-group spaced" *ngIf="field.fieldType === 'immatriculation'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
               <div class="immat-input" [class.input-error]="fieldErrors[field.fieldKey]">
-                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey)" class="immat-field" />
-                <button class="btn-validate" type="button">Valider</button>
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey); immatError = ''" class="immat-field" />
+                <button class="btn-validate" type="button" (click)="validateImmatriculation()" [disabled]="immatLoading">
+                  {{ immatLoading ? 'Chargement...' : 'Valider' }}
+                </button>
               </div>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
-              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+              <p class="error-text" *ngIf="immatError">{{ immatError }}</p>
+              <p class="success-text" *ngIf="immatSuccess"><i class="fa-solid fa-circle-check"></i> {{ immatSuccess }}</p>
+              <p class="helper-text" *ngIf="field.helperText && !immatError && !immatSuccess">{{ field.helperText }}</p>
             </div>
 
             <!-- Date month (MM/AAAA) -->

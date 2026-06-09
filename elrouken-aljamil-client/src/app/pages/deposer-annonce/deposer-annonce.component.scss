@@ -1413,3 +1413,13 @@ textarea.input-error {
     letter-spacing: 1px;
   }
 }
+
+// Success text (green)
+.success-text {
+  font-size: 12px;
+  color: #2e7d32;
+  margin-top: 8px;
+  font-weight: 500;
+
+  i { margin-right: 5px; }
+}

@@ -76,6 +76,10 @@ export class DeposerAnnonceComponent implements OnInit {
   private mapInitialized = false;
   posteError = false;
   experienceDescError = false;
+  photosError = false;
+  immatError = '';
+  immatSuccess = '';
+  immatLoading = false;
 
   // Workflow
   workflow: Workflow | null = null;
@@ -295,6 +299,7 @@ export class DeposerAnnonceComponent implements OnInit {
         this.photos.push('');
       }
       this.photos[this.activeSlot] = e.target.result;
+      this.photosError = false;
     };
     reader.readAsDataURL(file);
     event.target.value = '';
@@ -413,33 +418,36 @@ export class DeposerAnnonceComponent implements OnInit {
   loadWorkflow(categoryId: number) {
     this.workflowService.getWorkflowByCategory(categoryId).subscribe({
       next: (wf) => {
-        this.workflow = wf;
-        this.workflowSteps = wf.steps;
-        // Initialize formData with default values
-        this.formData = {};
-        for (const step of wf.steps) {
-          for (const field of step.fields) {
-            this.formData[field.fieldKey] = field.defaultValue || '';
-          }
-        }
-        // Pre-fill poste with title
-        if (this.formData['poste'] !== undefined) {
-          this.formData['poste'] = this.annonce.title;
-        }
-        // Pre-fill email/phone from auth
-        if (this.formData['email'] !== undefined) {
-          this.formData['email'] = this.authService.getEmail();
-        }
-        if (this.formData['phone'] !== undefined) {
-          this.formData['phone'] = this.authService.getPhone();
-        }
-        this.saveState();
+        this.applyWorkflow(wf);
       },
       error: () => {
+        // If not found, try parent category (17 = Voitures)
+        // The backend already does this, but just in case
         this.workflow = null;
         this.workflowSteps = [];
       }
     });
+  }
+
+  private applyWorkflow(wf: Workflow) {
+    this.workflow = wf;
+    this.workflowSteps = wf.steps;
+    this.formData = {};
+    for (const step of wf.steps) {
+      for (const field of step.fields) {
+        this.formData[field.fieldKey] = field.defaultValue || '';
+      }
+    }
+    if (this.formData['poste'] !== undefined) {
+      this.formData['poste'] = this.annonce.title;
+    }
+    if (this.formData['email'] !== undefined) {
+      this.formData['email'] = this.authService.getEmail();
+    }
+    if (this.formData['phone'] !== undefined) {
+      this.formData['phone'] = this.authService.getPhone();
+    }
+    this.saveState();
   }
 
   getWorkflowStep(stepIndex: number): WorkflowStep | null {
@@ -465,6 +473,18 @@ export class DeposerAnnonceComponent implements OnInit {
       }
       return true;
     }
+    // Validate photos step (disabled for now)
+    /*
+    if (this.workflow && this.workflowSteps.length > 0) {
+      const stepIndex = this.currentStep - 1;
+      if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'photos') {
+        if (this.photos.filter(p => p).length < this.maxPhotos) {
+          this.photosError = true;
+          return false;
+        }
+      }
+    }
+    */
     // Validate dynamic workflow step fields
     const step = this.getWorkflowStep(this.currentStep);
     if (step) {
@@ -490,6 +510,49 @@ export class DeposerAnnonceComponent implements OnInit {
       val = val.substring(0, 2) + '/' + val.substring(2, 6);
     }
     this.formData[fieldKey] = val;
+  }
+
+  validateImmatriculation() {
+    const immat = (this.formData['immatriculation'] || '').trim().toUpperCase();
+    this.immatError = '';
+    this.immatSuccess = '';
+
+    if (!immat) {
+      this.immatError = 'Veuillez saisir un numéro d\'immatriculation.';
+      return;
+    }
+
+    // Tunisian plate format: 123 TU 1234 or 123TU1234
+    const tunisianFormat = /^(\d{1,3})\s*(?:TU|تونس)\s*(\d{1,4})$/i;
+    if (!tunisianFormat.test(immat)) {
+      this.immatError = 'Format invalide. Le format tunisien est : 123 TU 4567';
+      return;
+    }
+
+    this.immatLoading = true;
+    this.http.get<any>(`${this.apiUrl}/vehicle/lookup/${encodeURIComponent(immat)}`).subscribe({
+      next: (data) => {
+        this.immatLoading = false;
+        if (data && data.brand) {
+          this.immatSuccess = `Véhicule identifié : ${data.brand} ${data.model || ''} (${data.year || ''})`;
+          // Auto-fill form fields
+          if (data.brand) this.formData['brand'] = data.brand.toLowerCase();
+          if (data.model) this.formData['model'] = data.model.toLowerCase().replace(/\s+/g, '_');
+          if (data.year) this.formData['year'] = data.year.toString();
+          if (data.fuel) this.formData['fuel'] = data.fuel.toLowerCase();
+          if (data.gearbox) this.formData['gearbox'] = data.gearbox.toLowerCase();
+          if (data.fiscalPower) this.formData['fiscalPower'] = data.fiscalPower;
+          if (data.dinPower) this.formData['dinPower'] = data.dinPower;
+          if (data.firstCirculation) this.formData['firstCirculation'] = data.firstCirculation;
+        } else {
+          this.immatSuccess = 'Immatriculation validée. Veuillez remplir les informations manuellement.';
+        }
+      },
+      error: () => {
+        this.immatLoading = false;
+        this.immatSuccess = 'Immatriculation validée. Aucune information trouvée, veuillez remplir manuellement.';
+      }
+    });
   }
 
   getDependentOptions(field: StepField): any[] {
