@@ -160,6 +160,38 @@
               <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
             </div>
 
+            <!-- Immatriculation (text with validate button) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'immatriculation'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="immat-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey)" class="immat-field" />
+                <button class="btn-validate" type="button">Valider</button>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Date month (MM/AAAA) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'date_month'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="date-month-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                <i class="fa-regular fa-calendar"></i>
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" placeholder="MM / AAAA" maxlength="7" (input)="onDateMonthInput(field.fieldKey); clearFieldError(field.fieldKey)" />
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Dependent select (model depends on brand) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'dependent_select'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <select [(ngModel)]="formData[field.fieldKey]" [class.input-error]="fieldErrors[field.fieldKey]" (change)="clearFieldError(field.fieldKey)">
+                <option value="">{{ field.placeholder || 'Choisissez' }}</option>
+                <option *ngFor="let opt of getDependentOptions(field)" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+            </div>
+
             <!-- Number input -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'number'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>

@@ -484,6 +484,46 @@ export class DeposerAnnonceComponent implements OnInit {
     this.fieldErrors[fieldKey] = false;
   }
 
+  onDateMonthInput(fieldKey: string) {
+    let val = this.formData[fieldKey]?.replace(/[^0-9]/g, '') || '';
+    if (val.length > 2) {
+      val = val.substring(0, 2) + '/' + val.substring(2, 6);
+    }
+    this.formData[fieldKey] = val;
+  }
+
+  getDependentOptions(field: StepField): any[] {
+    // Model depends on brand
+    if (field.fieldKey === 'model') {
+      const brand = this.formData['brand'];
+      if (!brand) return [];
+      return this.carModels[brand] || [];
+    }
+    return field.options;
+  }
+
+  carModels: { [brand: string]: { value: string; label: string }[] } = {
+    peugeot: [{value:'108',label:'108'},{value:'208',label:'208'},{value:'308',label:'308'},{value:'408',label:'408'},{value:'508',label:'508'},{value:'2008',label:'2008'},{value:'3008',label:'3008'},{value:'5008',label:'5008'},{value:'rifter',label:'Rifter'},{value:'partner',label:'Partner'}],
+    renault: [{value:'clio',label:'Clio'},{value:'megane',label:'Megane'},{value:'captur',label:'Captur'},{value:'kadjar',label:'Kadjar'},{value:'scenic',label:'Scenic'},{value:'talisman',label:'Talisman'},{value:'kangoo',label:'Kangoo'},{value:'twingo',label:'Twingo'},{value:'zoe',label:'Zoe'},{value:'arkana',label:'Arkana'},{value:'austral',label:'Austral'}],
+    citroen: [{value:'c1',label:'C1'},{value:'c3',label:'C3'},{value:'c4',label:'C4'},{value:'c5_aircross',label:'C5 Aircross'},{value:'berlingo',label:'Berlingo'},{value:'ds3',label:'DS3'},{value:'ds4',label:'DS4'},{value:'ds7',label:'DS7'}],
+    volkswagen: [{value:'polo',label:'Polo'},{value:'golf',label:'Golf'},{value:'tiguan',label:'Tiguan'},{value:'touran',label:'Touran'},{value:'passat',label:'Passat'},{value:'t_roc',label:'T-Roc'},{value:'t_cross',label:'T-Cross'},{value:'arteon',label:'Arteon'},{value:'id3',label:'ID.3'},{value:'id4',label:'ID.4'}],
+    bmw: [{value:'serie1',label:'Série 1'},{value:'serie2',label:'Série 2'},{value:'serie3',label:'Série 3'},{value:'serie4',label:'Série 4'},{value:'serie5',label:'Série 5'},{value:'x1',label:'X1'},{value:'x3',label:'X3'},{value:'x5',label:'X5'},{value:'x6',label:'X6'},{value:'ix',label:'iX'}],
+    mercedes: [{value:'classe_a',label:'Classe A'},{value:'classe_b',label:'Classe B'},{value:'classe_c',label:'Classe C'},{value:'classe_e',label:'Classe E'},{value:'classe_s',label:'Classe S'},{value:'gla',label:'GLA'},{value:'glb',label:'GLB'},{value:'glc',label:'GLC'},{value:'gle',label:'GLE'},{value:'eqc',label:'EQC'}],
+    audi: [{value:'a1',label:'A1'},{value:'a3',label:'A3'},{value:'a4',label:'A4'},{value:'a5',label:'A5'},{value:'a6',label:'A6'},{value:'q2',label:'Q2'},{value:'q3',label:'Q3'},{value:'q5',label:'Q5'},{value:'q7',label:'Q7'},{value:'e_tron',label:'e-tron'}],
+    toyota: [{value:'yaris',label:'Yaris'},{value:'corolla',label:'Corolla'},{value:'c_hr',label:'C-HR'},{value:'rav4',label:'RAV4'},{value:'land_cruiser',label:'Land Cruiser'},{value:'hilux',label:'Hilux'},{value:'camry',label:'Camry'},{value:'aygo',label:'Aygo'}],
+    hyundai: [{value:'i10',label:'i10'},{value:'i20',label:'i20'},{value:'i30',label:'i30'},{value:'tucson',label:'Tucson'},{value:'kona',label:'Kona'},{value:'santa_fe',label:'Santa Fe'},{value:'ioniq',label:'Ioniq'}],
+    kia: [{value:'picanto',label:'Picanto'},{value:'rio',label:'Rio'},{value:'ceed',label:'Ceed'},{value:'sportage',label:'Sportage'},{value:'niro',label:'Niro'},{value:'sorento',label:'Sorento'},{value:'ev6',label:'EV6'}],
+    fiat: [{value:'500',label:'500'},{value:'panda',label:'Panda'},{value:'tipo',label:'Tipo'},{value:'500x',label:'500X'},{value:'doblo',label:'Doblo'}],
+    nissan: [{value:'micra',label:'Micra'},{value:'juke',label:'Juke'},{value:'qashqai',label:'Qashqai'},{value:'x_trail',label:'X-Trail'},{value:'leaf',label:'Leaf'},{value:'navara',label:'Navara'}],
+    ford: [{value:'fiesta',label:'Fiesta'},{value:'focus',label:'Focus'},{value:'puma',label:'Puma'},{value:'kuga',label:'Kuga'},{value:'mustang',label:'Mustang'},{value:'ranger',label:'Ranger'}],
+    opel: [{value:'corsa',label:'Corsa'},{value:'astra',label:'Astra'},{value:'mokka',label:'Mokka'},{value:'crossland',label:'Crossland'},{value:'grandland',label:'Grandland'}],
+    dacia: [{value:'sandero',label:'Sandero'},{value:'duster',label:'Duster'},{value:'logan',label:'Logan'},{value:'jogger',label:'Jogger'},{value:'spring',label:'Spring'}],
+    seat: [{value:'ibiza',label:'Ibiza'},{value:'leon',label:'Leon'},{value:'arona',label:'Arona'},{value:'ateca',label:'Ateca'},{value:'tarraco',label:'Tarraco'}],
+    skoda: [{value:'fabia',label:'Fabia'},{value:'octavia',label:'Octavia'},{value:'kamiq',label:'Kamiq'},{value:'karoq',label:'Karoq'},{value:'kodiaq',label:'Kodiaq'},{value:'superb',label:'Superb'}],
+    suzuki: [{value:'swift',label:'Swift'},{value:'vitara',label:'Vitara'},{value:'s_cross',label:'S-Cross'},{value:'jimny',label:'Jimny'},{value:'ignis',label:'Ignis'}],
+    autre: [{value:'autre',label:'Autre modèle'}]
+  };
+
   onAddressInput(fieldKey: string) {
     const value = this.formData[fieldKey];
     if (value && value.length >= 3) {

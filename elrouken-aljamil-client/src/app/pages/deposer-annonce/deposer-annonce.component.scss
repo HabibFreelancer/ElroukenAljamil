@@ -1346,3 +1346,70 @@ textarea.input-error {
     }
   }
 }
+
+// Immatriculation field (input + validate button)
+.immat-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  .immat-field {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    outline: none;
+
+    &:focus { border-color: #ff6e14; }
+  }
+
+  .btn-validate {
+    padding: 12px 20px;
+    border: 2px solid #333;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: all 0.2s;
+
+    &:hover { background: #333; color: #fff; }
+  }
+
+  &.input-error .immat-field { border-color: #d32f2f; }
+}
+
+// Date month field (MM/AAAA with calendar icon)
+.date-month-input {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  transition: border-color 0.2s;
+
+  &:focus-within { border-color: #ff6e14; }
+  &.input-error { border-color: #d32f2f; }
+
+  i {
+    color: #888;
+    font-size: 16px;
+    margin-right: 10px;
+  }
+
+  input {
+    flex: 1;
+    padding: 12px 0;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    letter-spacing: 1px;
+  }
+}

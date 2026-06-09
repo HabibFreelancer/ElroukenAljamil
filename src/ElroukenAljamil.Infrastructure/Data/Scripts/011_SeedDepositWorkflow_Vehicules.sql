@@ -40,18 +40,18 @@ BEGIN
 
     -- Step: Details (vehicule specifics)
     INSERT INTO StepFields (StepId, FieldKey, Label, FieldType, Placeholder, Options, DefaultValue, Suffix, HelperText, IsRequired, DisplayOrder, IsActive, MaxLength, ValidationRegex) VALUES
-    (@StepDetails, 'immatriculation', N'Numero d''immatriculation', 'text', N'Ex: 123 TU 4567', '', '', '',
+    (@StepDetails, 'immatriculation', N'Numero d''immatriculation', 'immatriculation', N'Ex: 123 TU 4567', '', '', '',
      N'Il ne sera pas visible sur l''annonce. Il est conserve pour pre-remplir d''autres formulaires.', 1, 1, 1, 20, ''),
     (@StepDetails, 'brand', N'Marque', 'select', N'Choisissez',
      N'[{"value":"peugeot","label":"Peugeot"},{"value":"renault","label":"Renault"},{"value":"citroen","label":"Citroen"},{"value":"volkswagen","label":"Volkswagen"},{"value":"bmw","label":"BMW"},{"value":"mercedes","label":"Mercedes"},{"value":"audi","label":"Audi"},{"value":"toyota","label":"Toyota"},{"value":"hyundai","label":"Hyundai"},{"value":"kia","label":"Kia"},{"value":"fiat","label":"Fiat"},{"value":"nissan","label":"Nissan"},{"value":"ford","label":"Ford"},{"value":"opel","label":"Opel"},{"value":"dacia","label":"Dacia"},{"value":"seat","label":"Seat"},{"value":"skoda","label":"Skoda"},{"value":"suzuki","label":"Suzuki"},{"value":"autre","label":"Autre"}]',
      '', '', '', 1, 2, 1, NULL, ''),
-    (@StepDetails, 'model', N'Modele', 'text', N'Ex: C5 Aircross, 308, Golf...', '', '', '', '', 1, 3, 1, 100, ''),
+    (@StepDetails, 'model', N'Modele', 'dependent_select', N'Choisissez', '', '', '', '', 1, 3, 1, 100, ''),
     (@StepDetails, 'year', N'Annee modele', 'select', N'Choisissez',
      N'[{"value":"2024","label":"2024"},{"value":"2023","label":"2023"},{"value":"2022","label":"2022"},{"value":"2021","label":"2021"},{"value":"2020","label":"2020"},{"value":"2019","label":"2019"},{"value":"2018","label":"2018"},{"value":"2017","label":"2017"},{"value":"2016","label":"2016"},{"value":"2015","label":"2015"},{"value":"2014","label":"2014"},{"value":"2013","label":"2013"},{"value":"2012","label":"2012"},{"value":"2011","label":"2011"},{"value":"2010","label":"2010"},{"value":"avant_2010","label":"Avant 2010"}]',
      '', '', '', 1, 4, 1, NULL, ''),
-    (@StepDetails, 'firstCirculation', N'Date de premiere mise en circulation', 'text', N'MM/AAAA', '', '', '',
+    (@StepDetails, 'firstCirculation', N'Date de premiere mise en circulation', 'date_month', N'MM/AAAA', '', '', '',
      N'Mention obligatoire dans le cadre de la vente de vehicule d''occasion.', 0, 5, 1, 7, ''),
-    (@StepDetails, 'technicalControl', N'Date de fin de validite du controle technique', 'text', N'MM/AAAA', '', '', '', '', 0, 6, 1, 7, ''),
+    (@StepDetails, 'technicalControl', N'Date de fin de validite du controle technique', 'date_month', N'MM/AAAA', '', '', '', '', 0, 6, 1, 7, ''),
     (@StepDetails, 'fuel', N'Energie', 'pills', N'',
      N'[{"value":"essence","label":"Essence"},{"value":"diesel","label":"Diesel"},{"value":"hybride","label":"Hybride"},{"value":"hybride_rechargeable","label":"Hybride Rechargeable"},{"value":"electrique","label":"Electrique"},{"value":"gpl","label":"GPL"},{"value":"gnv","label":"Gaz Naturel (GNV)"},{"value":"autre","label":"Autre"}]',
      '', '', '', 1, 7, 1, NULL, ''),
