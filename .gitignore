@@ -5,6 +5,9 @@
 **/bin/
 **/obj/
 
+# Secrets (local dev only)
+**/appsettings.Development.json
+
 # Angular
 elrouken-aljamil-client/node_modules/
 elrouken-aljamil-client/dist/
