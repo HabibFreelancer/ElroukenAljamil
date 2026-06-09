@@ -80,6 +80,7 @@ export class DeposerAnnonceComponent implements OnInit {
   immatError = '';
   immatSuccess = '';
   immatLoading = false;
+  aiGenerating = false;
 
   // Workflow
   workflow: Workflow | null = null;
@@ -563,6 +564,45 @@ export class DeposerAnnonceComponent implements OnInit {
       return this.carModels[brand] || [];
     }
     return field.options;
+  }
+
+  generateDescription(fieldKey: string) {
+    this.aiGenerating = true;
+    const context: any = {};
+    for (const key of Object.keys(this.formData)) {
+      if (this.formData[key] && key !== fieldKey) context[key] = this.formData[key];
+    }
+    context.title = this.annonce.title;
+    context.category = this.annonce.category;
+
+    this.http.post<any>(`${this.apiUrl}/ai/generate-description`, context).subscribe({
+      next: (res) => {
+        this.aiGenerating = false;
+        if (res && res.description) this.formData[fieldKey] = res.description;
+      },
+      error: () => {
+        this.aiGenerating = false;
+        this.formData[fieldKey] = this.buildFallbackDescription();
+      }
+    });
+  }
+
+  private buildFallbackDescription(): string {
+    const parts: string[] = [];
+    const brand = this.formData['brand'];
+    const model = this.formData['model'];
+    const year = this.formData['year'];
+    const fuel = this.formData['fuel'];
+    const mileage = this.formData['mileage'];
+    const gearbox = this.formData['gearbox'];
+    if (brand || model) parts.push(`V\u00e9hicule : ${brand || ''} ${model || ''}`.trim());
+    if (year) parts.push(`Ann\u00e9e : ${year}`);
+    if (fuel) parts.push(`\u00c9nergie : ${fuel}`);
+    if (gearbox) parts.push(`Bo\u00eete : ${gearbox}`);
+    if (mileage) parts.push(`Kilom\u00e9trage : ${mileage} km`);
+    parts.push('\nV\u00e9hicule en bon \u00e9tat g\u00e9n\u00e9ral, entretenu r\u00e9guli\u00e8rement.');
+    parts.push('N\'h\u00e9sitez pas \u00e0 me contacter pour plus d\'informations ou pour organiser un essai.');
+    return parts.join('\n');
   }
 
   carModels: { [brand: string]: { value: string; label: string }[] } = {
