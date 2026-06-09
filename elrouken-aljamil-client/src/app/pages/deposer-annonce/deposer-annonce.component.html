@@ -211,7 +211,9 @@
             <!-- Text with character counter -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'text_counter'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
-              <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 200" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)" />
+              <div class="text-counter-wrapper" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 200" (input)="clearFieldError(field.fieldKey)" (focus)="prefillTitleField(field.fieldKey)" />
+              </div>
               <div class="char-count">{{ (formData[field.fieldKey] || '').length }}/{{ field.maxLength || 200 }}</div>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
             </div>
@@ -219,12 +221,16 @@
             <!-- Textarea with character counter + AI generate button -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'textarea_counter'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
-              <button class="btn-ai-generate" type="button" (click)="generateDescription(field.fieldKey)" [disabled]="aiGenerating">
+              <button class="btn-ai-generate" type="button" *ngIf="!formData[field.fieldKey]" (click)="generateDescription(field.fieldKey)" [disabled]="aiGenerating">
                 <i class="fa-solid" [class.fa-wand-magic-sparkles]="!aiGenerating" [class.fa-spinner]="aiGenerating" [class.fa-spin]="aiGenerating"></i>
-                {{ aiGenerating ? 'Génération...' : 'Générer une description' }}
+                {{ aiGenerating ? 'Génération en cours...' : 'Générer une description' }}
               </button>
-              <textarea [(ngModel)]="formData[field.fieldKey]" rows="8" style="width: 100%; padding: 14px; line-height: 1.8; margin-top: 12px;" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 4000" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)"></textarea>
+              <textarea [(ngModel)]="formData[field.fieldKey]" rows="10" class="textarea-counter" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 4000" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)"></textarea>
               <div class="char-count">{{ (formData[field.fieldKey] || '').length }}/{{ field.maxLength || 4000 }}</div>
+              <p class="ai-disclaimer" *ngIf="formData[field.fieldKey]">
+                <i class="fa-solid fa-robot"></i>
+                Cette description est générée automatiquement par une Intelligence Artificielle. Elle peut contenir des erreurs ou des biais. Il vous appartient de la vérifier, compléter et corriger avant publication.
+              </p>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
               <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
             </div>
@@ -266,6 +272,18 @@
                      (click)="formData[field.fieldKey] = opt.value; clearFieldError(field.fieldKey)">
                   {{ opt.label }}
                 </div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+            </div>
+
+            <!-- Multiselect (checkbox list) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'multiselect'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="multiselect-group">
+                <label class="multiselect-option" *ngFor="let opt of field.options">
+                  <input type="checkbox" [checked]="isMultiselectChecked(field.fieldKey, opt.value)" (change)="toggleMultiselect(field.fieldKey, opt.value)" />
+                  <span>{{ opt.label }}</span>
+                </label>
               </div>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
             </div>

@@ -118,6 +118,10 @@ export class DeposerAnnonceComponent implements OnInit {
           this.contactForm = data.contactForm || this.contactForm;
           this.showAdType = data.showAdType || false;
           this.adTypes = data.adTypes || [];
+          this.formData = data.formData || {};
+          if (data.workflowId) {
+            this.loadWorkflow(data.selectedCategoryId);
+          }
         }
       }
     }
@@ -187,7 +191,9 @@ export class DeposerAnnonceComponent implements OnInit {
       photos: this.photos,
       contactForm: this.contactForm,
       showAdType: this.showAdType,
-      adTypes: this.adTypes
+      adTypes: this.adTypes,
+      formData: this.formData,
+      workflowId: this.workflow?.id || null
     }));
   }
 
@@ -433,20 +439,22 @@ export class DeposerAnnonceComponent implements OnInit {
   private applyWorkflow(wf: Workflow) {
     this.workflow = wf;
     this.workflowSteps = wf.steps;
-    this.formData = {};
-    for (const step of wf.steps) {
-      for (const field of step.fields) {
-        this.formData[field.fieldKey] = field.defaultValue || '';
+    // Only initialize formData if it's empty (don't overwrite restored data)
+    if (Object.keys(this.formData).length === 0) {
+      for (const step of wf.steps) {
+        for (const field of step.fields) {
+          this.formData[field.fieldKey] = field.defaultValue || '';
+        }
       }
-    }
-    if (this.formData['poste'] !== undefined) {
-      this.formData['poste'] = this.annonce.title;
-    }
-    if (this.formData['email'] !== undefined) {
-      this.formData['email'] = this.authService.getEmail();
-    }
-    if (this.formData['phone'] !== undefined) {
-      this.formData['phone'] = this.authService.getPhone();
+      if (this.formData['poste'] !== undefined) {
+        this.formData['poste'] = this.annonce.title;
+      }
+      if (this.formData['email'] !== undefined) {
+        this.formData['email'] = this.authService.getEmail();
+      }
+      if (this.formData['phone'] !== undefined) {
+        this.formData['phone'] = this.authService.getPhone();
+      }
     }
     this.saveState();
   }
@@ -503,6 +511,39 @@ export class DeposerAnnonceComponent implements OnInit {
 
   clearFieldError(fieldKey: string) {
     this.fieldErrors[fieldKey] = false;
+  }
+
+  prefillTitleField(fieldKey: string) {
+    if (!this.formData[fieldKey] && this.annonce.title) {
+      this.formData[fieldKey] = this.annonce.title;
+    }
+  }
+
+  isMultiselectChecked(fieldKey: string, value: string): boolean {
+    const current = this.formData[fieldKey];
+    if (!current) return false;
+    const arr = Array.isArray(current) ? current : current.split(',');
+    return arr.includes(value);
+  }
+
+  toggleMultiselect(fieldKey: string, value: string) {
+    let current = this.formData[fieldKey];
+    let arr: string[] = [];
+    if (current) {
+      arr = Array.isArray(current) ? current : current.split(',');
+    }
+    const idx = arr.indexOf(value);
+    if (idx >= 0) arr.splice(idx, 1);
+    else arr.push(value);
+    this.formData[fieldKey] = arr;
+    this.clearFieldError(fieldKey);
+  }
+
+  // Also pre-fill when entering the step
+  private prefillDescriptionStep() {
+    if (this.formData['description'] !== undefined && !this.formData['description'] && this.annonce.title) {
+      this.formData['description'] = this.annonce.title;
+    }
   }
 
   onDateMonthInput(fieldKey: string) {
@@ -588,21 +629,45 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   private buildFallbackDescription(): string {
-    const parts: string[] = [];
-    const brand = this.formData['brand'];
-    const model = this.formData['model'];
-    const year = this.formData['year'];
-    const fuel = this.formData['fuel'];
-    const mileage = this.formData['mileage'];
-    const gearbox = this.formData['gearbox'];
-    if (brand || model) parts.push(`V\u00e9hicule : ${brand || ''} ${model || ''}`.trim());
-    if (year) parts.push(`Ann\u00e9e : ${year}`);
-    if (fuel) parts.push(`\u00c9nergie : ${fuel}`);
-    if (gearbox) parts.push(`Bo\u00eete : ${gearbox}`);
-    if (mileage) parts.push(`Kilom\u00e9trage : ${mileage} km`);
-    parts.push('\nV\u00e9hicule en bon \u00e9tat g\u00e9n\u00e9ral, entretenu r\u00e9guli\u00e8rement.');
-    parts.push('N\'h\u00e9sitez pas \u00e0 me contacter pour plus d\'informations ou pour organiser un essai.');
-    return parts.join('\n');
+    const brand = this.formData['brand'] || '';
+    const model = this.formData['model'] || '';
+    const year = this.formData['year'] || '';
+    const fuel = this.formData['fuel'] || '';
+    const mileage = this.formData['mileage'] || '';
+    const gearbox = this.formData['gearbox'] || '';
+    const dinPower = this.formData['dinPower'] || '';
+    const fiscalPower = this.formData['fiscalPower'] || '';
+    const vehicleType = this.formData['vehicleType'] || '';
+    const seats = this.formData['seats'] || '';
+    const doors = this.formData['doors'] || '';
+    const firstCirculation = this.formData['firstCirculation'] || '';
+    const upholstery = this.formData['upholstery'];
+    const equipment = this.formData['equipment'];
+    const history = this.formData['history'];
+
+    let desc = `Je vends mon ${brand} ${model} de ${year}`;
+    if (vehicleType) desc += `, un ${vehicleType} spacieux et confortable`;
+    if (mileage) desc += ` avec seulement ${mileage} km au compteur`;
+    desc += '.\n';
+
+    desc += `- Marque : ${brand}\n`;
+    desc += `- Mod\u00e8le : ${model}\n`;
+    if (year) desc += `- Ann\u00e9e : ${year}\n`;
+    if (mileage) desc += `- Kilom\u00e9trage : ${mileage} km\n`;
+    if (dinPower) desc += `- Motorisation : ${dinPower} Ch\n`;
+    if (fuel) desc += `- Carburant : ${fuel}\n`;
+    if (gearbox) desc += `- Bo\u00eete de vitesses : ${gearbox}\n`;
+    if (vehicleType) desc += `- Type de v\u00e9hicule : ${vehicleType}\n`;
+    if (seats) desc += `- Nombre de si\u00e8ges : ${seats}\n`;
+    if (doors) desc += `- Nombre de portes : ${doors}\n`;
+    if (fiscalPower) desc += `- Puissance fiscale : ${fiscalPower} CV\n`;
+    if (firstCirculation) desc += `- Immatriculation : ${firstCirculation}\n`;
+    if (upholstery && Array.isArray(upholstery) && upholstery.length) desc += `- Sellerie : ${upholstery.join(', ')}\n`;
+    if (equipment && Array.isArray(equipment) && equipment.length) desc += `- \u00c9quipements : ${equipment.join(', ')}\n`;
+    if (history && Array.isArray(history) && history.length) desc += `- Historique : ${history.join(', ')}\n`;
+
+    desc += `\nN'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations ou pour convenir d'un essai !`;
+    return desc;
   }
 
   carModels: { [brand: string]: { value: string; label: string }[] } = {
@@ -771,6 +836,9 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   private onStepChanged() {
+    // Pre-fill title field in description step
+    this.prefillDescriptionStep();
+
     // Re-display map if returning to a location step with address already filled
     setTimeout(() => {
       const mapContainer = document.getElementById('map');

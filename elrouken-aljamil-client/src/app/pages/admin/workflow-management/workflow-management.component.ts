@@ -39,7 +39,7 @@ export class WorkflowManagementComponent implements OnInit {
   editingField = false;
   currentField = { id: 0, fieldKey: '', label: '', fieldType: 'text', placeholder: '', options: '', defaultValue: '', suffix: '', helperText: '', isRequired: false, displayOrder: 1, isActive: true, maxLength: null as number | null };
 
-  fieldTypes = ['text', 'number', 'select', 'dependent_select', 'textarea', 'radio', 'pills', 'toggle', 'address', 'email', 'phone', 'immatriculation', 'date_month'];
+  fieldTypes = ['text', 'number', 'select', 'dependent_select', 'multiselect', 'textarea', 'radio', 'pills', 'toggle', 'address', 'email', 'phone', 'immatriculation', 'date_month', 'text_counter', 'textarea_counter'];
   stepKeys = ['title', 'photos', 'details', 'salary', 'description', 'location', 'contact', 'recap', 'custom'];
 
   constructor(private http: HttpClient) {}

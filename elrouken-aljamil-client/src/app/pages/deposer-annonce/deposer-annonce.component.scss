@@ -1444,3 +1444,105 @@ textarea.input-error {
 
   i { font-size: 14px; }
 }
+
+// Text counter wrapper (improved title field)
+.text-counter-wrapper {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0;
+  transition: border-color 0.2s;
+
+  &:focus-within { border-color: #ff6e14; }
+  &.input-error { border-color: #d32f2f; }
+
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    background: transparent;
+  }
+}
+
+// Textarea counter (description field)
+.textarea-counter {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.8;
+  resize: vertical;
+  min-height: 220px;
+  margin-top: 12px;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus { border-color: #ff6e14; }
+  &.input-error { border-color: #d32f2f; }
+}
+
+// AI disclaimer
+.ai-disclaimer {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #f5f7f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #666;
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  i {
+    color: #888;
+    font-size: 14px;
+    margin-top: 1px;
+  }
+}
+
+// Multiselect (checkbox list)
+.multiselect-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+
+  .multiselect-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.2s;
+
+    input[type="checkbox"] {
+      accent-color: #ff6e14;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    &:has(input:checked) {
+      border-color: #ff6e14;
+      background: #fff8f5;
+
+      span { color: #ff6e14; font-weight: 500; }
+    }
+
+    &:hover { border-color: #ff6e14; }
+  }
+}

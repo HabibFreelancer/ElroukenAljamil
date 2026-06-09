@@ -44,21 +44,30 @@ public class AiController : ControllerBase
     private string BuildPrompt(JsonElement context)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Génère une description d'annonce de vente de véhicule en français, professionnelle et attractive, en 4-5 phrases. Utilise les informations suivantes :");
+        sb.AppendLine("Génère une description d'annonce de vente de véhicule en français. Le format doit être :");
+        sb.AppendLine("1. Une phrase d'introduction attractive (Ex: Je vends mon [Marque] [Modèle] de [Année], un [Type] spacieux avec seulement [Km] km au compteur.)");
+        sb.AppendLine("2. Une liste à puces avec les caractéristiques techniques (Marque, Modèle, Année, Kilométrage, Motorisation, Carburant, Boîte de vitesses, Type, Sièges, Portes, Puissance fiscale, Date immatriculation)");
+        sb.AppendLine("3. Une phrase finale : N'hésitez pas à me contacter pour plus d'informations ou pour convenir d'un essai !");
+        sb.AppendLine("\nUtilise les informations suivantes :");
         
         if (context.TryGetProperty("brand", out var brand)) sb.AppendLine($"- Marque: {brand}");
         if (context.TryGetProperty("model", out var model)) sb.AppendLine($"- Modèle: {model}");
         if (context.TryGetProperty("year", out var year)) sb.AppendLine($"- Année: {year}");
-        if (context.TryGetProperty("fuel", out var fuel)) sb.AppendLine($"- Énergie: {fuel}");
+        if (context.TryGetProperty("fuel", out var fuel)) sb.AppendLine($"- Carburant: {fuel}");
         if (context.TryGetProperty("gearbox", out var gearbox)) sb.AppendLine($"- Boîte: {gearbox}");
         if (context.TryGetProperty("mileage", out var mileage)) sb.AppendLine($"- Kilométrage: {mileage} km");
         if (context.TryGetProperty("fiscalPower", out var fp)) sb.AppendLine($"- Puissance fiscale: {fp} CV");
         if (context.TryGetProperty("dinPower", out var dp)) sb.AppendLine($"- Puissance DIN: {dp} Ch");
+        if (context.TryGetProperty("vehicleType", out var vt)) sb.AppendLine($"- Type: {vt}");
+        if (context.TryGetProperty("seats", out var seats)) sb.AppendLine($"- Sièges: {seats}");
+        if (context.TryGetProperty("doors", out var doors)) sb.AppendLine($"- Portes: {doors}");
+        if (context.TryGetProperty("firstCirculation", out var fc)) sb.AppendLine($"- Immatriculation: {fc}");
         if (context.TryGetProperty("color", out var color)) sb.AppendLine($"- Couleur: {color}");
-        if (context.TryGetProperty("vehicleState", out var state)) sb.AppendLine($"- État: {state}");
-        if (context.TryGetProperty("title", out var title)) sb.AppendLine($"- Titre annonce: {title}");
+        if (context.TryGetProperty("upholstery", out var uph)) sb.AppendLine($"- Sellerie: {uph}");
+        if (context.TryGetProperty("equipment", out var equip)) sb.AppendLine($"- Équipements: {equip}");
+        if (context.TryGetProperty("history", out var hist)) sb.AppendLine($"- Historique: {hist}");
 
-        sb.AppendLine("\nRéponds uniquement avec la description, sans titre ni commentaire.");
+        sb.AppendLine("\nRéponds uniquement avec la description formatée, sans commentaire.");
         return sb.ToString();
     }
 
@@ -103,28 +112,42 @@ public class AiController : ControllerBase
     {
         var sb = new StringBuilder();
 
-        var brand = GetValue(context, "brand");
-        var model = GetValue(context, "model");
-        var year = GetValue(context, "year");
-        var fuel = GetValue(context, "fuel");
-        var mileage = GetValue(context, "mileage");
-        var gearbox = GetValue(context, "gearbox");
-        var state = GetValue(context, "vehicleState");
+        var brand = GetValue(context, "brand") ?? "";
+        var model = GetValue(context, "model") ?? "";
+        var year = GetValue(context, "year") ?? "";
+        var fuel = GetValue(context, "fuel") ?? "";
+        var mileage = GetValue(context, "mileage") ?? "";
+        var gearbox = GetValue(context, "gearbox") ?? "";
+        var dinPower = GetValue(context, "dinPower") ?? "";
+        var fiscalPower = GetValue(context, "fiscalPower") ?? "";
+        var vehicleType = GetValue(context, "vehicleType") ?? "";
+        var seats = GetValue(context, "seats") ?? "";
+        var doors = GetValue(context, "doors") ?? "";
+        var firstCirculation = GetValue(context, "firstCirculation") ?? "";
 
-        if (!string.IsNullOrEmpty(brand) || !string.IsNullOrEmpty(model))
-            sb.AppendLine($"À vendre : {brand} {model} {year}.".Trim());
+        // Intro
+        sb.Append($"Je vends mon {brand} {model}");
+        if (!string.IsNullOrEmpty(year)) sb.Append($" de {year}");
+        if (!string.IsNullOrEmpty(vehicleType)) sb.Append($", un {vehicleType} spacieux et confortable");
+        if (!string.IsNullOrEmpty(mileage)) sb.Append($" avec seulement {mileage} km au compteur");
+        sb.AppendLine(".");
 
-        if (!string.IsNullOrEmpty(fuel) || !string.IsNullOrEmpty(gearbox))
-            sb.AppendLine($"Motorisation {fuel}, boîte {gearbox}.");
+        // Details
+        if (!string.IsNullOrEmpty(brand)) sb.AppendLine($"- Marque : {brand}");
+        if (!string.IsNullOrEmpty(model)) sb.AppendLine($"- Mod\u00e8le : {model}");
+        if (!string.IsNullOrEmpty(year)) sb.AppendLine($"- Ann\u00e9e : {year}");
+        if (!string.IsNullOrEmpty(mileage)) sb.AppendLine($"- Kilom\u00e9trage : {mileage} km");
+        if (!string.IsNullOrEmpty(dinPower)) sb.AppendLine($"- Motorisation : {dinPower} Ch");
+        if (!string.IsNullOrEmpty(fuel)) sb.AppendLine($"- Carburant : {fuel}");
+        if (!string.IsNullOrEmpty(gearbox)) sb.AppendLine($"- Bo\u00eete de vitesses : {gearbox}");
+        if (!string.IsNullOrEmpty(vehicleType)) sb.AppendLine($"- Type de v\u00e9hicule : {vehicleType}");
+        if (!string.IsNullOrEmpty(seats)) sb.AppendLine($"- Nombre de si\u00e8ges : {seats}");
+        if (!string.IsNullOrEmpty(doors)) sb.AppendLine($"- Nombre de portes : {doors}");
+        if (!string.IsNullOrEmpty(fiscalPower)) sb.AppendLine($"- Puissance fiscale : {fiscalPower} CV");
+        if (!string.IsNullOrEmpty(firstCirculation)) sb.AppendLine($"- Immatriculation : {firstCirculation}");
 
-        if (!string.IsNullOrEmpty(mileage))
-            sb.AppendLine($"Kilométrage : {mileage} km.");
-
-        if (!string.IsNullOrEmpty(state))
-            sb.AppendLine($"Véhicule en {state}.");
-
-        sb.AppendLine("Entretien suivi, carnet à jour. Aucun frais à prévoir.");
-        sb.AppendLine("N'hésitez pas à me contacter pour plus d'informations ou pour organiser un essai.");
+        sb.AppendLine();
+        sb.AppendLine("N'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations ou pour convenir d'un essai !");
 
         return sb.ToString().Trim();
     }
