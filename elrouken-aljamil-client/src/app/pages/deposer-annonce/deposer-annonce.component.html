@@ -239,6 +239,7 @@
                 <label>Annonces similaires : {{ formData['brand'] }} {{ formData['model'] }}</label>
                 <div class="ads-grid">
                   <div class="ad-card" *ngFor="let ad of priceEstimate.similarAds">
+                    <img [src]="ad.image" alt="Photo" class="ad-card-img" />
                     <div class="ad-card-price">{{ ad.price | number:'1.0-0' }} TND</div>
                     <div class="ad-card-info">{{ ad.mileage ? ad.mileage + ' km' : '' }}</div>
                     <div class="ad-card-title">{{ ad.title }}</div>

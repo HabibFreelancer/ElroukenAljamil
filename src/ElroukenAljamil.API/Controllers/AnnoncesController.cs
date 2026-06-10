@@ -144,7 +144,8 @@ public class AnnoncesController : ControllerBase
             title = a.Title,
             price = a.Price,
             mileage = ExtractMileage(a.ExtraData),
-            location = a.Location
+            location = a.Location,
+            image = $"https://placehold.co/200x130/f0f0f0/666?text={Uri.EscapeDataString(ExtractBrandModel(a.ExtraData))}"
         }).ToList();
 
         return Ok(new
@@ -167,6 +168,20 @@ public class AnnoncesController : ControllerBase
         }
         catch { }
         return "";
+    }
+
+    private string ExtractBrandModel(string extraData)
+    {
+        if (string.IsNullOrEmpty(extraData)) return "Auto";
+        try
+        {
+            var data = JsonSerializer.Deserialize<JsonElement>(extraData);
+            var brand = data.TryGetProperty("brand", out var b) ? b.ToString() : "";
+            var model = data.TryGetProperty("model", out var m) ? m.ToString() : "";
+            var result = $"{brand} {model}".Trim();
+            return string.IsNullOrEmpty(result) ? "Auto" : result;
+        }
+        catch { return "Auto"; }
     }
 }
 
