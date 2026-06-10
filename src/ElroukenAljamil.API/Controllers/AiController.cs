@@ -44,11 +44,26 @@ public class AiController : ControllerBase
     private string BuildPrompt(JsonElement context)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Génère une description d'annonce de vente de véhicule en français. Le format doit être :");
-        sb.AppendLine("1. Une phrase d'introduction attractive (Ex: Je vends mon [Marque] [Modèle] de [Année], un [Type] spacieux avec seulement [Km] km au compteur.)");
-        sb.AppendLine("2. Une liste à puces avec les caractéristiques techniques (Marque, Modèle, Année, Kilométrage, Motorisation, Carburant, Boîte de vitesses, Type, Sièges, Portes, Puissance fiscale, Date immatriculation)");
-        sb.AppendLine("3. Une phrase finale : N'hésitez pas à me contacter pour plus d'informations ou pour convenir d'un essai !");
-        sb.AppendLine("\nUtilise les informations suivantes :");
+        sb.AppendLine("Génère une description d'annonce de vente de véhicule en français.");
+        sb.AppendLine("Voici un exemple du format attendu :");
+        sb.AppendLine("");
+        sb.AppendLine("Je vends mon Citroën C5 Aircross de 2022, un SUV spacieux et confortable avec seulement 4 564 km au compteur.");
+        sb.AppendLine("- Marque : Citroën");
+        sb.AppendLine("- Modèle : C5 Aircross");
+        sb.AppendLine("- Année : 2022");
+        sb.AppendLine("- Kilométrage : 4 564 km");
+        sb.AppendLine("- Motorisation : 130 Ch");
+        sb.AppendLine("- Carburant : Essence");
+        sb.AppendLine("- Boîte de vitesses : Automatique");
+        sb.AppendLine("- Couleur : Rose");
+        sb.AppendLine("- Type de véhicule : SUV");
+        sb.AppendLine("- Nombre de sièges : 5");
+        sb.AppendLine("- Nombre de portes : 5");
+        sb.AppendLine("- Puissance fiscale : 7 Cv");
+        sb.AppendLine("- Contrôle technique : Valide jusqu'en 03/2027");
+        sb.AppendLine("N'hésitez pas à me contacter pour plus d'informations ou pour convenir d'un essai !");
+        sb.AppendLine("");
+        sb.AppendLine("Maintenant génère une description EXACTEMENT dans ce format avec les informations suivantes :");
         
         if (context.TryGetProperty("brand", out var brand)) sb.AppendLine($"- Marque: {brand}");
         if (context.TryGetProperty("model", out var model)) sb.AppendLine($"- Modèle: {model}");
@@ -57,17 +72,17 @@ public class AiController : ControllerBase
         if (context.TryGetProperty("gearbox", out var gearbox)) sb.AppendLine($"- Boîte: {gearbox}");
         if (context.TryGetProperty("mileage", out var mileage)) sb.AppendLine($"- Kilométrage: {mileage} km");
         if (context.TryGetProperty("fiscalPower", out var fp)) sb.AppendLine($"- Puissance fiscale: {fp} CV");
-        if (context.TryGetProperty("dinPower", out var dp)) sb.AppendLine($"- Puissance DIN: {dp} Ch");
+        if (context.TryGetProperty("dinPower", out var dp)) sb.AppendLine($"- Motorisation: {dp} Ch");
         if (context.TryGetProperty("vehicleType", out var vt)) sb.AppendLine($"- Type: {vt}");
         if (context.TryGetProperty("seats", out var seats)) sb.AppendLine($"- Sièges: {seats}");
         if (context.TryGetProperty("doors", out var doors)) sb.AppendLine($"- Portes: {doors}");
-        if (context.TryGetProperty("firstCirculation", out var fc)) sb.AppendLine($"- Immatriculation: {fc}");
         if (context.TryGetProperty("color", out var color)) sb.AppendLine($"- Couleur: {color}");
+        if (context.TryGetProperty("technicalControl", out var tc)) sb.AppendLine($"- Contrôle technique valide jusqu'en: {tc}");
         if (context.TryGetProperty("upholstery", out var uph)) sb.AppendLine($"- Sellerie: {uph}");
         if (context.TryGetProperty("equipment", out var equip)) sb.AppendLine($"- Équipements: {equip}");
         if (context.TryGetProperty("history", out var hist)) sb.AppendLine($"- Historique: {hist}");
 
-        sb.AppendLine("\nRéponds uniquement avec la description formatée, sans commentaire.");
+        sb.AppendLine("\nRéponds UNIQUEMENT avec la description générée, sans commentaire ni explication.");
         return sb.ToString();
     }
 
@@ -123,7 +138,11 @@ public class AiController : ControllerBase
         var vehicleType = GetValue(context, "vehicleType") ?? "";
         var seats = GetValue(context, "seats") ?? "";
         var doors = GetValue(context, "doors") ?? "";
-        var firstCirculation = GetValue(context, "firstCirculation") ?? "";
+        var color = GetValue(context, "color") ?? "";
+        var technicalControl = GetValue(context, "technicalControl") ?? "";
+        var upholstery = GetValue(context, "upholstery") ?? "";
+        var equipment = GetValue(context, "equipment") ?? "";
+        var history = GetValue(context, "history") ?? "";
 
         // Intro
         sb.Append($"Je vends mon {brand} {model}");
@@ -140,11 +159,15 @@ public class AiController : ControllerBase
         if (!string.IsNullOrEmpty(dinPower)) sb.AppendLine($"- Motorisation : {dinPower} Ch");
         if (!string.IsNullOrEmpty(fuel)) sb.AppendLine($"- Carburant : {fuel}");
         if (!string.IsNullOrEmpty(gearbox)) sb.AppendLine($"- Bo\u00eete de vitesses : {gearbox}");
+        if (!string.IsNullOrEmpty(color)) sb.AppendLine($"- Couleur : {color}");
         if (!string.IsNullOrEmpty(vehicleType)) sb.AppendLine($"- Type de v\u00e9hicule : {vehicleType}");
         if (!string.IsNullOrEmpty(seats)) sb.AppendLine($"- Nombre de si\u00e8ges : {seats}");
         if (!string.IsNullOrEmpty(doors)) sb.AppendLine($"- Nombre de portes : {doors}");
         if (!string.IsNullOrEmpty(fiscalPower)) sb.AppendLine($"- Puissance fiscale : {fiscalPower} CV");
-        if (!string.IsNullOrEmpty(firstCirculation)) sb.AppendLine($"- Immatriculation : {firstCirculation}");
+        if (!string.IsNullOrEmpty(technicalControl)) sb.AppendLine($"- Contr\u00f4le technique : Valide jusqu'en {technicalControl}");
+        if (!string.IsNullOrEmpty(upholstery)) sb.AppendLine($"- Sellerie : {upholstery}");
+        if (!string.IsNullOrEmpty(equipment)) sb.AppendLine($"- \u00c9quipements : {equipment}");
+        if (!string.IsNullOrEmpty(history)) sb.AppendLine($"- Historique : {history}");
 
         sb.AppendLine();
         sb.AppendLine("N'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations ou pour convenir d'un essai !");

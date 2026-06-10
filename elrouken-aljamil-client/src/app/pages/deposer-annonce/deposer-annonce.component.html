@@ -168,7 +168,7 @@
             <div class="field-group spaced" *ngIf="field.fieldType === 'immatriculation'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
               <div class="immat-input" [class.input-error]="fieldErrors[field.fieldKey]">
-                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey); immatError = ''" class="immat-field" />
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="onImmatInput(field.fieldKey); clearFieldError(field.fieldKey); immatError = ''" class="immat-field" />
               </div>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
               <p class="error-text" *ngIf="immatError">{{ immatError }}</p>

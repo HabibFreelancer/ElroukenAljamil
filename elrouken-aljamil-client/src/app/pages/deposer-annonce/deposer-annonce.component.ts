@@ -554,6 +554,32 @@ export class DeposerAnnonceComponent implements OnInit {
     this.formData[fieldKey] = val;
   }
 
+  onImmatInput(fieldKey: string) {
+    let val = (this.formData[fieldKey] || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+    // Format: 123 TU 4567
+    // Auto-insert TU after first 1-3 digits
+    const digits = val.replace(/[^0-9]/g, '');
+    const letters = val.replace(/[^A-Z]/g, '');
+
+    if (letters.includes('TU')) {
+      // Already has TU, just format spacing
+      const parts = val.split('TU');
+      const before = parts[0].replace(/[^0-9]/g, '').substring(0, 3);
+      const after = (parts[1] || '').replace(/[^0-9]/g, '').substring(0, 4);
+      this.formData[fieldKey] = after ? `${before} TU ${after}` : before.length >= 1 ? `${before} TU ${after}` : before;
+    } else {
+      // No TU yet - auto-insert after digits if user typed enough
+      const nums = val.replace(/[^0-9]/g, '');
+      if (nums.length <= 3) {
+        this.formData[fieldKey] = nums;
+      } else {
+        const first = nums.substring(0, 3);
+        const rest = nums.substring(3, 7);
+        this.formData[fieldKey] = `${first} TU ${rest}`;
+      }
+    }
+  }
+
   validateImmatriculation() {
     const immat = (this.formData['immatriculation'] || '').trim().toUpperCase();
     this.immatError = '';
@@ -640,28 +666,31 @@ export class DeposerAnnonceComponent implements OnInit {
     const vehicleType = this.formData['vehicleType'] || '';
     const seats = this.formData['seats'] || '';
     const doors = this.formData['doors'] || '';
-    const firstCirculation = this.formData['firstCirculation'] || '';
+    const color = this.formData['color'] || '';
+    const technicalControl = this.formData['technicalControl'] || '';
     const upholstery = this.formData['upholstery'];
     const equipment = this.formData['equipment'];
     const history = this.formData['history'];
 
-    let desc = `Je vends mon ${brand} ${model} de ${year}`;
+    let desc = `Je vends mon ${brand} ${model}`;
+    if (year) desc += ` de ${year}`;
     if (vehicleType) desc += `, un ${vehicleType} spacieux et confortable`;
     if (mileage) desc += ` avec seulement ${mileage} km au compteur`;
     desc += '.\n';
 
-    desc += `- Marque : ${brand}\n`;
-    desc += `- Mod\u00e8le : ${model}\n`;
+    if (brand) desc += `- Marque : ${brand}\n`;
+    if (model) desc += `- Mod\u00e8le : ${model}\n`;
     if (year) desc += `- Ann\u00e9e : ${year}\n`;
     if (mileage) desc += `- Kilom\u00e9trage : ${mileage} km\n`;
     if (dinPower) desc += `- Motorisation : ${dinPower} Ch\n`;
     if (fuel) desc += `- Carburant : ${fuel}\n`;
     if (gearbox) desc += `- Bo\u00eete de vitesses : ${gearbox}\n`;
+    if (color) desc += `- Couleur : ${color}\n`;
     if (vehicleType) desc += `- Type de v\u00e9hicule : ${vehicleType}\n`;
     if (seats) desc += `- Nombre de si\u00e8ges : ${seats}\n`;
     if (doors) desc += `- Nombre de portes : ${doors}\n`;
     if (fiscalPower) desc += `- Puissance fiscale : ${fiscalPower} CV\n`;
-    if (firstCirculation) desc += `- Immatriculation : ${firstCirculation}\n`;
+    if (technicalControl) desc += `- Contr\u00f4le technique : Valide jusqu'en ${technicalControl}\n`;
     if (upholstery && Array.isArray(upholstery) && upholstery.length) desc += `- Sellerie : ${upholstery.join(', ')}\n`;
     if (equipment && Array.isArray(equipment) && equipment.length) desc += `- \u00c9quipements : ${equipment.join(', ')}\n`;
     if (history && Array.isArray(history) && history.length) desc += `- Historique : ${history.join(', ')}\n`;
