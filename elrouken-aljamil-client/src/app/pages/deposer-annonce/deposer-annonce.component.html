@@ -227,10 +227,27 @@
                   <div class="gauge-segment" style="background:#c0392b;"></div>
                   <div class="gauge-indicator" [style.left.%]="priceGaugePosition"></div>
                 </div>
-                <div class="gauge-labels">
-                  <span>{{ priceEstimate.minPrice | number:'1.0-0' }} TND</span>
-                  <span>{{ priceEstimate.avgPrice | number:'1.0-0' }} TND (moy.)</span>
-                  <span>{{ priceEstimate.maxPrice | number:'1.0-0' }} TND</span>
+                <div class="gauge-range-labels">
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#27ae60;">Très bonne affaire</span>
+                    <span class="range-values">{{ priceRanges[0]?.min | number:'1.0-0' }} - {{ priceRanges[0]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#2ecc71;">Bonne affaire</span>
+                    <span class="range-values">{{ priceRanges[1]?.min | number:'1.0-0' }} - {{ priceRanges[1]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#f1c40f;">Prix équitable</span>
+                    <span class="range-values">{{ priceRanges[2]?.min | number:'1.0-0' }} - {{ priceRanges[2]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#e67e22;">Légèrement supérieur</span>
+                    <span class="range-values">{{ priceRanges[3]?.min | number:'1.0-0' }} - {{ priceRanges[3]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#c0392b;">Au-dessus du marché</span>
+                    <span class="range-values">{{ priceRanges[4]?.min | number:'1.0-0' }} - {{ priceRanges[4]?.max | number:'1.0-0' }} TND</span>
+                  </div>
                 </div>
               </div>
 

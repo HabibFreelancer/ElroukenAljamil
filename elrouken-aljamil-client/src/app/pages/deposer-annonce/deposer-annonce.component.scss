@@ -1581,6 +1581,30 @@ textarea.input-error {
     font-size: 11px;
     color: #666;
   }
+
+  .gauge-range-labels {
+    display: flex;
+    margin-top: 12px;
+    gap: 4px;
+
+    .gauge-range-item {
+      flex: 1;
+      text-align: center;
+
+      .range-title {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .range-values {
+        display: block;
+        font-size: 9px;
+        color: #888;
+      }
+    }
+  }
 }
 
 // Similar ads

@@ -92,6 +92,7 @@ export class DeposerAnnonceComponent implements OnInit {
   submitting = false;
   priceEstimate: any = null;
   priceGaugePosition = 50;
+  priceRanges: { min: number; max: number }[] = [];
 
   contactForm = {
     email: '',
@@ -746,10 +747,23 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   updatePriceGauge() {
-    if (!this.priceEstimate || !this.formData['price']) { this.priceGaugePosition = 50; return; }
-    const price = parseFloat(this.formData['price']);
+    if (!this.priceEstimate) { this.priceGaugePosition = 50; this.priceRanges = []; return; }
     const min = this.priceEstimate.minPrice;
     const max = this.priceEstimate.maxPrice;
+
+    // Compute 5 equal ranges
+    const step = (max - min) / 5;
+    this.priceRanges = [];
+    for (let i = 0; i < 5; i++) {
+      this.priceRanges.push({
+        min: Math.round(min + step * i),
+        max: Math.round(min + step * (i + 1))
+      });
+    }
+
+    // Position indicator
+    if (!this.formData['price']) { this.priceGaugePosition = 50; return; }
+    const price = parseFloat(this.formData['price']);
     if (max <= min) { this.priceGaugePosition = 50; return; }
     const pct = ((price - min) / (max - min)) * 100;
     this.priceGaugePosition = Math.max(0, Math.min(100, pct));
