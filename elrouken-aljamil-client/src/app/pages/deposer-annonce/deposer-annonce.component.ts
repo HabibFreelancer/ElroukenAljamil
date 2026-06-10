@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
-import { NgIf, NgFor, NgStyle } from '@angular/common';
+import { NgIf, NgFor, NgStyle, NgClass, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -24,7 +24,7 @@ L.Marker.prototype.options.icon = iconDefault;
 @Component({
   selector: 'app-deposer-annonce',
   standalone: true,
-  imports: [NgIf, NgFor, NgStyle, FormsModule, RouterLink],
+  imports: [NgIf, NgFor, NgStyle, NgClass, DecimalPipe, FormsModule, RouterLink],
   templateUrl: './deposer-annonce.component.html',
   styleUrl: './deposer-annonce.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -90,6 +90,8 @@ export class DeposerAnnonceComponent implements OnInit {
   submitted = false;
   submittedAnnonceId: number | null = null;
   submitting = false;
+  priceEstimate: any = null;
+  priceGaugePosition = 50;
 
   contactForm = {
     email: '',
@@ -730,6 +732,29 @@ export class DeposerAnnonceComponent implements OnInit {
     }
   }
 
+  loadPriceEstimate() {
+    if (!this.selectedCategoryId) return;
+    const payload = {
+      categoryId: this.selectedCategoryId,
+      brand: this.formData['brand'] || '',
+      model: this.formData['model'] || ''
+    };
+    this.http.post<any>(`${this.apiUrl}/annonces/price-estimate`, payload).subscribe({
+      next: (data) => { this.priceEstimate = data; this.updatePriceGauge(); },
+      error: () => { this.priceEstimate = null; }
+    });
+  }
+
+  updatePriceGauge() {
+    if (!this.priceEstimate || !this.formData['price']) { this.priceGaugePosition = 50; return; }
+    const price = parseFloat(this.formData['price']);
+    const min = this.priceEstimate.minPrice;
+    const max = this.priceEstimate.maxPrice;
+    if (max <= min) { this.priceGaugePosition = 50; return; }
+    const pct = ((price - min) / (max - min)) * 100;
+    this.priceGaugePosition = Math.max(0, Math.min(100, pct));
+  }
+
   selectAddressDynamic(result: any, fieldKey: string) {
     this.formData[fieldKey] = result.display_name;
     this.selectedAddress = result.display_name;
@@ -867,6 +892,14 @@ export class DeposerAnnonceComponent implements OnInit {
   private onStepChanged() {
     // Pre-fill title field in description step
     this.prefillDescriptionStep();
+
+    // Load price estimate when entering price step
+    if (this.workflow && this.workflowSteps.length > 0) {
+      const stepIndex = this.currentStep - 1;
+      if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'price') {
+        this.loadPriceEstimate();
+      }
+    }
 
     // Re-display map if returning to a location step with address already filled
     setTimeout(() => {

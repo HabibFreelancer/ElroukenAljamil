@@ -208,6 +208,45 @@
               <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
             </div>
 
+            <!-- Price with gauge and similar ads -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'price_gauge'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey); updatePriceGauge()" />
+                <div class="suffix">{{ field.suffix || 'TND' }}</div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+
+              <!-- Price gauge -->
+              <div class="price-gauge" *ngIf="priceEstimate">
+                <div class="gauge-bar">
+                  <div class="gauge-segment" style="background:#27ae60;"></div>
+                  <div class="gauge-segment" style="background:#2ecc71;"></div>
+                  <div class="gauge-segment" style="background:#f1c40f;"></div>
+                  <div class="gauge-segment" style="background:#e67e22;"></div>
+                  <div class="gauge-segment" style="background:#c0392b;"></div>
+                  <div class="gauge-indicator" [style.left.%]="priceGaugePosition"></div>
+                </div>
+                <div class="gauge-labels">
+                  <span>{{ priceEstimate.minPrice | number:'1.0-0' }} TND</span>
+                  <span>{{ priceEstimate.avgPrice | number:'1.0-0' }} TND (moy.)</span>
+                  <span>{{ priceEstimate.maxPrice | number:'1.0-0' }} TND</span>
+                </div>
+              </div>
+
+              <!-- Similar ads -->
+              <div class="similar-ads" *ngIf="priceEstimate && priceEstimate.similarAds.length > 0">
+                <label>Annonces similaires : {{ formData['brand'] }} {{ formData['model'] }}</label>
+                <div class="ads-grid">
+                  <div class="ad-card" *ngFor="let ad of priceEstimate.similarAds">
+                    <div class="ad-card-price">{{ ad.price | number:'1.0-0' }} TND</div>
+                    <div class="ad-card-info">{{ ad.mileage ? ad.mileage + ' km' : '' }}</div>
+                    <div class="ad-card-title">{{ ad.title }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Text with character counter -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'text_counter'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>

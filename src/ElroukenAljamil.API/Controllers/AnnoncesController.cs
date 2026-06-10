@@ -107,4 +107,72 @@ public class AnnoncesController : ControllerBase
 
         return adTypes;
     }
+
+    [HttpPost("price-estimate")]
+    public async Task<ActionResult> GetPriceEstimate([FromBody] PriceEstimateRequest req)
+    {
+        // Find similar annonces by brand+model or category
+        var query = _context.Annonces.Where(a => a.CategoryId == req.CategoryId && a.Price > 0);
+
+        // Filter by brand/model if available via ExtraData
+        var allAds = await query.OrderByDescending(a => a.CreatedAt).Take(100).ToListAsync();
+
+        var similar = allAds.Where(a =>
+        {
+            if (string.IsNullOrEmpty(req.Brand)) return true;
+            return a.ExtraData.Contains(req.Brand, StringComparison.OrdinalIgnoreCase);
+        }).Take(10).ToList();
+
+        // If not enough with brand filter, use all
+        if (similar.Count < 3) similar = allAds.Take(10).ToList();
+
+        var prices = similar.Where(a => a.Price > 0).Select(a => a.Price).ToList();
+
+        // Price gauge calculation
+        decimal minPrice = 0, maxPrice = 0, avgPrice = 0;
+        if (prices.Any())
+        {
+            minPrice = prices.Min();
+            maxPrice = prices.Max();
+            avgPrice = prices.Average();
+        }
+
+        // Similar ads (top 5)
+        var similarAds = similar.Take(5).Select(a => new
+        {
+            id = a.Id,
+            title = a.Title,
+            price = a.Price,
+            mileage = ExtractMileage(a.ExtraData),
+            location = a.Location
+        }).ToList();
+
+        return Ok(new
+        {
+            minPrice,
+            maxPrice,
+            avgPrice,
+            count = prices.Count,
+            similarAds
+        });
+    }
+
+    private string ExtractMileage(string extraData)
+    {
+        if (string.IsNullOrEmpty(extraData)) return "";
+        try
+        {
+            var data = JsonSerializer.Deserialize<JsonElement>(extraData);
+            if (data.TryGetProperty("mileage", out var m)) return m.ToString();
+        }
+        catch { }
+        return "";
+    }
+}
+
+public class PriceEstimateRequest
+{
+    public int CategoryId { get; set; }
+    public string Brand { get; set; } = string.Empty;
+    public string Model { get; set; } = string.Empty;
 }

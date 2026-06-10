@@ -1546,3 +1546,92 @@ textarea.input-error {
     &:hover { border-color: #ff6e14; }
   }
 }
+
+// Price gauge
+.price-gauge {
+  margin-top: 20px;
+
+  .gauge-bar {
+    height: 10px;
+    border-radius: 5px;
+    overflow: visible;
+    display: flex;
+    position: relative;
+    margin-bottom: 8px;
+
+    .gauge-segment { flex: 1; }
+    .gauge-segment:first-child { border-radius: 5px 0 0 5px; }
+    .gauge-segment:last-child { border-radius: 0 5px 5px 0; }
+
+    .gauge-indicator {
+      position: absolute;
+      top: -4px;
+      width: 4px;
+      height: 18px;
+      background: #333;
+      border-radius: 2px;
+      transform: translateX(-50%);
+      transition: left 0.3s ease;
+    }
+  }
+
+  .gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #666;
+  }
+}
+
+// Similar ads
+.similar-ads {
+  margin-top: 25px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .ads-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+
+    .ad-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 14px;
+      min-width: 140px;
+      background: #fafafa;
+      transition: border-color 0.2s;
+
+      &:hover { border-color: #ff6e14; }
+
+      .ad-card-price {
+        font-size: 15px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      .ad-card-info {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 6px;
+      }
+
+      .ad-card-title {
+        font-size: 11px;
+        color: #888;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 130px;
+      }
+    }
+  }
+}
