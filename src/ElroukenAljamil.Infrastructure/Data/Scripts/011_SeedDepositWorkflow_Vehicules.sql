@@ -91,11 +91,10 @@ BEGIN
      N'[{"value":"avec","label":"Avec permis"},{"value":"sans","label":"Sans permis"}]',
      'avec', '', '', 0, 20, 1, NULL, '');
 
-    -- Step: Description + Prix
+    -- Step: Description (titre + description IA)
     INSERT INTO StepFields (StepId, FieldKey, Label, FieldType, Placeholder, Options, DefaultValue, Suffix, HelperText, IsRequired, DisplayOrder, IsActive, MaxLength, ValidationRegex) VALUES
     (@StepDesc, 'description', N'Titre de l''annonce', 'text_counter', N'Ex: Peugeot 308 2019 Diesel 85000km', '', '', '', '', 1, 1, 1, 200, ''),
-    (@StepDesc, 'annonce_description', N'Description de l''annonce', 'textarea_counter', N'Decrivez votre vehicule : equipements, entretien, historique...', '', '', '', '', 1, 2, 1, 4000, ''),
-    (@StepDesc, 'price', N'Prix', 'number', N'0', '', '', 'TND', '', 1, 3, 1, NULL, '');
+    (@StepDesc, 'annonce_description', N'Description de l''annonce', 'textarea_counter', N'Decrivez votre vehicule : equipements, entretien, historique...', '', '', '', '', 1, 2, 1, 4000, '');
 
     -- Step: Location
     INSERT INTO StepFields (StepId, FieldKey, Label, FieldType, Placeholder, Options, DefaultValue, Suffix, HelperText, IsRequired, DisplayOrder, IsActive, MaxLength, ValidationRegex)
