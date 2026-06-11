@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrl: './auth.component.scss'
 })
 export class AuthComponent {
-  step: 'welcome' | 'login' | 'account-type' | 'verify-email' | 'password' | 'phone' | 'verify-phone' = 'welcome';
+  step: 'welcome' | 'login' | 'login-password' | 'account-type' | 'verify-email' | 'password' | 'phone' | 'verify-phone' = 'welcome';
   private apiUrl = 'https://localhost:7283/api/auth';
 
   email = '';
@@ -55,10 +55,8 @@ export class AuthComponent {
       next: (res) => {
         this.loading = false;
         if (res.exists) {
-          // User exists -> login flow (simplified: go to password directly)
-          this.step = 'password';
+          this.step = 'login-password';
         } else {
-          // New user -> registration flow
           this.step = 'account-type';
         }
       },
@@ -180,7 +178,9 @@ export class AuthComponent {
   }
 
   goBack() {
+    this.error = '';
     if (this.step === 'login') this.step = 'welcome';
+    else if (this.step === 'login-password') this.step = 'login';
     else if (this.step === 'account-type') this.step = 'login';
     else if (this.step === 'verify-email') this.step = 'account-type';
     else if (this.step === 'password') this.step = 'verify-email';

@@ -37,6 +37,33 @@
     </div>
   </div>
 
+  <!-- Login with password step (existing user) -->
+  <div class="auth-page login-page" *ngIf="step === 'login-password'">
+    <div class="login-layout">
+      <div class="login-section">
+        <div class="logo">ElroukenAljamil</div>
+        <h1>Connectez-vous ou créez votre compte ElroukenAljamil</h1>
+        <label>E-mail *</label>
+        <input type="email" [(ngModel)]="email" readonly />
+        <label>Mot de passe</label>
+        <div class="input-wrapper">
+          <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Votre mot de passe" />
+          <span class="toggle-pw" (click)="showPassword = !showPassword">{{ showPassword ? '🙈' : '👁️' }}</span>
+        </div>
+        <div class="forgot-pass">Mot de passe oublié</div>
+        <p class="error-text" *ngIf="error">{{ error }}</p>
+        <button class="btn-continue" (click)="loginWithPassword()" [disabled]="loading">
+          {{ loading ? 'Connexion...' : 'Se connecter →' }}
+        </button>
+        <div class="separator"><span>Ou</span></div>
+        <button class="btn-social"><i class="fa-brands fa-google"></i> Continuer avec Google</button>
+      </div>
+      <div class="visual-section">
+        <div class="card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Account type step -->
   <div class="auth-page" *ngIf="step === 'account-type'">
     <div class="auth-inner-header">
