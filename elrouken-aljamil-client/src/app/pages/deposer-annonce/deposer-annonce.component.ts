@@ -105,11 +105,11 @@ export class DeposerAnnonceComponent implements OnInit {
   constructor(private http: HttpClient, private workflowService: WorkflowService, private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
-    // Check authentication
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/auth']);
-      return;
-    }
+    // Auth check disabled for now
+    // if (!this.authService.isAuthenticated()) {
+    //   this.router.navigate(['/auth']);
+    //   return;
+    // }
 
     // Restore step from sessionStorage
     const savedStep = sessionStorage.getItem('deposer_step');
@@ -682,29 +682,51 @@ export class DeposerAnnonceComponent implements OnInit {
     const upholstery = this.formData['upholstery'];
     const equipment = this.formData['equipment'];
     const history = this.formData['history'];
+    const cylindree = this.formData['cylindree'] || '';
+    const motoType = this.formData['motoType'] || '';
+    const license = this.formData['license'] || '';
 
-    let desc = `Je vends mon ${brand} ${model}`;
-    if (year) desc += ` de ${year}`;
-    if (vehicleType) desc += `, un ${vehicleType} spacieux et confortable`;
-    if (mileage) desc += ` avec seulement ${mileage} km au compteur`;
-    desc += '.\n';
+    const isMoto = this.annonce.category.toLowerCase().includes('moto') || cylindree || motoType;
 
-    if (brand) desc += `- Marque : ${brand}\n`;
-    if (model) desc += `- Mod\u00e8le : ${model}\n`;
-    if (year) desc += `- Ann\u00e9e : ${year}\n`;
-    if (mileage) desc += `- Kilom\u00e9trage : ${mileage} km\n`;
-    if (dinPower) desc += `- Motorisation : ${dinPower} Ch\n`;
-    if (fuel) desc += `- Carburant : ${fuel}\n`;
-    if (gearbox) desc += `- Bo\u00eete de vitesses : ${gearbox}\n`;
-    if (color) desc += `- Couleur : ${color}\n`;
-    if (vehicleType) desc += `- Type de v\u00e9hicule : ${vehicleType}\n`;
-    if (seats) desc += `- Nombre de si\u00e8ges : ${seats}\n`;
-    if (doors) desc += `- Nombre de portes : ${doors}\n`;
-    if (fiscalPower) desc += `- Puissance fiscale : ${fiscalPower} CV\n`;
-    if (technicalControl) desc += `- Contr\u00f4le technique : Valide jusqu'en ${technicalControl}\n`;
-    if (upholstery && Array.isArray(upholstery) && upholstery.length) desc += `- Sellerie : ${upholstery.join(', ')}\n`;
-    if (equipment && Array.isArray(equipment) && equipment.length) desc += `- \u00c9quipements : ${equipment.join(', ')}\n`;
-    if (history && Array.isArray(history) && history.length) desc += `- Historique : ${history.join(', ')}\n`;
+    let desc = '';
+    if (isMoto) {
+      desc = `Je vends ma ${brand} ${model}`;
+      if (year) desc += ` de ${year}`;
+      if (motoType) desc += `, une ${motoType} agile et puissante`;
+      if (mileage) desc += ` avec seulement ${mileage} km au compteur`;
+      desc += '.\n';
+      if (brand) desc += `- Marque : ${brand}\n`;
+      if (model) desc += `- Mod\u00e8le : ${model}\n`;
+      if (year) desc += `- Ann\u00e9e : ${year}\n`;
+      if (mileage) desc += `- Kilom\u00e9trage : ${mileage} km\n`;
+      if (cylindree) desc += `- Cylindr\u00e9e : ${cylindree}\n`;
+      if (motoType) desc += `- Type : ${motoType}\n`;
+      if (color) desc += `- Couleur : ${color}\n`;
+      if (license) desc += `- Permis : ${license}\n`;
+      if (equipment && Array.isArray(equipment) && equipment.length) desc += `- \u00c9quipements : ${equipment.join(', ')}\n`;
+    } else {
+      desc = `Je vends mon ${brand} ${model}`;
+      if (year) desc += ` de ${year}`;
+      if (vehicleType) desc += `, un ${vehicleType} spacieux et confortable`;
+      if (mileage) desc += ` avec seulement ${mileage} km au compteur`;
+      desc += '.\n';
+      if (brand) desc += `- Marque : ${brand}\n`;
+      if (model) desc += `- Mod\u00e8le : ${model}\n`;
+      if (year) desc += `- Ann\u00e9e : ${year}\n`;
+      if (mileage) desc += `- Kilom\u00e9trage : ${mileage} km\n`;
+      if (dinPower) desc += `- Motorisation : ${dinPower} Ch\n`;
+      if (fuel) desc += `- Carburant : ${fuel}\n`;
+      if (gearbox) desc += `- Bo\u00eete de vitesses : ${gearbox}\n`;
+      if (color) desc += `- Couleur : ${color}\n`;
+      if (vehicleType) desc += `- Type de v\u00e9hicule : ${vehicleType}\n`;
+      if (seats) desc += `- Nombre de si\u00e8ges : ${seats}\n`;
+      if (doors) desc += `- Nombre de portes : ${doors}\n`;
+      if (fiscalPower) desc += `- Puissance fiscale : ${fiscalPower} CV\n`;
+      if (technicalControl) desc += `- Contr\u00f4le technique : Valide jusqu'en ${technicalControl}\n`;
+      if (upholstery && Array.isArray(upholstery) && upholstery.length) desc += `- Sellerie : ${upholstery.join(', ')}\n`;
+      if (equipment && Array.isArray(equipment) && equipment.length) desc += `- \u00c9quipements : ${equipment.join(', ')}\n`;
+      if (history && Array.isArray(history) && history.length) desc += `- Historique : ${history.join(', ')}\n`;
+    }
 
     desc += `\nN'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations ou pour convenir d'un essai !`;
     return desc;
