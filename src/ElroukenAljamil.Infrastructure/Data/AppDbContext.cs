@@ -1,9 +1,10 @@
 using ElroukenAljamil.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ElroukenAljamil.Infrastructure.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -14,10 +15,11 @@ public class AppDbContext : DbContext
     public DbSet<DepositWorkflow> DepositWorkflows => Set<DepositWorkflow>();
     public DbSet<WorkflowStep> WorkflowSteps => Set<WorkflowStep>();
     public DbSet<StepField> StepFields => Set<StepField>();
-    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Annonce>(entity =>
         {
             entity.HasKey(e => e.Id);

@@ -1,7 +1,9 @@
 using ElroukenAljamil.Domain.Entities;
-using ElroukenAljamil.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -11,12 +13,19 @@ namespace ElroukenAljamil.API.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IConfiguration _config;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(AppDbContext context, ILogger<AuthController> logger)
+    // In-memory code store (in production, use Redis/DB)
+    private static readonly Dictionary<string, (string Code, DateTime Expiry)> _codes = new();
+
+    public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config, ILogger<AuthController> logger)
     {
-        _context = context;
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _config = config;
         _logger = logger;
     }
 
@@ -26,96 +35,76 @@ public class AuthController : ControllerBase
         if (string.IsNullOrWhiteSpace(req.Email))
             return BadRequest(new { message = "Email requis." });
 
-        var exists = await _context.Users.AnyAsync(u => u.Email == req.Email.ToLower().Trim());
-        return Ok(new { exists });
+        var user = await _userManager.FindByEmailAsync(req.Email.Trim());
+        return Ok(new { exists = user != null });
     }
 
     [HttpPost("send-code")]
-    public async Task<ActionResult> SendCode([FromBody] EmailRequest req)
+    public ActionResult SendCode([FromBody] EmailRequest req)
     {
         if (string.IsNullOrWhiteSpace(req.Email))
             return BadRequest(new { message = "Email requis." });
 
         var email = req.Email.ToLower().Trim();
         var code = GenerateCode(5);
+        _codes[email] = (code, DateTime.UtcNow.AddMinutes(10));
 
-        // Store code temporarily (in a real app, use a cache/Redis)
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-        if (user == null)
-        {
-            user = new User { Email = email, VerificationCode = code, CodeExpiry = DateTime.UtcNow.AddMinutes(10) };
-            _context.Users.Add(user);
-        }
-        else
-        {
-            user.VerificationCode = code;
-            user.CodeExpiry = DateTime.UtcNow.AddMinutes(10);
-        }
-        await _context.SaveChangesAsync();
-
-        // Mock email sending (log to console)
         _logger.LogInformation("=== EMAIL VERIFICATION CODE ===");
-        _logger.LogInformation("To: {Email}", email);
-        _logger.LogInformation("Code: {Code}", code);
+        _logger.LogInformation("To: {Email} | Code: {Code}", email, code);
         _logger.LogInformation("================================");
 
         return Ok(new { message = "Code envoyé.", maskedEmail = MaskEmail(email) });
     }
 
     [HttpPost("verify-code")]
-    public async Task<ActionResult> VerifyCode([FromBody] VerifyCodeRequest req)
+    public ActionResult VerifyCode([FromBody] VerifyCodeRequest req)
     {
-        var email = req.Email?.ToLower().Trim();
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-
-        if (user == null)
-            return BadRequest(new { message = "Utilisateur non trouvé." });
-
-        if (user.VerificationCode != req.Code || user.CodeExpiry < DateTime.UtcNow)
+        var email = req.Email?.ToLower().Trim() ?? "";
+        if (!_codes.TryGetValue(email, out var entry) || entry.Code != req.Code || entry.Expiry < DateTime.UtcNow)
             return BadRequest(new { message = "Code invalide ou expiré." });
 
-        user.EmailVerified = true;
-        user.VerificationCode = null;
-        await _context.SaveChangesAsync();
-
+        _codes.Remove(email);
         return Ok(new { message = "Email vérifié." });
     }
 
-    [HttpPost("set-password")]
-    public async Task<ActionResult> SetPassword([FromBody] SetPasswordRequest req)
+    [HttpPost("register")]
+    public async Task<ActionResult> Register([FromBody] RegisterRequest req)
     {
-        var email = req.Email?.ToLower().Trim();
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        if (string.IsNullOrWhiteSpace(req.Email) || string.IsNullOrWhiteSpace(req.Password))
+            return BadRequest(new { message = "Email et mot de passe requis." });
 
-        if (user == null || !user.EmailVerified)
-            return BadRequest(new { message = "Email non vérifié." });
+        var user = new ApplicationUser
+        {
+            UserName = req.Email.ToLower().Trim(),
+            Email = req.Email.ToLower().Trim(),
+            AccountType = req.AccountType ?? "personal",
+            EmailConfirmed = true
+        };
 
-        user.PasswordHash = HashPassword(req.Password);
-        user.AccountType = req.AccountType ?? "personal";
-        await _context.SaveChangesAsync();
+        var result = await _userManager.CreateAsync(user, req.Password);
+        if (!result.Succeeded)
+            return BadRequest(new { message = string.Join(", ", result.Errors.Select(e => e.Description)) });
 
-        return Ok(new { message = "Mot de passe défini." });
+        return Ok(new { message = "Compte créé.", userId = user.Id });
     }
 
     [HttpPost("send-sms-code")]
     public async Task<ActionResult> SendSmsCode([FromBody] PhoneRequest req)
     {
-        var email = req.Email?.ToLower().Trim();
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-
+        var email = req.Email?.ToLower().Trim() ?? "";
+        var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
             return BadRequest(new { message = "Utilisateur non trouvé." });
 
         var code = GenerateCode(6);
-        user.Phone = req.Phone;
-        user.VerificationCode = code;
-        user.CodeExpiry = DateTime.UtcNow.AddMinutes(10);
-        await _context.SaveChangesAsync();
+        _codes[$"phone_{email}"] = (code, DateTime.UtcNow.AddMinutes(10));
 
-        // Mock SMS sending
+        // Save phone number
+        user.PhoneNumber = req.Phone;
+        await _userManager.UpdateAsync(user);
+
         _logger.LogInformation("=== SMS VERIFICATION CODE ===");
-        _logger.LogInformation("To: {Phone}", req.Phone);
-        _logger.LogInformation("Code: {Code}", code);
+        _logger.LogInformation("To: {Phone} | Code: {Code}", req.Phone, code);
         _logger.LogInformation("==============================");
 
         return Ok(new { message = "SMS envoyé." });
@@ -124,49 +113,81 @@ public class AuthController : ControllerBase
     [HttpPost("verify-phone")]
     public async Task<ActionResult> VerifyPhone([FromBody] VerifyCodeRequest req)
     {
-        var email = req.Email?.ToLower().Trim();
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var email = req.Email?.ToLower().Trim() ?? "";
+        var key = $"phone_{email}";
 
-        if (user == null)
-            return BadRequest(new { message = "Utilisateur non trouvé." });
-
-        if (user.VerificationCode != req.Code || user.CodeExpiry < DateTime.UtcNow)
+        if (!_codes.TryGetValue(key, out var entry) || entry.Code != req.Code || entry.Expiry < DateTime.UtcNow)
             return BadRequest(new { message = "Code invalide ou expiré." });
 
-        user.PhoneVerified = true;
+        _codes.Remove(key);
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null) return BadRequest(new { message = "Utilisateur non trouvé." });
+
+        user.PhoneNumberConfirmed = true;
         user.IsActive = true;
-        user.VerificationCode = null;
-        await _context.SaveChangesAsync();
+        await _userManager.UpdateAsync(user);
 
-        // Mock: send welcome email
-        _logger.LogInformation("=== WELCOME EMAIL ===");
-        _logger.LogInformation("To: {Email}", user.Email);
-        _logger.LogInformation("Subject: Bienvenue sur ElroukenAljamil !");
-        _logger.LogInformation("=====================");
+        _logger.LogInformation("=== WELCOME EMAIL === To: {Email}", email);
 
-        return Ok(new { message = "Compte créé et activé.", userId = user.Id, email = user.Email, phone = user.Phone });
+        var token = GenerateJwtToken(user);
+        return Ok(new { token, userId = user.Id, email = user.Email, phone = user.PhoneNumber, firstName = user.FirstName, lastName = user.LastName });
     }
 
     [HttpPost("login")]
     public async Task<ActionResult> Login([FromBody] LoginRequest req)
     {
-        var email = req.Email?.ToLower().Trim();
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
-
-        if (user == null || string.IsNullOrEmpty(user.PasswordHash))
+        var email = req.Email?.ToLower().Trim() ?? "";
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
             return Unauthorized(new { message = "Email ou mot de passe incorrect." });
 
-        if (HashPassword(req.Password) != user.PasswordHash)
+        var result = await _signInManager.CheckPasswordSignInAsync(user, req.Password, false);
+        if (!result.Succeeded)
             return Unauthorized(new { message = "Email ou mot de passe incorrect." });
 
-        return Ok(new { userId = user.Id, email = user.Email, firstName = user.FirstName, lastName = user.LastName, phone = user.Phone });
+        var token = GenerateJwtToken(user);
+        return Ok(new { token, userId = user.Id, email = user.Email, phone = user.PhoneNumber, firstName = user.FirstName, lastName = user.LastName });
+    }
+
+    [HttpGet("me")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    public async Task<ActionResult> GetCurrentUser()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByIdAsync(userId ?? "");
+        if (user == null) return Unauthorized();
+        return Ok(new { userId = user.Id, email = user.Email, phone = user.PhoneNumber, firstName = user.FirstName, lastName = user.LastName });
+    }
+
+    private string GenerateJwtToken(ApplicationUser user)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "ElroukenAljamilSuperSecretKey2024!@#$%^&*"));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(ClaimTypes.Email, user.Email ?? ""),
+            new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim()),
+            new Claim("accountType", user.AccountType)
+        };
+
+        var token = new JwtSecurityToken(
+            issuer: _config["Jwt:Issuer"] ?? "ElroukenAljamil",
+            audience: _config["Jwt:Audience"] ?? "ElroukenAljamilApp",
+            claims: claims,
+            expires: DateTime.UtcNow.AddDays(30),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     private string GenerateCode(int length)
     {
-        var rng = RandomNumberGenerator.Create();
         var bytes = new byte[length];
-        rng.GetBytes(bytes);
+        RandomNumberGenerator.Fill(bytes);
         return string.Join("", bytes.Select(b => (b % 10).ToString())).Substring(0, length);
     }
 
@@ -176,17 +197,10 @@ public class AuthController : ControllerBase
         if (parts[0].Length <= 2) return email;
         return parts[0][0] + new string('*', parts[0].Length - 2) + parts[0][^1] + "@" + parts[1];
     }
-
-    private string HashPassword(string password)
-    {
-        using var sha = SHA256.Create();
-        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password + "_ElroukenSalt"));
-        return Convert.ToBase64String(bytes);
-    }
 }
 
 public class EmailRequest { public string Email { get; set; } = ""; }
 public class VerifyCodeRequest { public string Email { get; set; } = ""; public string Code { get; set; } = ""; }
-public class SetPasswordRequest { public string Email { get; set; } = ""; public string Password { get; set; } = ""; public string? AccountType { get; set; } }
+public class RegisterRequest { public string Email { get; set; } = ""; public string Password { get; set; } = ""; public string? AccountType { get; set; } }
 public class PhoneRequest { public string Email { get; set; } = ""; public string Phone { get; set; } = ""; }
 public class LoginRequest { public string Email { get; set; } = ""; public string Password { get; set; } = ""; }

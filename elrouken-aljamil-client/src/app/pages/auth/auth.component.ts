@@ -107,14 +107,14 @@ export class AuthComponent {
     this.http.post<any>(`${this.apiUrl}/send-code`, { email: this.email }).subscribe();
   }
 
-  // Step: Set password
+  // Step: Set password (register the user)
   submitPassword() {
     if (!this.passwordValid) return;
     this.loading = true;
     this.error = '';
-    this.http.post<any>(`${this.apiUrl}/set-password`, { email: this.email, password: this.password, accountType: this.accountType }).subscribe({
+    this.http.post<any>(`${this.apiUrl}/register`, { email: this.email, password: this.password, accountType: this.accountType }).subscribe({
       next: () => { this.loading = false; this.step = 'phone'; },
-      error: () => { this.loading = false; this.error = 'Erreur serveur.'; }
+      error: (err) => { this.loading = false; this.error = err.error?.message || 'Erreur serveur.'; }
     });
   }
 
@@ -151,8 +151,8 @@ export class AuthComponent {
     this.http.post<any>(`${this.apiUrl}/verify-phone`, { email: this.email, code }).subscribe({
       next: (res) => {
         this.loading = false;
-        // Store user in localStorage (mock session)
-        localStorage.setItem('user', JSON.stringify(res));
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify({ userId: res.userId, email: res.email, phone: res.phone, firstName: res.firstName, lastName: res.lastName }));
         this.router.navigate(['/deposer']);
       },
       error: () => { this.loading = false; this.error = 'Code invalide ou expiré.'; }
@@ -171,7 +171,8 @@ export class AuthComponent {
     this.http.post<any>(`${this.apiUrl}/login`, { email: this.email, password: this.password }).subscribe({
       next: (res) => {
         this.loading = false;
-        localStorage.setItem('user', JSON.stringify(res));
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify({ userId: res.userId, email: res.email, phone: res.phone, firstName: res.firstName, lastName: res.lastName }));
         this.router.navigate(['/deposer']);
       },
       error: () => { this.loading = false; this.error = 'Email ou mot de passe incorrect.'; }

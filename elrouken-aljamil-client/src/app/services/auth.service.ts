@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
 export interface User {
-  id: number;
+  userId: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -14,7 +14,17 @@ export class AuthService {
   constructor(private router: Router) {}
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    // Check if token is expired
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch { return false; }
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 
   getUser(): User | null {
@@ -33,11 +43,12 @@ export class AuthService {
 
   getFullName(): string {
     const u = this.getUser();
-    if (u) return `${u.firstName} ${u.lastName}`.trim();
+    if (u) return `${u.firstName || ''} ${u.lastName || ''}`.trim();
     return '';
   }
 
   logout() {
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.router.navigate(['/']);
   }
