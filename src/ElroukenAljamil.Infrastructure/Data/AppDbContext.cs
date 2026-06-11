@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<DepositWorkflow> DepositWorkflows => Set<DepositWorkflow>();
     public DbSet<WorkflowStep> WorkflowSteps => Set<WorkflowStep>();
     public DbSet<StepField> StepFields => Set<StepField>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

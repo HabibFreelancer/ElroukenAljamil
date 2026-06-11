@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 export interface User {
   id: number;
@@ -10,31 +11,42 @@ export interface User {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private currentUser: User = {
-    id: 1,
-    email: 'habib.benradhouene@gmail.com',
-    firstName: 'Habib',
-    lastName: 'Ben Radhouene',
-    phone: '55123456'
-  };
+  constructor(private router: Router) {}
 
   isAuthenticated(): boolean {
-    return true;
+    return !!localStorage.getItem('user');
   }
 
-  getUser(): User {
-    return this.currentUser;
+  getUser(): User | null {
+    const data = localStorage.getItem('user');
+    if (data) return JSON.parse(data);
+    return null;
   }
 
   getEmail(): string {
-    return this.currentUser.email;
+    return this.getUser()?.email || '';
   }
 
   getPhone(): string {
-    return this.currentUser.phone;
+    return this.getUser()?.phone || '';
   }
 
   getFullName(): string {
-    return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+    const u = this.getUser();
+    if (u) return `${u.firstName} ${u.lastName}`.trim();
+    return '';
+  }
+
+  logout() {
+    localStorage.removeItem('user');
+    this.router.navigate(['/']);
+  }
+
+  requireAuth(): boolean {
+    if (!this.isAuthenticated()) {
+      this.router.navigate(['/auth']);
+      return false;
+    }
+    return true;
   }
 }

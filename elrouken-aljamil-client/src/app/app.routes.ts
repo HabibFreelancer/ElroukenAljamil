@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { DeposerAnnonceComponent } from './pages/deposer-annonce/deposer-annonce.component';
+import { AuthComponent } from './pages/auth/auth.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { MenuManagementComponent } from './pages/admin/menu-management/menu-management.component';
 import { CategoryManagementComponent } from './pages/admin/category-management/category-management.component';
@@ -10,6 +11,7 @@ import { WorkflowManagementComponent } from './pages/admin/workflow-management/w
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'deposer', component: DeposerAnnonceComponent },
+  { path: 'auth', component: AuthComponent },
   {
     path: 'admin',
     component: AdminComponent,

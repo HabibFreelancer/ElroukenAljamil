@@ -4,7 +4,7 @@
     <div class="deposer-header">
       <a routerLink="/" class="logo">ElroukenAljamil</a>
       <span class="header-title">Déposer une annonce</span>
-      <a routerLink="/" class="quit-btn" (click)="onQuitClick($event)">Quitter</a>
+      <a class="quit-btn" (click)="onQuitClick($event)" style="cursor:pointer;">Quitter</a>
     </div>
     <div class="progress-bar">
       <div class="progress-fill" [style.width.%]="getProgressPercent()"></div>

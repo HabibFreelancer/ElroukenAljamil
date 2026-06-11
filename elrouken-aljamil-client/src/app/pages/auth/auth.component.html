@@ -1,0 +1,173 @@
+<div class="auth-wrapper">
+  <!-- Welcome step -->
+  <div class="auth-page" *ngIf="step === 'welcome'">
+    <div class="auth-header">
+      <a routerLink="/" class="logo">ElroukenAljamil</a>
+      <span class="header-title">Déposer une annonce</span>
+      <a class="quit-btn" (click)="quitToHome()">Quitter</a>
+    </div>
+    <div class="auth-content">
+      <div class="welcome-card">
+        <h2>Bonjour !</h2>
+        <p>Connectez-vous ou créez un compte pour déposer votre annonce.</p>
+        <button class="btn-primary" (click)="goToLogin()">Me Connecter</button>
+        <button class="btn-secondary" (click)="goToRegister()">Créer un compte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login step -->
+  <div class="auth-page login-page" *ngIf="step === 'login'">
+    <div class="login-layout">
+      <div class="login-section">
+        <div class="logo">ElroukenAljamil</div>
+        <h1>Connectez-vous ou créez votre compte ElroukenAljamil</h1>
+        <label>E-mail *</label>
+        <input type="email" [(ngModel)]="email" placeholder="votre@email.com" />
+        <p class="error-text" *ngIf="error">{{ error }}</p>
+        <button class="btn-continue" (click)="submitEmail()" [disabled]="loading">
+          {{ loading ? 'Vérification...' : 'Continuer' }}
+        </button>
+        <div class="separator"><span>Ou</span></div>
+        <button class="btn-social"><i class="fa-brands fa-google"></i> Continuer avec Google</button>
+      </div>
+      <div class="visual-section">
+        <div class="card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account type step -->
+  <div class="auth-page" *ngIf="step === 'account-type'">
+    <div class="auth-inner-header">
+      <span class="back-arrow" (click)="goBack()">←</span>
+      <span class="logo">ElroukenAljamil</span>
+    </div>
+    <div class="auth-content">
+      <div class="auth-card">
+        <h2>Créez un compte</h2>
+        <p>Bénéficiez d'une expérience personnalisée avec du contenu en lien avec votre activité et vos centres d'intérêt.</p>
+        <label class="option" [class.selected]="accountType === 'personal'" (click)="selectAccountType('personal')">
+          <input type="radio" name="type" [checked]="accountType === 'personal'" /> Pour vous *
+        </label>
+        <label class="option" [class.selected]="accountType === 'business'" (click)="selectAccountType('business')">
+          <input type="radio" name="type" [checked]="accountType === 'business'" /> Pour votre entreprise
+        </label>
+        <div class="legal-footer">
+          * Vous agissez à titre professionnel ? <span class="pro-link">Créez plutôt un compte pro !</span><br><br>
+          À défaut, en application de l'article L 132-2 du Code de la consommation, vous encourez une peine d'emprisonnement de 2 ans et une amende de 300 000 euros.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verify email step -->
+  <div class="auth-page" *ngIf="step === 'verify-email'">
+    <div class="auth-inner-header">
+      <span class="back-arrow" (click)="goBack()">←</span>
+      <span class="logo">ElroukenAljamil</span>
+    </div>
+    <div class="auth-content">
+      <div class="auth-card center">
+        <h2>Vérifions ensemble votre e-mail.</h2>
+        <p>Saisissez le code reçu à l'adresse e-mail :<br><b>{{ maskedEmail }}</b></p>
+        <div class="code-inputs">
+          <input *ngFor="let c of emailCode; let i = index" type="text" maxlength="1" [(ngModel)]="emailCode[i]" (input)="onEmailCodeInput(i, $event)" />
+        </div>
+        <p class="error-text" *ngIf="error">{{ error }}</p>
+        <div class="resend">Je n'ai rien reçu <a (click)="resendEmailCode()">Me renvoyer un code</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Password step -->
+  <div class="auth-page" *ngIf="step === 'password'">
+    <div class="auth-inner-header">
+      <span class="back-arrow" (click)="goBack()">←</span>
+      <span class="logo">ElroukenAljamil</span>
+    </div>
+    <div class="auth-content">
+      <div class="auth-card">
+        <h2>Définissez votre mot de passe</h2>
+        <p>Choisissez un mot de passe que vous n'utilisez nulle part ailleurs.</p>
+        <label>Mot de passe</label>
+        <div class="input-wrapper">
+          <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" />
+          <span class="toggle-pw" (click)="showPassword = !showPassword">{{ showPassword ? '🙈' : '👁️' }}</span>
+        </div>
+        <div class="pw-rules">
+          <span [class.valid]="hasMinLength">✓ 8 caractères minimum</span>
+          <span [class.valid]="hasDigit">✓ 1 chiffre minimum</span>
+          <span [class.valid]="hasLower">✓ 1 lettre minuscule</span>
+          <span [class.valid]="hasUpper">✓ 1 lettre majuscule</span>
+          <span [class.valid]="hasSpecial">✓ 1 caractère spécial</span>
+          <span [class.valid]="hasMaxLength">✓ 50 caractères maximum</span>
+        </div>
+        <p class="error-text" *ngIf="error">{{ error }}</p>
+        <button class="btn-continue" [class.active]="passwordValid" [disabled]="!passwordValid || loading" (click)="submitPassword()">
+          {{ loading ? 'Enregistrement...' : 'Continuer' }}
+        </button>
+        <div class="legal-footer">*Champ requis</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phone step -->
+  <div class="auth-page" *ngIf="step === 'phone'">
+    <div class="auth-inner-header">
+      <span class="back-arrow" (click)="goBack()">←</span>
+      <span class="logo">ElroukenAljamil</span>
+    </div>
+    <div class="auth-content">
+      <div class="auth-card">
+        <h2>Sécurisons votre compte</h2>
+        <p>Renseignez votre numéro de téléphone mobile</p>
+        <label>Numéro de téléphone *</label>
+        <div class="phone-input">
+          <span class="phone-prefix">TN +216</span>
+          <input type="tel" [(ngModel)]="phone" placeholder="55 123 456" />
+        </div>
+        <div class="info-link" (click)="showPhoneModal = true"><i class="fa-solid fa-circle-info"></i> En savoir plus</div>
+        <p class="error-text" *ngIf="error">{{ error }}</p>
+        <button class="btn-continue" [class.active]="phone.length >= 8" [disabled]="phone.length < 8 || loading" (click)="submitPhone()">
+          {{ loading ? 'Envoi...' : 'Continuer' }}
+        </button>
+        <div class="legal-footer">*Champ requis</div>
+      </div>
+    </div>
+
+    <!-- Phone info modal -->
+    <div class="modal-overlay" *ngIf="showPhoneModal" (click)="showPhoneModal = false">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="close-btn" (click)="showPhoneModal = false">✕</div>
+        <div class="shield-icon">🛡️</div>
+        <h2>Pourquoi renseigner mon numéro de téléphone ?</h2>
+        <p>Même si vous choisissez de ne pas l'afficher, votre numéro est essentiel pour sécuriser votre compte.</p>
+        <div class="divider"></div>
+        <div class="list-item"><i class="fa-solid fa-user-check"></i> Vérifier votre identité</div>
+        <div class="list-item"><i class="fa-solid fa-euro-sign"></i> Confirmer les transactions</div>
+        <div class="list-item"><i class="fa-solid fa-lock-open"></i> Débloquer votre compte si nécessaire</div>
+        <div class="list-item"><i class="fa-solid fa-circle-check"></i> Valider certaines actions sensibles</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verify phone step -->
+  <div class="auth-page" *ngIf="step === 'verify-phone'">
+    <div class="auth-inner-header">
+      <span class="back-arrow" (click)="goBack()">←</span>
+      <span class="logo">ElroukenAljamil</span>
+    </div>
+    <div class="auth-content">
+      <div class="auth-card center">
+        <h2>Vérifions ensemble votre numéro de téléphone.</h2>
+        <p>Saisissez le code reçu au : <b>+216 {{ phone }}</b></p>
+        <div class="code-inputs">
+          <input *ngFor="let c of phoneCode; let i = index" type="text" maxlength="1" [(ngModel)]="phoneCode[i]" (input)="onPhoneCodeInput(i, $event)" />
+        </div>
+        <p class="error-text" *ngIf="error">{{ error }}</p>
+        <div class="resend">Je n'ai rien reçu <a (click)="resendSmsCode()">Me renvoyer un code</a></div>
+      </div>
+    </div>
+  </div>
+</div>

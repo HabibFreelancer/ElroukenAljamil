@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 import { NgIf, NgFor, NgStyle, NgClass, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, Subject } from 'rxjs';
 import { WorkflowService, Workflow, WorkflowStep, StepField } from '../../services/workflow.service';
@@ -102,9 +102,15 @@ export class DeposerAnnonceComponent implements OnInit {
     hidePhone: false
   };
 
-  constructor(private http: HttpClient, private workflowService: WorkflowService, private authService: AuthService) {}
+  constructor(private http: HttpClient, private workflowService: WorkflowService, private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
+    // Check authentication
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/auth']);
+      return;
+    }
+
     // Restore step from sessionStorage
     const savedStep = sessionStorage.getItem('deposer_step');
     if (savedStep) {
@@ -952,7 +958,7 @@ export class DeposerAnnonceComponent implements OnInit {
     if (this.currentStep > 1) {
       this.showQuitModal = true;
     } else {
-      window.location.href = '/';
+      this.router.navigate(['/']);
     }
   }
 
@@ -960,7 +966,7 @@ export class DeposerAnnonceComponent implements OnInit {
     this.showQuitModal = false;
     sessionStorage.removeItem('deposer_step');
     sessionStorage.removeItem('deposer_data');
-    window.location.href = '/';
+    this.router.navigate(['/']);
   }
 
   saveDraft() {
@@ -987,7 +993,7 @@ export class DeposerAnnonceComponent implements OnInit {
         this.showQuitModal = false;
         sessionStorage.removeItem('deposer_step');
         sessionStorage.removeItem('deposer_data');
-        window.location.href = '/';
+        this.router.navigate(['/']);
       },
       error: () => {
         this.savingDraft = false;
