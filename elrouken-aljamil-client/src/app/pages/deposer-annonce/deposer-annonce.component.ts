@@ -635,14 +635,47 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   getDependentOptions(field: StepField): any[] {
-    // Model depends on brand
     if (field.fieldKey === 'model') {
       const brand = this.formData['brand'];
       if (!brand) return [];
-      return this.carModels[brand] || [];
+      // Check if it's moto or car based on category
+      if (this.annonce.category.toLowerCase().includes('moto') || this.formData['cylindree'] || this.formData['motoType']) {
+        return this.motoModels[brand] || [{value:'autre',label:'Autre'}];
+      }
+      return this.carModels[brand] || [{value:'autre',label:'Autre'}];
+    }
+    if (field.fieldKey === 'motoType') {
+      const vType = this.formData['vehicleType'];
+      if (!vType) return [];
+      return this.motoTypesByVehicle[vType] || [];
     }
     return field.options;
   }
+
+  motoTypesByVehicle: { [key: string]: { value: string; label: string }[] } = {
+    moto: [{value:'sportive',label:'Sportive'},{value:'roadster',label:'Roadster'},{value:'trail',label:'Trail / Enduro'},{value:'custom',label:'Custom / Cruiser'},{value:'touring',label:'Touring / GT'},{value:'cafe_racer',label:'Cafe Racer'},{value:'cross',label:'Cross / Supermotard'},{value:'classique',label:'Classique / Vintage'},{value:'autre',label:'Autre'}],
+    scooter: [{value:'urbain',label:'Urbain'},{value:'gt',label:'GT / Maxi-scooter'},{value:'3_roues',label:'3 roues'},{value:'electrique',label:'Electrique'},{value:'autre',label:'Autre'}],
+    quad: [{value:'sport',label:'Sport'},{value:'utilitaire',label:'Utilitaire'},{value:'enfant',label:'Enfant'},{value:'autre',label:'Autre'}],
+    sidecar: [{value:'classique',label:'Classique'},{value:'moderne',label:'Moderne'},{value:'autre',label:'Autre'}],
+    autre: [{value:'autre',label:'Autre'}]
+  };
+
+  motoModels: { [brand: string]: { value: string; label: string }[] } = {
+    aprilia: [{value:'rs50',label:'RS 50'},{value:'rs125',label:'RS 125'},{value:'rs660',label:'RS 660'},{value:'rsv4',label:'RSV4'},{value:'tuono125',label:'Tuono 125'},{value:'tuono660',label:'Tuono 660'},{value:'tuono_v4',label:'Tuono V4'},{value:'shiver750',label:'Shiver 750'},{value:'dorsoduro',label:'Dorsoduro 900'},{value:'scarabeo',label:'Scarabeo'}],
+    benelli: [{value:'tnt125',label:'TNT 125'},{value:'tnt300',label:'TNT 300'},{value:'tnt600',label:'TNT 600'},{value:'leoncino125',label:'Leoncino 125'},{value:'leoncino500',label:'Leoncino 500'},{value:'leoncino800',label:'Leoncino 800'},{value:'trk502',label:'TRK 502'},{value:'trk702',label:'TRK 702'},{value:'imperiale400',label:'Imperiale 400'}],
+    bmw: [{value:'s1000rr',label:'S1000RR'},{value:'s1000r',label:'S1000R'},{value:'s1000xr',label:'S1000XR'},{value:'r1250gs',label:'R1250GS'},{value:'r1250r',label:'R1250R'},{value:'r1250rt',label:'R1250RT'},{value:'f750gs',label:'F750GS'},{value:'f850gs',label:'F850GS'},{value:'f900r',label:'F900R'},{value:'f900xr',label:'F900XR'},{value:'g310r',label:'G310R'},{value:'g310gs',label:'G310GS'},{value:'k1600gt',label:'K1600GT'}],
+    ducati: [{value:'monster',label:'Monster'},{value:'panigale_v2',label:'Panigale V2'},{value:'panigale_v4',label:'Panigale V4'},{value:'supersport',label:'Supersport 950'},{value:'hypermotard',label:'Hypermotard 950'},{value:'multistrada_v4',label:'Multistrada V4'},{value:'scrambler',label:'Scrambler'},{value:'diavel',label:'Diavel'},{value:'streetfighter_v4',label:'Streetfighter V4'}],
+    harley: [{value:'sportster883',label:'Sportster 883'},{value:'sportster1200',label:'Sportster 1200'},{value:'iron883',label:'Iron 883'},{value:'fortyeight',label:'Forty-Eight'},{value:'fat_boy',label:'Fat Boy'},{value:'fat_bob',label:'Fat Bob'},{value:'street_bob',label:'Street Bob'},{value:'low_rider',label:'Low Rider'},{value:'road_king',label:'Road King'},{value:'street_glide',label:'Street Glide'},{value:'road_glide',label:'Road Glide'},{value:'pan_america',label:'Pan America'}],
+    honda: [{value:'cbr125',label:'CBR 125'},{value:'cbr500',label:'CBR 500'},{value:'cbr650r',label:'CBR 650R'},{value:'cbr1000rr',label:'CBR 1000RR'},{value:'cb500f',label:'CB 500F'},{value:'cb650r',label:'CB 650R'},{value:'cb1000r',label:'CB 1000R'},{value:'africa_twin',label:'Africa Twin'},{value:'nc750',label:'NC 750'},{value:'forza125',label:'Forza 125'},{value:'forza350',label:'Forza 350'},{value:'pcx125',label:'PCX 125'},{value:'goldwing',label:'Goldwing'}],
+    kawasaki: [{value:'z125',label:'Z125'},{value:'z400',label:'Z400'},{value:'z650',label:'Z650'},{value:'z900',label:'Z900'},{value:'z1000',label:'Z1000'},{value:'ninja400',label:'Ninja 400'},{value:'ninja650',label:'Ninja 650'},{value:'zx6r',label:'ZX-6R'},{value:'zx10r',label:'ZX-10R'},{value:'versys650',label:'Versys 650'},{value:'versys1000',label:'Versys 1000'},{value:'vulcan_s',label:'Vulcan S'}],
+    ktm: [{value:'duke125',label:'Duke 125'},{value:'duke200',label:'Duke 200'},{value:'duke390',label:'Duke 390'},{value:'duke690',label:'Duke 690'},{value:'duke790',label:'Duke 790'},{value:'duke890',label:'Duke 890'},{value:'duke1290',label:'Super Duke 1290'},{value:'rc390',label:'RC 390'},{value:'adv390',label:'Adventure 390'},{value:'adv890',label:'Adventure 890'},{value:'adv1290',label:'Adventure 1290'}],
+    malaguti: [{value:'xsm50',label:'XSM 50'},{value:'xtm50',label:'XTM 50'},{value:'drakon125',label:'Drakon 125'},{value:'monte_pro',label:'Monte Pro 125'},{value:'madison',label:'Madison'},{value:'phantom',label:'Phantom'}],
+    peugeot: [{value:'kisbee50',label:'Kisbee 50'},{value:'speedfight',label:'Speedfight'},{value:'django',label:'Django'},{value:'tweet',label:'Tweet'},{value:'citystar',label:'Citystar'},{value:'metropolis',label:'Metropolis 400'}],
+    suzuki: [{value:'gsxr600',label:'GSX-R 600'},{value:'gsxr750',label:'GSX-R 750'},{value:'gsxr1000',label:'GSX-R 1000'},{value:'gsxs750',label:'GSX-S 750'},{value:'gsxs1000',label:'GSX-S 1000'},{value:'sv650',label:'SV 650'},{value:'vstrom650',label:'V-Strom 650'},{value:'vstrom1000',label:'V-Strom 1000'},{value:'burgman',label:'Burgman'}],
+    triumph: [{value:'street_triple',label:'Street Triple'},{value:'speed_triple',label:'Speed Triple'},{value:'tiger800',label:'Tiger 800'},{value:'tiger900',label:'Tiger 900'},{value:'tiger1200',label:'Tiger 1200'},{value:'bonneville',label:'Bonneville'},{value:'scrambler',label:'Scrambler'},{value:'thruxton',label:'Thruxton'},{value:'rocket3',label:'Rocket 3'}],
+    yamaha: [{value:'mt07',label:'MT-07'},{value:'mt09',label:'MT-09'},{value:'mt10',label:'MT-10'},{value:'mt125',label:'MT-125'},{value:'r125',label:'R125'},{value:'r3',label:'R3'},{value:'r6',label:'R6'},{value:'r1',label:'R1'},{value:'xsr700',label:'XSR 700'},{value:'xsr900',label:'XSR 900'},{value:'tracer700',label:'Tracer 700'},{value:'tracer900',label:'Tracer 900'},{value:'tenere700',label:'T\u00e9n\u00e9r\u00e9 700'},{value:'xmax',label:'XMAX'},{value:'tmax',label:'TMAX'}],
+    autre: [{value:'autre',label:'Autre'}]
+  };
 
   generateDescription(fieldKey: string) {
     this.aiGenerating = true;
