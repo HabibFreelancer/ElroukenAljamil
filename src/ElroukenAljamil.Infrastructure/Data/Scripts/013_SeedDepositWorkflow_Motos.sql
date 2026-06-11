@@ -4,12 +4,7 @@
 -- ============================================
 
 DECLARE @CategoryId INT;
-SELECT @CategoryId = Id FROM Categories WHERE MenuId = (SELECT Id FROM Menus WHERE Name LIKE N'%hicule%') AND Name LIKE N'%oto%' AND ShowInDeposit = 1;
-
-IF @CategoryId IS NULL
-BEGIN
-    SELECT @CategoryId = Id FROM Categories WHERE Name LIKE N'%oto%' AND ShowInDeposit = 1;
-END
+SELECT @CategoryId = Id FROM Categories WHERE MenuId = (SELECT Id FROM Menus WHERE Name LIKE N'%hicule%') AND Name = N'Motos';
 
 IF @CategoryId IS NOT NULL AND NOT EXISTS (SELECT 1 FROM DepositWorkflows WHERE CategoryId = @CategoryId)
 BEGIN
