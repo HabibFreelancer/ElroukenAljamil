@@ -93,6 +93,8 @@ export class DeposerAnnonceComponent implements OnInit {
   priceEstimate: any = null;
   priceGaugePosition = 50;
   priceRanges: { min: number; max: number }[] = [];
+  showQuitModal = false;
+  savingDraft = false;
 
   contactForm = {
     email: '',
@@ -943,6 +945,55 @@ export class DeposerAnnonceComponent implements OnInit {
 
   isEmploiCategory(): boolean {
     return this.annonce.category.toLowerCase().includes('emploi');
+  }
+
+  onQuitClick(event: Event) {
+    event.preventDefault();
+    if (this.currentStep > 1) {
+      this.showQuitModal = true;
+    } else {
+      window.location.href = '/';
+    }
+  }
+
+  quitWithoutSaving() {
+    this.showQuitModal = false;
+    sessionStorage.removeItem('deposer_step');
+    sessionStorage.removeItem('deposer_data');
+    window.location.href = '/';
+  }
+
+  saveDraft() {
+    this.savingDraft = true;
+    const payload: any = {
+      title: this.annonce.title || this.formData['description'] || 'Brouillon',
+      categoryId: this.selectedCategoryId || 0,
+      adType: this.annonce.adType || 'Brouillon',
+      description: this.formData['annonce_description'] || this.annonce.description || '',
+      price: this.formData['price'] || this.annonce.price || 0,
+      condition: this.annonce.condition || '',
+      location: this.formData['address'] || this.annonce.location || '',
+      phone: this.formData['phone'] || this.contactForm.phone || '',
+      email: this.formData['email'] || this.contactForm.email || '',
+      hidePhone: false,
+      status: 'draft',
+      currentStep: this.currentStep,
+      extraData: this.workflow ? this.formData : { ...this.emploiForm }
+    };
+
+    this.http.post<any>(`${this.apiUrl}/annonces/draft`, payload).subscribe({
+      next: () => {
+        this.savingDraft = false;
+        this.showQuitModal = false;
+        sessionStorage.removeItem('deposer_step');
+        sessionStorage.removeItem('deposer_data');
+        window.location.href = '/';
+      },
+      error: () => {
+        this.savingDraft = false;
+        alert('Erreur lors de l\'enregistrement du brouillon.');
+      }
+    });
   }
 
   submit() {

@@ -1669,3 +1669,75 @@ textarea.input-error {
     }
   }
 }
+
+// Quit confirmation modal
+.quit-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quit-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+
+  h3 {
+    font-size: 1.2rem;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .quit-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .btn-save-draft {
+      padding: 14px;
+      background: #ff6e14;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+
+      &:hover:not(:disabled) { background: #e65c00; }
+      &:disabled { opacity: 0.6; cursor: not-allowed; }
+    }
+
+    .btn-quit-no-save {
+      padding: 14px;
+      background: #fff;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+
+      &:hover { border-color: #333; }
+    }
+  }
+}

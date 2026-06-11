@@ -14,6 +14,8 @@ public class Annonce
     public string Email { get; set; } = string.Empty;
     public bool HidePhone { get; set; }
     public string ExtraData { get; set; } = string.Empty; // JSON for workflow-specific fields
+    public string Status { get; set; } = "published"; // draft, published
+    public int? CurrentStep { get; set; } // For resuming draft deposits
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public Category? Category { get; set; }
 }

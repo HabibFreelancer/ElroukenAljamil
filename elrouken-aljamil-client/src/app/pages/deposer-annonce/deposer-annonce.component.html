@@ -4,7 +4,7 @@
     <div class="deposer-header">
       <a routerLink="/" class="logo">ElroukenAljamil</a>
       <span class="header-title">Déposer une annonce</span>
-      <a routerLink="/" class="quit-btn">Quitter</a>
+      <a routerLink="/" class="quit-btn" (click)="onQuitClick($event)">Quitter</a>
     </div>
     <div class="progress-bar">
       <div class="progress-fill" [style.width.%]="getProgressPercent()"></div>
@@ -754,6 +754,21 @@
       <p class="tip-icon">💡</p>
       <p class="tip-title">Votre annonce sera trouvée plus facilement !</p>
       <p class="tip-text">Vous aurez 50% de chances en plus d'être contacté si votre annonce est dans la bonne catégorie.</p>
+    </div>
+  </div>
+
+  <!-- Quit confirmation modal -->
+  <div class="quit-modal-overlay" *ngIf="showQuitModal" (click)="showQuitModal = false">
+    <div class="quit-modal" (click)="$event.stopPropagation()">
+      <h3>Vous voulez interrompre votre dépôt ?</h3>
+      <p>Aucun problème, vous pourrez le reprendre depuis vos annonces pour le terminer plus tard.</p>
+      <div class="quit-modal-actions">
+        <button class="btn-save-draft" (click)="saveDraft()" [disabled]="savingDraft">
+          <i class="fa-solid" [class.fa-floppy-disk]="!savingDraft" [class.fa-spinner]="savingDraft" [class.fa-spin]="savingDraft"></i>
+          {{ savingDraft ? 'Enregistrement...' : 'Enregistrer le brouillon' }}
+        </button>
+        <button class="btn-quit-no-save" (click)="quitWithoutSaving()">Quitter sans enregistrer</button>
+      </div>
     </div>
   </div>
 </div>

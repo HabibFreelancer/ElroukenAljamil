@@ -46,6 +46,33 @@ public class AnnoncesController : ControllerBase
         return Ok(new { id = annonce.Id, message = "Annonce déposée avec succès !" });
     }
 
+    [HttpPost("draft")]
+    public async Task<ActionResult<object>> SaveDraft([FromBody] CreateDraftDto dto)
+    {
+        var annonce = new Annonce
+        {
+            Title = dto.Title ?? "Brouillon",
+            Description = dto.Description ?? "",
+            Price = dto.Price,
+            CategoryId = dto.CategoryId > 0 ? dto.CategoryId : 1,
+            AdType = dto.AdType ?? "",
+            Condition = dto.Condition ?? "",
+            Location = dto.Location ?? "",
+            Phone = dto.Phone ?? "",
+            Email = dto.Email ?? "",
+            HidePhone = dto.HidePhone,
+            Status = "draft",
+            CurrentStep = dto.CurrentStep,
+            ExtraData = dto.ExtraData != null ? JsonSerializer.Serialize(dto.ExtraData) : "",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Annonces.Add(annonce);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { id = annonce.Id, message = "Brouillon enregistr\u00e9." });
+    }
+
     [HttpGet("suggest-categories")]
     public async Task<ActionResult<IEnumerable<object>>> SuggestCategories([FromQuery] string query)
     {
@@ -190,4 +217,20 @@ public class PriceEstimateRequest
     public int CategoryId { get; set; }
     public string Brand { get; set; } = string.Empty;
     public string Model { get; set; } = string.Empty;
+}
+
+public class CreateDraftDto
+{
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public decimal Price { get; set; }
+    public int CategoryId { get; set; }
+    public string? AdType { get; set; }
+    public string? Condition { get; set; }
+    public string? Location { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public bool HidePhone { get; set; }
+    public int CurrentStep { get; set; }
+    public Dictionary<string, object>? ExtraData { get; set; }
 }
