@@ -20,7 +20,7 @@ public class AiController : ControllerBase
     [HttpPost("generate-description")]
     public async Task<ActionResult> GenerateDescription([FromBody] JsonElement context)
     {
-        var prompt = BuildPrompt(context);
+        var prompt = BuildPrompt(context); 
 
         // Try Hugging Face Inference API (free)
         var hfToken = _configuration["HuggingFace:ApiToken"] ?? "";
