@@ -189,10 +189,19 @@
             <!-- Dependent select (model depends on brand) -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'dependent_select'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
-              <select [(ngModel)]="formData[field.fieldKey]" [class.input-error]="fieldErrors[field.fieldKey]" (change)="clearFieldError(field.fieldKey)">
-                <option value="">{{ field.placeholder || 'Choisissez' }}</option>
-                <option *ngFor="let opt of getDependentOptions(field)" [value]="opt.value">{{ opt.label }}</option>
-              </select>
+              <div class="searchable-select" [class.disabled]="getDependentOptions(field).length === 0">
+                <input type="text" class="select-search" [placeholder]="'Rechercher...'" [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" [disabled]="getDependentOptions(field).length === 0" />
+                <div class="selected-value" *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]" (click)="openSelectDropdown(field.fieldKey)">
+                  {{ getSelectedDependentLabel(field) }}
+                  <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
+                </div>
+                <div class="select-dropdown" *ngIf="fieldDropdownOpen[field.fieldKey]">
+                  <div class="select-option" *ngFor="let opt of getFilteredDependentOptions(field)" (click)="selectOption(field.fieldKey, opt.value); clearFieldError(field.fieldKey)">
+                    {{ opt.label }}
+                  </div>
+                  <div class="select-empty" *ngIf="getFilteredDependentOptions(field).length === 0">Aucun résultat</div>
+                </div>
+              </div>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
             </div>
 
@@ -218,7 +227,7 @@
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
 
               <!-- Price gauge -->
-              <div class="price-gauge" *ngIf="priceEstimate">
+              <div class="price-gauge" *ngIf="priceEstimate && !isMotoCategory()">
                 <div class="gauge-bar">
                   <div class="gauge-segment" style="background:#27ae60;"></div>
                   <div class="gauge-segment" style="background:#2ecc71;"></div>
@@ -295,10 +304,19 @@
             <!-- Select -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'select'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
-              <select [(ngModel)]="formData[field.fieldKey]" [class.input-error]="fieldErrors[field.fieldKey]" (change)="clearFieldError(field.fieldKey)">
-                <option value="">{{ field.placeholder || 'Choisissez' }}</option>
-                <option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.label }}</option>
-              </select>
+              <div class="searchable-select">
+                <input type="text" class="select-search" [placeholder]="'Rechercher...'" [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" />
+                <div class="selected-value" *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]" (click)="openSelectDropdown(field.fieldKey)">
+                  {{ getSelectedLabel(field) }}
+                  <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
+                </div>
+                <div class="select-dropdown" *ngIf="fieldDropdownOpen[field.fieldKey]">
+                  <div class="select-option" *ngFor="let opt of getFilteredOptions(field)" (click)="selectOption(field.fieldKey, opt.value); clearFieldError(field.fieldKey)">
+                    {{ opt.label }}
+                  </div>
+                  <div class="select-empty" *ngIf="getFilteredOptions(field).length === 0">Aucun résultat</div>
+                </div>
+              </div>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
             </div>
 

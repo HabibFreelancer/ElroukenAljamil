@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, ViewEncapsulation, HostListener } from '@angular/core';
 import { NgIf, NgFor, NgStyle, NgClass, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -87,6 +87,8 @@ export class DeposerAnnonceComponent implements OnInit {
   workflowSteps: WorkflowStep[] = [];
   formData: { [key: string]: any } = {};
   fieldErrors: { [key: string]: boolean } = {};
+  fieldSearchTerms: { [key: string]: string } = {};
+  fieldDropdownOpen: { [key: string]: boolean } = {};
   submitted = false;
   submittedAnnonceId: number | null = null;
   submitting = false;
@@ -103,6 +105,14 @@ export class DeposerAnnonceComponent implements OnInit {
   };
 
   constructor(private http: HttpClient, private workflowService: WorkflowService, private authService: AuthService, private router: Router) {}
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.searchable-select')) {
+      this.fieldDropdownOpen = {};
+    }
+  }
 
   ngOnInit() {
     // Auth check disabled for now
@@ -524,6 +534,48 @@ export class DeposerAnnonceComponent implements OnInit {
     this.fieldErrors[fieldKey] = false;
   }
 
+  // Searchable select methods
+  onSelectSearch(fieldKey: string) {
+    this.fieldDropdownOpen[fieldKey] = true;
+  }
+
+  openSelectDropdown(fieldKey: string) {
+    this.fieldSearchTerms[fieldKey] = '';
+    this.fieldDropdownOpen[fieldKey] = true;
+  }
+
+  selectOption(fieldKey: string, value: string) {
+    this.formData[fieldKey] = value;
+    this.fieldDropdownOpen[fieldKey] = false;
+    this.fieldSearchTerms[fieldKey] = '';
+  }
+
+  getFilteredOptions(field: StepField): any[] {
+    const search = (this.fieldSearchTerms[field.fieldKey] || '').toLowerCase();
+    if (!search) return field.options;
+    return field.options.filter((o: any) => o.label.toLowerCase().includes(search));
+  }
+
+  getFilteredDependentOptions(field: StepField): any[] {
+    const options = this.getDependentOptions(field);
+    const search = (this.fieldSearchTerms[field.fieldKey] || '').toLowerCase();
+    if (!search) return options;
+    return options.filter((o: any) => o.label.toLowerCase().includes(search));
+  }
+
+  getSelectedLabel(field: StepField): string {
+    const val = this.formData[field.fieldKey];
+    const opt = field.options.find((o: any) => o.value === val);
+    return opt ? opt.label : val;
+  }
+
+  getSelectedDependentLabel(field: StepField): string {
+    const val = this.formData[field.fieldKey];
+    const opts = this.getDependentOptions(field);
+    const opt = opts.find((o: any) => o.value === val);
+    return opt ? opt.label : val;
+  }
+
   prefillTitleField(fieldKey: string) {
     if (!this.formData[fieldKey] && this.annonce.title) {
       this.formData[fieldKey] = this.annonce.title;
@@ -637,11 +689,17 @@ export class DeposerAnnonceComponent implements OnInit {
   getDependentOptions(field: StepField): any[] {
     if (field.fieldKey === 'model') {
       const brand = this.formData['brand'];
+      const vehicleType = this.formData['vehicleType'];
+      // Caravaning: model depends on vehicleType
+      if (this.annonce.category.toLowerCase().includes('caravan') || this.caravanModels[vehicleType]) {
+        return this.caravanModels[vehicleType] || [];
+      }
+      // Moto: model depends on brand
       if (!brand) return [];
-      // Check if it's moto or car based on category
       if (this.annonce.category.toLowerCase().includes('moto') || this.formData['cylindree'] || this.formData['motoType']) {
         return this.motoModels[brand] || [{value:'autre',label:'Autre'}];
       }
+      // Car: model depends on brand
       return this.carModels[brand] || [{value:'autre',label:'Autre'}];
     }
     if (field.fieldKey === 'motoType') {
@@ -651,6 +709,17 @@ export class DeposerAnnonceComponent implements OnInit {
     }
     return field.options;
   }
+
+  caravanModels: { [type: string]: { value: string; label: string }[] } = {
+    capucine: [{value:'challenger',label:'Challenger'},{value:'chausson',label:'Chausson'},{value:'rimor',label:'Rimor'},{value:'mclouis',label:'McLouis'},{value:'roller_team',label:'Roller Team'},{value:'sunlight',label:'Sunlight'},{value:'elnagh',label:'Elnagh'},{value:'ci',label:'CI'},{value:'benimar',label:'Benimar'}],
+    profile: [{value:'chausson_flash',label:'Chausson Flash'},{value:'chausson_welcome',label:'Chausson Welcome'},{value:'challenger_mageo',label:'Challenger Mageo'},{value:'challenger_genesis',label:'Challenger Genesis'},{value:'benimar_mileo',label:'Benimar Mileo'},{value:'benimar_tessoro',label:'Benimar Tessoro'},{value:'sunlight_t',label:'Sunlight T'},{value:'carado_t',label:'Carado T'}],
+    integral: [{value:'rapido',label:'Rapido'},{value:'pilote_galaxy',label:'Pilote Galaxy'},{value:'hymer_b',label:'Hymer B-Class'},{value:'carthago',label:'Carthago C-Tourer'},{value:'burstner_elegance',label:'Burstner Elegance'},{value:'dethleffs_globetrotter',label:'Dethleffs Globetrotter'}],
+    fourgon: [{value:'fiat_ducato',label:'Fiat Ducato am\u00e9nag\u00e9'},{value:'renault_trafic',label:'Renault Trafic am\u00e9nag\u00e9'},{value:'vw_california',label:'Volkswagen California'},{value:'ford_transit',label:'Ford Transit am\u00e9nag\u00e9'},{value:'mercedes_marco_polo',label:'Mercedes Marco Polo'},{value:'campereve',label:'Camp\u00e9r\u00eave'},{value:'font_vendome',label:'Font Vend\u00f4me'}],
+    caravane_rigide: [{value:'sterckeman',label:'Sterckeman'},{value:'caravelair',label:'Caravelair'},{value:'hobby',label:'Hobby'},{value:'fendt',label:'Fendt'},{value:'burstner',label:'B\u00fcrstner'},{value:'dethleffs',label:'Dethleffs'}],
+    caravane_pliante: [{value:'raclet',label:'Raclet'},{value:'trigano',label:'Trigano'},{value:'jamet',label:'Jamet'}],
+    mobil_home: [{value:'irm',label:'IRM'},{value:'ohara',label:'O\'Hara'},{value:'louisiane',label:'Louisiane'},{value:'rapidhome',label:'Rapidhome'},{value:'sunroller',label:'Sunroller'}],
+    remorque_tente: [{value:'trigano',label:'Trigano'},{value:'raclet',label:'Raclet'},{value:'cabanon',label:'Cabanon'}]
+  };
 
   motoTypesByVehicle: { [key: string]: { value: string; label: string }[] } = {
     moto: [{value:'sportive',label:'Sportive'},{value:'roadster',label:'Roadster'},{value:'trail',label:'Trail / Enduro'},{value:'custom',label:'Custom / Cruiser'},{value:'touring',label:'Touring / GT'},{value:'cafe_racer',label:'Cafe Racer'},{value:'cross',label:'Cross / Supermotard'},{value:'classique',label:'Classique / Vintage'},{value:'autre',label:'Autre'}],
@@ -1007,6 +1076,10 @@ export class DeposerAnnonceComponent implements OnInit {
 
   isEmploiCategory(): boolean {
     return this.annonce.category.toLowerCase().includes('emploi');
+  }
+
+  isMotoCategory(): boolean {
+    return this.annonce.category.toLowerCase().includes('moto');
   }
 
   onQuitClick(event: Event) {
