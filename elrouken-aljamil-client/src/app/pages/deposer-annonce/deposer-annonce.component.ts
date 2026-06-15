@@ -540,8 +540,13 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   openSelectDropdown(fieldKey: string) {
+    // Close all other dropdowns first
+    const wasOpen = this.fieldDropdownOpen[fieldKey];
+    this.fieldDropdownOpen = {};
+    if (!wasOpen) {
+      this.fieldDropdownOpen[fieldKey] = true;
+    }
     this.fieldSearchTerms[fieldKey] = '';
-    this.fieldDropdownOpen[fieldKey] = true;
   }
 
   selectOption(fieldKey: string, value: string) {
@@ -699,6 +704,10 @@ export class DeposerAnnonceComponent implements OnInit {
       if (this.annonce.category.toLowerCase().includes('moto') || this.formData['cylindree'] || this.formData['motoType']) {
         return this.motoModels[brand] || [{value:'autre',label:'Autre'}];
       }
+      // Utilitaire: model depends on brand
+      if (this.annonce.category.toLowerCase().includes('utilitaire')) {
+        return this.utilitaireModels[brand] || [{value:'autre',label:'Autre'}];
+      }
       // Car: model depends on brand
       return this.carModels[brand] || [{value:'autre',label:'Autre'}];
     }
@@ -709,6 +718,25 @@ export class DeposerAnnonceComponent implements OnInit {
     }
     return field.options;
   }
+
+  utilitaireModels: { [brand: string]: { value: string; label: string }[] } = {
+    renault: [{value:'master',label:'Master'},{value:'trafic',label:'Trafic'},{value:'kangoo',label:'Kangoo'},{value:'express',label:'Express'}],
+    peugeot: [{value:'boxer',label:'Boxer'},{value:'expert',label:'Expert'},{value:'partner',label:'Partner'},{value:'rifter',label:'Rifter'}],
+    citroen: [{value:'jumper',label:'Jumper'},{value:'jumpy',label:'Jumpy'},{value:'berlingo',label:'Berlingo'},{value:'nemo',label:'Nemo'}],
+    fiat: [{value:'ducato',label:'Ducato'},{value:'scudo',label:'Scudo'},{value:'doblo',label:'Doblo'},{value:'fiorino',label:'Fiorino'}],
+    ford: [{value:'transit',label:'Transit'},{value:'transit_custom',label:'Transit Custom'},{value:'transit_connect',label:'Transit Connect'},{value:'ranger',label:'Ranger'}],
+    mercedes: [{value:'sprinter',label:'Sprinter'},{value:'vito',label:'Vito'},{value:'citan',label:'Citan'}],
+    volkswagen: [{value:'crafter',label:'Crafter'},{value:'transporter',label:'Transporter'},{value:'caddy',label:'Caddy'},{value:'amarok',label:'Amarok'}],
+    iveco: [{value:'daily',label:'Daily'},{value:'eurocargo',label:'Eurocargo'},{value:'stralis',label:'Stralis'}],
+    opel: [{value:'movano',label:'Movano'},{value:'vivaro',label:'Vivaro'},{value:'combo',label:'Combo'}],
+    nissan: [{value:'nv400',label:'NV400'},{value:'nv300',label:'NV300'},{value:'nv200',label:'NV200'},{value:'navara',label:'Navara'}],
+    toyota: [{value:'proace',label:'Proace'},{value:'proace_city',label:'Proace City'},{value:'hilux',label:'Hilux'}],
+    man: [{value:'tge',label:'TGE'},{value:'tgl',label:'TGL'},{value:'tgm',label:'TGM'}],
+    daf: [{value:'lf',label:'LF'},{value:'cf',label:'CF'},{value:'xf',label:'XF'}],
+    scania: [{value:'serie_p',label:'Serie P'},{value:'serie_g',label:'Serie G'},{value:'serie_r',label:'Serie R'}],
+    volvo: [{value:'fl',label:'FL'},{value:'fe',label:'FE'},{value:'fh',label:'FH'}],
+    autre: [{value:'autre',label:'Autre'}]
+  };
 
   caravanModels: { [type: string]: { value: string; label: string }[] } = {
     alcove: [{value:'challenger',label:'Challenger'},{value:'chausson',label:'Chausson'},{value:'rimor',label:'Rimor'},{value:'mclouis',label:'McLouis'},{value:'roller_team',label:'Roller Team'},{value:'sunlight',label:'Sunlight'},{value:'elnagh',label:'Elnagh'},{value:'ci',label:'CI'},{value:'benimar',label:'Benimar'},{value:'pilote',label:'Pilote'}],

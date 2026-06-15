@@ -43,7 +43,7 @@ BEGIN
      N'[{"value":"2024","label":"2024"},{"value":"2023","label":"2023"},{"value":"2022","label":"2022"},{"value":"2021","label":"2021"},{"value":"2020","label":"2020"},{"value":"2019","label":"2019"},{"value":"2018","label":"2018"},{"value":"2017","label":"2017"},{"value":"2016","label":"2016"},{"value":"2015","label":"2015"},{"value":"avant_2015","label":"Avant 2015"}]',
      '', '', '', 1, 3, 1, NULL, ''),
     (@StepDetails, 'firstCirculation', N'Date de premiere mise en circulation', 'date_month', N'MM/AAAA', '', '', '',
-     N'Mention obligatoire dans le cadre de la vente de vehicule d''occasion.', 1, 4, 1, 7, ''),
+     N'Mention obligatoire dans le cadre de la vente de vehicule d''occasion.', 0, 4, 1, 7, ''),
     (@StepDetails, 'technicalControl', N'Date de fin de validite du controle technique', 'date_month', N'MM/AAAA', '', '', '', '', 0, 5, 1, 7, ''),
     (@StepDetails, 'mileage', N'Kilometrage', 'number', N'0', '', '', 'km', '', 1, 6, 1, NULL, '');
 
