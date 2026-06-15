@@ -33,10 +33,10 @@ BEGIN
     INSERT INTO StepFields (StepId, FieldKey, Label, FieldType, Placeholder, Options, DefaultValue, Suffix, HelperText, IsRequired, DisplayOrder, IsActive, MaxLength, ValidationRegex)
     VALUES (@StepTitle, 'title', N'Titre de l''annonce', 'text', N'Ex: Camping-car Chausson 2020', '', '', '', '', 1, 1, 1, 200, '');
 
-    -- Step: Details (5 fields)
+    -- Step: Details (6 fields)
     INSERT INTO StepFields (StepId, FieldKey, Label, FieldType, Placeholder, Options, DefaultValue, Suffix, HelperText, IsRequired, DisplayOrder, IsActive, MaxLength, ValidationRegex) VALUES
     (@StepDetails, 'vehicleType', N'Type', 'select', N'Choisissez',
-     N'[{"value":"capucine","label":"Camping-car capucine"},{"value":"profile","label":"Camping-car profile"},{"value":"integral","label":"Camping-car integral"},{"value":"fourgon","label":"Camping-car fourgon / van"},{"value":"caravane_rigide","label":"Caravane rigide"},{"value":"caravane_pliante","label":"Caravane pliante"},{"value":"mobil_home","label":"Mobil-home"},{"value":"remorque_tente","label":"Remorque tente"}]',
+     N'[{"value":"alcove","label":"Camping car a alcove"},{"value":"semi_integre","label":"Camping car semi integre"},{"value":"integre","label":"Camping car integre"},{"value":"fourgonnette","label":"Fourgonnette"},{"value":"caravane","label":"Caravane"},{"value":"autre","label":"Autre caravaning"}]',
      '', '', '', 1, 1, 1, NULL, ''),
     (@StepDetails, 'model', N'Modele', 'dependent_select', N'Choisissez', '', '', '', '', 1, 2, 1, NULL, ''),
     (@StepDetails, 'year', N'Annee modele', 'select', N'Choisissez',
@@ -44,7 +44,8 @@ BEGIN
      '', '', '', 1, 3, 1, NULL, ''),
     (@StepDetails, 'firstCirculation', N'Date de premiere mise en circulation', 'date_month', N'MM/AAAA', '', '', '',
      N'Mention obligatoire dans le cadre de la vente de vehicule d''occasion.', 1, 4, 1, 7, ''),
-    (@StepDetails, 'technicalControl', N'Date de fin de validite du controle technique', 'date_month', N'MM/AAAA', '', '', '', '', 0, 5, 1, 7, '');
+    (@StepDetails, 'technicalControl', N'Date de fin de validite du controle technique', 'date_month', N'MM/AAAA', '', '', '', '', 0, 5, 1, 7, ''),
+    (@StepDetails, 'mileage', N'Kilometrage', 'number', N'0', '', '', 'km', '', 1, 6, 1, NULL, '');
 
     -- Step: Description
     INSERT INTO StepFields (StepId, FieldKey, Label, FieldType, Placeholder, Options, DefaultValue, Suffix, HelperText, IsRequired, DisplayOrder, IsActive, MaxLength, ValidationRegex) VALUES
@@ -65,7 +66,7 @@ BEGIN
     (@StepContact, 'phone', N'Telephone', 'phone', N'', '', '', '', '', 1, 2, 1, NULL, ''),
     (@StepContact, 'hidePhone', N'Masquer le numero', 'toggle', '', '', 'false', '', '', 0, 3, 1, NULL, '');
 
-    PRINT 'Workflow "Caravaning" created with 7 steps and 12 fields.';
+    PRINT 'Workflow "Caravaning" created with 7 steps and 13 fields.';
 END
 ELSE
     PRINT 'Workflow already exists.';
