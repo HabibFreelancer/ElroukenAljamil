@@ -286,19 +286,18 @@
 
             <!-- Textarea with character counter + AI generate button -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'textarea_counter'">
-              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
-              <button class="btn-ai-generate" type="button" *ngIf="!formData[field.fieldKey]" (click)="generateDescription(field.fieldKey)" [disabled]="aiGenerating">
+              <button class="btn-ai-generate" type="button" *ngIf="field.helperText === 'ai_enabled' && !formData[field.fieldKey]" (click)="generateDescription(field.fieldKey)" [disabled]="aiGenerating">
                 <i class="fa-solid" [class.fa-wand-magic-sparkles]="!aiGenerating" [class.fa-spinner]="aiGenerating" [class.fa-spin]="aiGenerating"></i>
                 {{ aiGenerating ? 'Génération en cours...' : 'Générer une description' }}
               </button>
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
               <textarea [(ngModel)]="formData[field.fieldKey]" rows="10" class="textarea-counter" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 4000" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)"></textarea>
               <div class="char-count">{{ (formData[field.fieldKey] || '').length }}/{{ field.maxLength || 4000 }}</div>
-              <p class="ai-disclaimer" *ngIf="formData[field.fieldKey]">
+              <p class="ai-disclaimer" *ngIf="formData[field.fieldKey] && field.helperText === 'ai_enabled'">
                 <i class="fa-solid fa-robot"></i>
                 Cette description est générée automatiquement par une Intelligence Artificielle. Elle peut contenir des erreurs ou des biais. Il vous appartient de la vérifier, compléter et corriger avant publication.
               </p>
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
-              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
             </div>
 
             <!-- Select -->
