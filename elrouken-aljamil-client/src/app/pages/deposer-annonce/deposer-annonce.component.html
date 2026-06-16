@@ -737,18 +737,12 @@
     <!-- Page de succès après dépôt -->
     <div class="form-card success-card" *ngIf="submitted">
       <div class="success-content">
-        <div class="success-icon">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
-        <h2>Félicitations !</h2>
-        <p class="success-message">Votre annonce a été déposée avec succès.</p>
-        <p class="success-sub">Elle sera visible après validation par notre équipe.</p>
-        <div class="success-ref" *ngIf="submittedAnnonceId">
-          <span>Référence : #{{ submittedAnnonceId }}</span>
-        </div>
+        <div class="success-icon">🎉</div>
+        <h2>Nous avons bien reçu votre annonce !</h2>
+        <p class="success-message">Une fois contrôlée et validée, vous recevrez une notification et pourrez la retrouver dans la section « Annonces » de votre compte.</p>
         <div class="success-actions">
-          <a routerLink="/" class="btn-home"><i class="fa-solid fa-house"></i> Retour à l'accueil</a>
-          <button class="btn-new" (click)="resetForm()"><i class="fa-solid fa-plus"></i> Déposer une autre annonce</button>
+          <a routerLink="/" class="btn-home">Voir mes annonces</a>
+          <button class="btn-new" (click)="resetForm()">Déposer une nouvelle annonce</button>
         </div>
       </div>
     </div>
@@ -771,6 +765,37 @@
       <p class="tip-icon">💡</p>
       <p class="tip-title">Votre annonce sera trouvée plus facilement !</p>
       <p class="tip-text">Vous aurez 50% de chances en plus d'être contacté si votre annonce est dans la bonne catégorie.</p>
+    </div>
+  </div>
+
+  <!-- Feedback modal -->
+  <div class="quit-modal-overlay" *ngIf="showFeedbackModal">
+    <div class="quit-modal" (click)="$event.stopPropagation()">
+      <div class="feedback-header">
+        <span>Parlez-nous de votre expérience</span>
+        <span class="close-btn-x" (click)="closeFeedback()">✕</span>
+      </div>
+      <!-- Step 1: Rating -->
+      <div *ngIf="feedbackStep === 1">
+        <h3 class="feedback-title">À quel point a-t-il été facile de créer votre annonce ?</h3>
+        <div class="feedback-options">
+          <div class="feedback-option" [class.selected]="feedbackRating === 'tres_facile'" (click)="selectFeedback('tres_facile')">Très facile</div>
+          <div class="feedback-option" [class.selected]="feedbackRating === 'facile'" (click)="selectFeedback('facile')">Facile</div>
+          <div class="feedback-option" [class.selected]="feedbackRating === 'neutre'" (click)="selectFeedback('neutre')">Neutre</div>
+          <div class="feedback-option" [class.selected]="feedbackRating === 'difficile'" (click)="selectFeedback('difficile')">Difficile</div>
+          <div class="feedback-option" [class.selected]="feedbackRating === 'tres_difficile'" (click)="selectFeedback('tres_difficile')">Très difficile</div>
+        </div>
+        <button class="btn-feedback-next" (click)="nextFeedback()" [disabled]="!feedbackRating">Suiv.</button>
+      </div>
+      <!-- Step 2: Thank you -->
+      <div *ngIf="feedbackStep === 2" class="feedback-thanks">
+        <h3 class="feedback-title">Merci pour votre réponse 😊</h3>
+        <p>Vous pouvez maintenant fermer cette fenêtre.</p>
+        <div class="feedback-btn-group">
+          <button class="btn-feedback-action" (click)="prevFeedback()">Préc.</button>
+          <button class="btn-feedback-action" (click)="finishFeedback()">Terminé</button>
+        </div>
+      </div>
     </div>
   </div>
 

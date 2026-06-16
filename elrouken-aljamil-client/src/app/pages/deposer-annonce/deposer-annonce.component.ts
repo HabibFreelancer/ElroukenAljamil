@@ -1211,16 +1211,27 @@ export class DeposerAnnonceComponent implements OnInit {
 
     this.http.post<any>(`${this.apiUrl}/annonces`, payload).subscribe({
       next: (res) => {
-        this.submitted = true;
         this.submittedAnnonceId = res.id;
         this.submitting = false;
         sessionStorage.removeItem('deposer_step');
         sessionStorage.removeItem('deposer_data');
+        this.showFeedbackModal = true;
+        this.feedbackStep = 1;
       },
       error: () => {
         this.submitting = false;
         alert('Une erreur est survenue. Veuillez réessayer.');
       }
     });
+  }
+
+  selectFeedback(rating: string) { this.feedbackRating = rating; }
+  nextFeedback() { this.feedbackStep = 2; }
+  prevFeedback() { this.feedbackStep = 1; }
+  closeFeedback() { this.showFeedbackModal = false; this.submitted = true; }
+  finishFeedback() {
+    this.http.post<any>(`${this.apiUrl}/feedback`, { annonceId: this.submittedAnnonceId, rating: this.feedbackRating, category: this.annonce.category }).subscribe();
+    this.showFeedbackModal = false;
+    this.submitted = true;
   }
 }

@@ -1,0 +1,42 @@
+<div class="management-page">
+  <div class="page-header">
+    <h1><i class="fa-solid fa-comments"></i> Retours d'expérience</h1>
+  </div>
+
+  <div class="stats-row" *ngIf="stats">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-label">Total retours</div>
+    </div>
+    <div class="stat-card" *ngFor="let s of stats.byRating">
+      <div class="stat-value">{{ s.count }}</div>
+      <div class="stat-label">{{ getRatingLabel(s.rating) }}</div>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Utilisateur</th>
+        <th>Annonce</th>
+        <th>Catégorie</th>
+        <th>Note</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let f of feedbacks">
+        <td>{{ f.id }}</td>
+        <td>{{ f.userEmail }}</td>
+        <td>#{{ f.annonceId }}</td>
+        <td>{{ f.category }}</td>
+        <td><span class="badge" [class]="getRatingClass(f.rating)">{{ getRatingLabel(f.rating) }}</span></td>
+        <td>{{ f.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+      </tr>
+      <tr *ngIf="feedbacks.length === 0">
+        <td colspan="6" class="empty">Aucun retour enregistré</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

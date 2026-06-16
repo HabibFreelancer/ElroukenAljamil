@@ -7,6 +7,7 @@ import { MenuManagementComponent } from './pages/admin/menu-management/menu-mana
 import { CategoryManagementComponent } from './pages/admin/category-management/category-management.component';
 import { AdtypeManagementComponent } from './pages/admin/adtype-management/adtype-management.component';
 import { WorkflowManagementComponent } from './pages/admin/workflow-management/workflow-management.component';
+import { FeedbackManagementComponent } from './pages/admin/feedback-management/feedback-management.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -21,6 +22,7 @@ export const routes: Routes = [
       { path: 'categories', component: CategoryManagementComponent },
       { path: 'adtypes', component: AdtypeManagementComponent },
       { path: 'workflows', component: WorkflowManagementComponent },
+      { path: 'feedbacks', component: FeedbackManagementComponent },
     ]
   },
 ];
