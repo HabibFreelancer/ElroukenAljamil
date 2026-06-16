@@ -46,6 +46,10 @@ public class AiController : ControllerBase
         var sb = new StringBuilder();
         var category = GetValue(context, "category") ?? "";
         var isMoto = category.ToLower().Contains("moto") || (GetValue(context, "cylindree") != null) || (GetValue(context, "motoType") != null);
+        var isCaravan = category.ToLower().Contains("caravan");
+        var isUtilitaire = category.ToLower().Contains("utilitaire");
+        var isNautisme = category.ToLower().Contains("nautis");
+        var isEquipement = category.ToLower().Contains("quipement");
 
         if (isMoto)
         {
@@ -62,6 +66,67 @@ public class AiController : ControllerBase
             sb.AppendLine("- Couleur : Noir");
             sb.AppendLine("- \u00c9quipements : ABS, D\u00e9marreur \u00e9lectrique, Carnet d'entretien");
             sb.AppendLine("N'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations ou pour convenir d'un essai !");
+        }
+        else if (isCaravan)
+        {
+            sb.AppendLine("G\u00e9n\u00e8re une description d'annonce de vente de camping-car ou caravane en fran\u00e7ais.");
+            sb.AppendLine("Voici un exemple du format attendu :");
+            sb.AppendLine("");
+            sb.AppendLine("Je vends mon camping-car Chausson Flash de 2020, un profil\u00e9 spacieux et bien \u00e9quip\u00e9 avec 25 000 km au compteur.");
+            sb.AppendLine("- Type : Camping-car semi int\u00e9gr\u00e9");
+            sb.AppendLine("- Mod\u00e8le : Chausson Flash");
+            sb.AppendLine("- Ann\u00e9e : 2020");
+            sb.AppendLine("- Kilom\u00e9trage : 25 000 km");
+            sb.AppendLine("- Couchages : 4 personnes");
+            sb.AppendLine("- \u00c9tat : Tr\u00e8s bon \u00e9tat");
+            sb.AppendLine("Id\u00e9al pour les vacances en famille. V\u00e9hicule entretenu r\u00e9guli\u00e8rement.");
+            sb.AppendLine("N'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations ou pour organiser une visite !");
+        }
+        else if (isUtilitaire)
+        {
+            sb.AppendLine("G\u00e9n\u00e8re une description d'annonce de vente de v\u00e9hicule utilitaire en fran\u00e7ais.");
+            sb.AppendLine("Voici un exemple du format attendu :");
+            sb.AppendLine("");
+            sb.AppendLine("Je vends mon Renault Master L2H2 de 2021, un fourgon fiable et spacieux avec seulement 45 000 km.");
+            sb.AppendLine("- Marque : Renault");
+            sb.AppendLine("- Mod\u00e8le : Master");
+            sb.AppendLine("- Ann\u00e9e : 2021");
+            sb.AppendLine("- Kilom\u00e9trage : 45 000 km");
+            sb.AppendLine("- Carburant : Diesel");
+            sb.AppendLine("- Version : L2H2");
+            sb.AppendLine("- Volume : 10 m\u00b3");
+            sb.AppendLine("- PTAC : 3,5 t");
+            sb.AppendLine("- TVA r\u00e9cup\u00e9rable : Oui");
+            sb.AppendLine("V\u00e9hicule id\u00e9al pour professionnels. Entretien suivi en concession.");
+            sb.AppendLine("N'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations !");
+        }
+        else if (isNautisme)
+        {
+            sb.AppendLine("G\u00e9n\u00e8re une description d'annonce de vente de bateau ou v\u00e9hicule nautique en fran\u00e7ais.");
+            sb.AppendLine("Voici un exemple du format attendu :");
+            sb.AppendLine("");
+            sb.AppendLine("Je vends mon Jet Ski Yamaha VX de 2022, en excellent \u00e9tat avec seulement 50 heures de navigation.");
+            sb.AppendLine("- Type : Jet Ski");
+            sb.AppendLine("- Marque : Yamaha");
+            sb.AppendLine("- Mod\u00e8le : VX");
+            sb.AppendLine("- Ann\u00e9e : 2022");
+            sb.AppendLine("- Heures : 50h");
+            sb.AppendLine("- \u00c9tat : Comme neuf");
+            sb.AppendLine("Remorque incluse. Id\u00e9al pour la saison estivale.");
+            sb.AppendLine("N'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations !");
+        }
+        else if (isEquipement)
+        {
+            sb.AppendLine("G\u00e9n\u00e8re une description d'annonce de vente d'\u00e9quipement ou pi\u00e8ce d\u00e9tach\u00e9e en fran\u00e7ais.");
+            sb.AppendLine("Voici un exemple du format attendu :");
+            sb.AppendLine("");
+            sb.AppendLine("Je vends un jeu de 4 jantes aluminium 17 pouces pour BMW S\u00e9rie 3, en tr\u00e8s bon \u00e9tat.");
+            sb.AppendLine("- Type : Pneus & jantes");
+            sb.AppendLine("- Compatibilit\u00e9 : BMW S\u00e9rie 3 (E90/F30)");
+            sb.AppendLine("- Dimensions : 17 pouces");
+            sb.AppendLine("- \u00c9tat : Tr\u00e8s bon \u00e9tat, pas de voile");
+            sb.AppendLine("- Pneus inclus : Oui (Michelin Pilot Sport 225/45 R17)");
+            sb.AppendLine("N'h\u00e9sitez pas \u00e0 me contacter pour plus d'informations !");
         }
         else
         {
@@ -104,8 +169,14 @@ public class AiController : ControllerBase
         if (context.TryGetProperty("technicalControl", out var tc)) sb.AppendLine($"- Contr\u00f4le technique valide jusqu'en: {tc}");
         if (context.TryGetProperty("upholstery", out var uph)) sb.AppendLine($"- Sellerie: {uph}");
         if (context.TryGetProperty("equipment", out var equip)) sb.AppendLine($"- \u00c9quipements: {equip}");
+        if (context.TryGetProperty("equipmentType", out var eqType)) sb.AppendLine($"- Type d'\u00e9quipement: {eqType}");
         if (context.TryGetProperty("history", out var hist)) sb.AppendLine($"- Historique: {hist}");
         if (context.TryGetProperty("license", out var lic)) sb.AppendLine($"- Permis: {lic}");
+        if (context.TryGetProperty("volume", out var vol)) sb.AppendLine($"- Volume: {vol}");
+        if (context.TryGetProperty("ptac", out var ptac)) sb.AppendLine($"- PTAC: {ptac}");
+        if (context.TryGetProperty("transmission", out var trans)) sb.AppendLine($"- Transmission: {trans}");
+        if (context.TryGetProperty("tvaRecuperable", out var tva)) sb.AppendLine($"- TVA r\u00e9cup\u00e9rable: {tva}");
+        if (context.TryGetProperty("title", out var title)) sb.AppendLine($"- Titre: {title}");
 
         sb.AppendLine("\nR\u00e9ponds UNIQUEMENT avec la description g\u00e9n\u00e9r\u00e9e, sans commentaire ni explication.");
         return sb.ToString();
