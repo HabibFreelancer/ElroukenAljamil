@@ -49,7 +49,7 @@ BEGIN
      '', '', '', 0, 4, 1, NULL, ''),
     (@StepDetails, 'motoType', N'Type de moto', 'dependent_select', N'Choisissez', '', '', '', '', 0, 5, 1, NULL, ''),
     (@StepDetails, 'cylindree', N'Cylindree', 'select', N'Choisissez',
-     N'[{"value":"moins_50","label":"Moins de 50 cm3"},{"value":"50_125","label":"50 - 125 cm3"},{"value":"125_600","label":"125 - 600 cm3"},{"value":"600_900","label":"600 - 900 cm3"},{"value":"900_1200","label":"900 - 1200 cm3"},{"value":"plus_1200","label":"Plus de 1200 cm3"}]',
+     N'[{"value":"moins_50","label":"Moins de 50 cm3"},{"value":"50_125","label":"50 - 125 cm3"},{"value":"125_600","label":"125 - 600 cm3"},{"value":"600_900","label":"600 - 900 cm3"},{"value":"900_1200","label":"900 - 1200 cm3"},{"value":"plus_1200","label":"Plus de 1200 cm3"},{"value":"autre","label":"Autre"}]',
      '', '', '', 0, 6, 1, NULL, ''),
     (@StepDetails, 'power', N'Puissance', 'number', N'0', '', '', 'Ch', '', 0, 7, 1, NULL, ''),
     (@StepDetails, 'mileage', N'Kilometrage', 'number', N'0', '', '', 'km', '', 1, 8, 1, NULL, ''),

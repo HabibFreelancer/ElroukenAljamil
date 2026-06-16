@@ -46,13 +46,13 @@ BEGIN
     -- Step: Details (6 fields)
     INSERT INTO StepFields (StepId, FieldKey, Label, FieldType, Placeholder, Options, DefaultValue, Suffix, HelperText, IsRequired, DisplayOrder, IsActive, MaxLength, ValidationRegex) VALUES
     (@StepDetails, 'contract', N'Type de contrat', 'select', N'Choisissez',
-     N'[{"value":"cdi","label":"CDI"},{"value":"cdd","label":"CDD"},{"value":"interim","label":"Interim"},{"value":"alternance","label":"Apprentissage / Alternance"},{"value":"stage","label":"Stage"},{"value":"freelance","label":"Independant / Franchise"},{"value":"benevolat","label":"Benevolat"}]',
+     N'[{"value":"cdi","label":"CDI"},{"value":"cdd","label":"CDD"},{"value":"interim","label":"Interim"},{"value":"alternance","label":"Apprentissage / Alternance"},{"value":"stage","label":"Stage"},{"value":"freelance","label":"Independant / Franchise"},{"value":"benevolat","label":"Benevolat"},{"value":"autre","label":"Autre"}]',
      '', '', '', 0, 1, 1, NULL, ''),
     (@StepDetails, 'industry', N'Secteur d''activite', 'select', N'Choisissez',
-     N'[{"value":"it","label":"Informatique"},{"value":"sales","label":"Commerce / Vente"},{"value":"construction","label":"BTP / Construction"},{"value":"medical","label":"Sante / Medical"},{"value":"logistics","label":"Transport / Logistique"}]',
+     N'[{"value":"it","label":"Informatique"},{"value":"sales","label":"Commerce / Vente"},{"value":"construction","label":"BTP / Construction"},{"value":"medical","label":"Sante / Medical"},{"value":"logistics","label":"Transport / Logistique"},{"value":"autre","label":"Autre"}]',
      '', '', '', 0, 2, 1, NULL, ''),
     (@StepDetails, 'job', N'Metier', 'select', N'Choisissez',
-     N'[{"value":"it_digital","label":"Informatique / Digital"},{"value":"commerce","label":"Commerce / Vente / Marketing"},{"value":"sante","label":"Sante / Services a la personne"},{"value":"btp","label":"BTP / Construction / Immobilier"},{"value":"transport","label":"Transport / Logistique"},{"value":"admin","label":"Administration / RH / Juridique"}]',
+     N'[{"value":"it_digital","label":"Informatique / Digital"},{"value":"commerce","label":"Commerce / Vente / Marketing"},{"value":"sante","label":"Sante / Services a la personne"},{"value":"btp","label":"BTP / Construction / Immobilier"},{"value":"transport","label":"Transport / Logistique"},{"value":"admin","label":"Administration / RH / Juridique"},{"value":"autre","label":"Autre"}]',
      '', '', '', 0, 3, 1, NULL, ''),
     (@StepDetails, 'experience', N'Experience', 'select', N'Choisissez',
      N'[{"value":"junior","label":"Junior (0 a 2 ans)"},{"value":"confirme","label":"Confirme (2 a 5 ans)"},{"value":"senior","label":"Senior (5 a 10 ans)"},{"value":"expert","label":"Expert / Lead (+ de 10 ans)"}]',
