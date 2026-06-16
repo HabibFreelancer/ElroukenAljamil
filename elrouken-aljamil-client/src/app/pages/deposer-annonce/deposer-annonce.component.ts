@@ -1072,6 +1072,10 @@ export class DeposerAnnonceComponent implements OnInit {
       if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'price') {
         this.loadPriceEstimate();
       }
+      // Auto-fill address and show map when entering location step
+      if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'location') {
+        this.initLocationStep();
+      }
     }
 
     // Re-display map if returning to a location step with address already filled
@@ -1079,17 +1083,14 @@ export class DeposerAnnonceComponent implements OnInit {
       const mapContainer = document.getElementById('map');
       if (!mapContainer) return;
 
-      // Destroy old map instance if container changed
       if (this.map) {
         this.map.remove();
         this.map = null;
         this.marker = null;
       }
 
-      // Check if address is filled (dynamic workflow or legacy)
       const address = this.formData['address'] || this.emploiForm.address;
       if (address && this.selectedAddress) {
-        // Re-geocode to get coordinates
         this.http.get<any[]>(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`)
           .subscribe(results => {
             if (results && results.length > 0) {
@@ -1098,6 +1099,34 @@ export class DeposerAnnonceComponent implements OnInit {
           });
       }
     }, 300);
+  }
+
+  private initLocationStep() {
+    // If address already filled, don't override
+    if (this.formData['address'] && this.formData['address'].length > 3) return;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        this.http.get<any>(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+          .subscribe(data => {
+            if (data && data.address) {
+              // Extract city name
+              const city = data.address.city || data.address.town || data.address.village || data.address.municipality || '';
+              const state = data.address.state || '';
+              const locationText = city ? (state ? `${city}, ${state}` : city) : data.display_name;
+
+              this.formData['address'] = locationText;
+              this.selectedAddress = locationText;
+
+              // Show map after a short delay to let the DOM render
+              setTimeout(() => {
+                this.showMap(latitude, longitude);
+              }, 400);
+            }
+          });
+      });
+    }
   }
 
   isEmploiCategory(): boolean {
