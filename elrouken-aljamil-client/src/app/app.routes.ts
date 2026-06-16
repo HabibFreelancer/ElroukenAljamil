@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { DeposerAnnonceComponent } from './pages/deposer-annonce/deposer-annonce.component';
+import { DepositSuccessComponent } from './pages/deposit-success/deposit-success.component';
 import { AuthComponent } from './pages/auth/auth.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { MenuManagementComponent } from './pages/admin/menu-management/menu-management.component';
@@ -12,6 +13,7 @@ import { FeedbackManagementComponent } from './pages/admin/feedback-management/f
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'deposer', component: DeposerAnnonceComponent },
+  { path: 'deposit-success', component: DepositSuccessComponent },
   { path: 'auth', component: AuthComponent },
   {
     path: 'admin',

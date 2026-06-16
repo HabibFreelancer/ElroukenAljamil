@@ -1228,10 +1228,10 @@ export class DeposerAnnonceComponent implements OnInit {
   selectFeedback(rating: string) { this.feedbackRating = rating; }
   nextFeedback() { this.feedbackStep = 2; }
   prevFeedback() { this.feedbackStep = 1; }
-  closeFeedback() { this.showFeedbackModal = false; this.submitted = true; }
+  closeFeedback() { this.showFeedbackModal = false; this.router.navigate(['/deposit-success']); }
   finishFeedback() {
     this.http.post<any>(`${this.apiUrl}/feedback`, { annonceId: this.submittedAnnonceId, rating: this.feedbackRating, category: this.annonce.category }).subscribe();
     this.showFeedbackModal = false;
-    this.submitted = true;
+    this.router.navigate(['/deposit-success']);
   }
 }
