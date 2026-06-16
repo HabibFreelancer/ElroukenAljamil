@@ -97,6 +97,9 @@ export class DeposerAnnonceComponent implements OnInit {
   priceRanges: { min: number; max: number }[] = [];
   showQuitModal = false;
   savingDraft = false;
+  showFeedbackModal = false;
+  feedbackStep = 1;
+  feedbackRating = '';
 
   contactForm = {
     email: '',
