@@ -22,7 +22,7 @@ BEGIN
     -- Insert 7 Steps
     INSERT INTO WorkflowSteps (WorkflowId, StepOrder, Title, Subtitle, StepKey, IsRequired, IsActive) VALUES
     (@WorkflowId, 1, N'Commencons par l''essentiel !', N'* champs obligatoires', 'title', 1, 1),
-    (@WorkflowId, 2, N'Ajoutez des photos', N'Faites glisser vos photos pour changer leur ordre', 'photos', 0, 1),
+    (@WorkflowId, 2, N'Ajoutez des photos', N'Faites glisser vos photos pour changer leur ordre', 'photos', 1, 1),
     (@WorkflowId, 3, N'Dites-nous en plus', N'L''immatriculation de votre vehicule est obligatoire pour continuer.', 'details', 1, 1),
     (@WorkflowId, 4, N'Decrivez votre bien !', N'Une bonne description augmente vos chances de vendre rapidement.', 'description', 1, 1),
     (@WorkflowId, 5, N'Quel est votre prix ?', N'Indiquez le prix de vente de votre vehicule.', 'price', 1, 1),

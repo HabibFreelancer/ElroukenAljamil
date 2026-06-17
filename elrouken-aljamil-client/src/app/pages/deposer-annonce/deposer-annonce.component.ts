@@ -506,18 +506,16 @@ export class DeposerAnnonceComponent implements OnInit {
       }
       return true;
     }
-    // Validate photos step (disabled for now)
-    /*
+    // Validate photos step (configurable per workflow)
     if (this.workflow && this.workflowSteps.length > 0) {
       const stepIndex = this.currentStep - 1;
-      if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'photos') {
-        if (this.photos.filter(p => p).length < this.maxPhotos) {
+      if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'photos' && this.workflowSteps[stepIndex].isRequired) {
+        if (this.photos.filter(p => p).length === 0) {
           this.photosError = true;
           return false;
         }
       }
     }
-    */
     // Validate dynamic workflow step fields
     const step = this.getWorkflowStep(this.currentStep);
     if (step) {
