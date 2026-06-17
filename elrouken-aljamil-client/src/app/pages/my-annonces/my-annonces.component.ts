@@ -21,11 +21,29 @@ export class MyAnnoncesComponent implements OnInit {
   publishedCount = 0;
   expiredCount = 0;
   pausedCount = 0;
+  showPerformanceModal = false;
+  selectedAdPerf: any = null;
+  showCategoryFilter = false;
+  selectedCategory = '';
+  categories: any[] = [];
   private apiUrl = 'https://localhost:7283/api/annonces';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  ngOnInit() { this.load(); }
+  ngOnInit() {
+    this.load();
+    this.loadCategories();
+  }
+
+  loadCategories() {
+    this.http.get<any[]>('https://localhost:7283/api/menus').subscribe(menus => {
+      menus.forEach(m => {
+        this.http.get<any[]>(`https://localhost:7283/api/categories/for-deposit/${m.id}`).subscribe(cats => {
+          cats.forEach(c => this.categories.push({ ...c, menuName: m.name }));
+        });
+      });
+    });
+  }
 
   load() {
     const email = this.authService.getEmail();
@@ -54,7 +72,25 @@ export class MyAnnoncesComponent implements OnInit {
       const s = this.searchText.toLowerCase();
       list = list.filter(a => a.title.toLowerCase().includes(s) || a.category?.toLowerCase().includes(s));
     }
+
+    if (this.selectedCategory) {
+      list = list.filter(a => a.category?.toLowerCase() === this.selectedCategory.toLowerCase());
+    }
+
     this.filteredAnnonces = list;
+  }
+
+  onCategoryChange() { this.applyFilter(); }
+  clearCategory() { this.selectedCategory = ''; this.applyFilter(); }
+
+  openPerformance(ad: any) {
+    this.selectedAdPerf = ad;
+    this.showPerformanceModal = true;
+  }
+
+  closePerformance() {
+    this.showPerformanceModal = false;
+    this.selectedAdPerf = null;
   }
 
   pauseAnnonce(id: number) {

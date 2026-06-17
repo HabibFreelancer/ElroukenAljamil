@@ -21,9 +21,15 @@
     </div>
   </div>
 
-  <!-- Search -->
+  <!-- Search + Category filter -->
   <div class="search-bar">
     <input type="text" [(ngModel)]="searchText" placeholder="Recherchez dans vos annonces" (keyup.enter)="search()" />
+    <div class="category-filter">
+      <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
+        <option value="">Toutes les catégories</option>
+        <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.menuName }} > {{ cat.name }}</option>
+      </select>
+    </div>
     <button class="btn-search" (click)="search()">Rechercher</button>
   </div>
 
@@ -47,13 +53,47 @@
         <div>👁 {{ ad.views }}</div>
         <div>♥ {{ ad.favorites }}</div>
         <div>💬 {{ ad.messages }}</div>
-        <div class="perf-link">Performance ▾</div>
+        <div class="perf-link" (click)="openPerformance(ad)">Performance ▾</div>
       </div>
     </div>
 
     <div class="empty-state" *ngIf="filteredAnnonces.length === 0">
       <p>Aucune annonce trouvée.</p>
       <a routerLink="/deposer" class="btn-deposit">Déposer une annonce</a>
+    </div>
+  </div>
+
+  <!-- Performance modal -->
+  <div class="modal-overlay" *ngIf="showPerformanceModal" (click)="closePerformance()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Performance de l'annonce</h3>
+        <span class="close-x" (click)="closePerformance()">✕</span>
+      </div>
+      <div class="modal-body" *ngIf="selectedAdPerf">
+        <p class="ad-name">{{ selectedAdPerf.title }}</p>
+        <div class="perf-stats">
+          <div class="perf-item">
+            <div class="perf-value">👁 {{ selectedAdPerf.views }}</div>
+            <div class="perf-label">Consultations</div>
+            <div class="perf-desc">Nombre de personnes ayant consulté le détail de votre annonce.</div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-value">♥ {{ selectedAdPerf.favorites }}</div>
+            <div class="perf-label">Favoris</div>
+            <div class="perf-desc">Nombre de personnes ayant ajouté votre annonce en favoris.</div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-value">💬 {{ selectedAdPerf.messages }}</div>
+            <div class="perf-label">Messages</div>
+            <div class="perf-desc">Nombre de personnes vous ayant contacté pour en savoir plus.</div>
+          </div>
+        </div>
+        <div class="perf-tip">
+          <i class="fa-solid fa-lightbulb"></i>
+          <span>Boostez votre annonce pour augmenter sa visibilité et vendre plus rapidement.</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
