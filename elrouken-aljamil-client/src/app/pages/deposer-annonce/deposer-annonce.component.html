@@ -772,9 +772,10 @@
   <div class="quit-modal-overlay" *ngIf="showFeedbackModal">
     <div class="quit-modal" (click)="$event.stopPropagation()">
       <div class="feedback-header">
-        <span>Parlez-nous de votre expérience</span>
         <span class="close-btn-x" (click)="closeFeedback()">✕</span>
       </div>
+      <div class="feedback-logo">ElroukenAljamil</div>
+      <p class="feedback-subtitle">Parlez-nous de votre expérience</p>
       <!-- Step 1: Rating -->
       <div *ngIf="feedbackStep === 1">
         <h3 class="feedback-title">À quel point a-t-il été facile de créer votre annonce ?</h3>

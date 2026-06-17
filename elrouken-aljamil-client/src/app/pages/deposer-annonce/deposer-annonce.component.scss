@@ -1827,13 +1827,26 @@ textarea.input-error {
 // Feedback modal
 .feedback-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
-  margin-bottom: 25px;
-  font-size: 14px;
+  justify-content: flex-end;
+  margin-bottom: 10px;
 
   .close-btn-x { cursor: pointer; font-size: 18px; color: #666; &:hover { color: #333; } }
+}
+
+.feedback-logo {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #ff6e14;
+  margin-bottom: 8px;
+}
+
+.feedback-subtitle {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 25px;
 }
 
 .feedback-title {

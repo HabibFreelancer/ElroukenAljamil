@@ -111,6 +111,34 @@ public class AnnoncesController : ControllerBase
         return await _context.Annonces.OrderByDescending(a => a.CreatedAt).ToListAsync();
     }
 
+    [HttpGet("my")]
+    public async Task<ActionResult> GetMyAnnonces([FromQuery] string? email, [FromQuery] string? search, [FromQuery] string? status)
+    {
+        var query = _context.Annonces.AsQueryable();
+
+        if (!string.IsNullOrEmpty(email))
+            query = query.Where(a => a.Email == email);
+
+        if (!string.IsNullOrEmpty(search))
+            query = query.Where(a => a.Title.Contains(search) || a.Description.Contains(search));
+
+        if (!string.IsNullOrEmpty(status))
+            query = query.Where(a => a.Status == status);
+        else
+            query = query.Where(a => a.Status != "draft");
+
+        var annonces = await query.OrderByDescending(a => a.CreatedAt).ToListAsync();
+
+        var result = annonces.Select(a => new
+        {
+            a.Id, a.Title, a.Description, a.Price, a.CategoryId, a.AdType,
+            a.Location, a.Status, a.CreatedAt,
+            category = _context.Categories.Where(c => c.Id == a.CategoryId).Select(c => c.Name).FirstOrDefault() ?? ""
+        });
+
+        return Ok(result);
+    }
+
     [HttpGet("ad-types/{categoryId}")]
     public async Task<ActionResult<IEnumerable<AdType>>> GetAdTypes(int categoryId)
     {
