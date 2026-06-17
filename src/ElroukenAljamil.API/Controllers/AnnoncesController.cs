@@ -223,6 +223,25 @@ public class AnnoncesController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult> GetById(int id)
+    {
+        var annonce = await _context.Annonces.FindAsync(id);
+        if (annonce == null) return NotFound();
+
+        var category = await _context.Categories.Where(c => c.Id == annonce.CategoryId).Select(c => c.Name).FirstOrDefaultAsync() ?? "";
+        var views = await _context.AnnonceViews.CountAsync(v => v.AnnonceId == id);
+        var favorites = await _context.AnnonceFavorites.CountAsync(f => f.AnnonceId == id);
+
+        return Ok(new
+        {
+            annonce.Id, annonce.Title, annonce.Description, annonce.Price, annonce.CategoryId,
+            annonce.AdType, annonce.Condition, annonce.Location, annonce.Phone, annonce.Email,
+            annonce.HidePhone, annonce.ExtraData, annonce.Status, annonce.CreatedAt,
+            category, views, favorites
+        });
+    }
+
     [HttpGet("ad-types/{categoryId}")]
     public async Task<ActionResult<IEnumerable<AdType>>> GetAdTypes(int categoryId)
     {

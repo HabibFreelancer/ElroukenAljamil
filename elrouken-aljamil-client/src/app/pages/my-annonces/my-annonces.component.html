@@ -39,7 +39,7 @@
       <input type="checkbox" class="checkbox" />
       <img [src]="getImageUrl(ad)" alt="Photo" class="ad-image" />
       <div class="ad-details">
-        <div class="ad-title">{{ ad.title }}</div>
+        <a class="ad-title" [routerLink]="['/annonce', ad.id]">{{ ad.title }}</a>
         <div class="ad-price">{{ ad.price }} TND</div>
         <div class="ad-meta">{{ ad.category }} · {{ getTimeAgo(ad.createdAt) }}</div>
         <div class="actions">

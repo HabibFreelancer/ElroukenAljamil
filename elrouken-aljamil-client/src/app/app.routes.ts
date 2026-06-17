@@ -3,6 +3,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { DeposerAnnonceComponent } from './pages/deposer-annonce/deposer-annonce.component';
 import { DepositSuccessComponent } from './pages/deposit-success/deposit-success.component';
 import { MyAnnoncesComponent } from './pages/my-annonces/my-annonces.component';
+import { AnnonceDetailComponent } from './pages/annonce-detail/annonce-detail.component';
 import { AuthComponent } from './pages/auth/auth.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { MenuManagementComponent } from './pages/admin/menu-management/menu-management.component';
@@ -16,6 +17,7 @@ export const routes: Routes = [
   { path: 'deposer', component: DeposerAnnonceComponent },
   { path: 'deposit-success', component: DepositSuccessComponent },
   { path: 'mes-annonces', component: MyAnnoncesComponent },
+  { path: 'annonce/:id', component: AnnonceDetailComponent },
   { path: 'auth', component: AuthComponent },
   {
     path: 'admin',
