@@ -34,6 +34,7 @@ public class StepFieldDto
     public bool IsRequired { get; set; }
     public int DisplayOrder { get; set; }
     public int? MaxLength { get; set; }
+    public string VisibilityCondition { get; set; } = string.Empty;
 }
 
 public class FieldOptionDto

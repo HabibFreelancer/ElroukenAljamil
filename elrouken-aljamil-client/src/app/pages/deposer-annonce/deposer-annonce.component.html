@@ -152,6 +152,7 @@
           <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
 
           <ng-container *ngFor="let field of step.fields">
+           <ng-container *ngIf="isFieldVisible(field)">
             <!-- Text input -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'text'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
@@ -402,6 +403,7 @@
                 <input type="text" [(ngModel)]="formData[field.fieldKey]" />
               </div>
             </div>
+           </ng-container>
           </ng-container>
 
           <!-- Legal text on contact step -->

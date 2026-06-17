@@ -86,7 +86,8 @@ public class WorkflowService
                             HelperText = f.HelperText,
                             IsRequired = f.IsRequired,
                             DisplayOrder = f.DisplayOrder,
-                            MaxLength = f.MaxLength
+                            MaxLength = f.MaxLength,
+                            VisibilityCondition = f.VisibilityCondition
                         }).ToList()
                 }).ToList()
         };

@@ -20,6 +20,7 @@ export interface StepField {
   isRequired: boolean;
   displayOrder: number;
   maxLength: number | null;
+  visibilityCondition: string;
 }
 
 export interface WorkflowStep {

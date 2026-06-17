@@ -17,5 +17,6 @@ public class StepField
     public bool IsActive { get; set; } = true;
     public int? MaxLength { get; set; }
     public string ValidationRegex { get; set; } = string.Empty;
+    public string VisibilityCondition { get; set; } = string.Empty; // JSON: {"field":"propertyType","values":["maison","autre"]}
     public WorkflowStep? Step { get; set; }
 }

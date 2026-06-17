@@ -540,6 +540,16 @@ export class DeposerAnnonceComponent implements OnInit {
     this.fieldDropdownOpen[fieldKey] = true;
   }
 
+  isFieldVisible(field: StepField): boolean {
+    if (!field.visibilityCondition) return true;
+    try {
+      const cond = JSON.parse(field.visibilityCondition);
+      const depValue = this.formData[cond.field];
+      if (!depValue) return false;
+      return cond.values.includes(depValue);
+    } catch { return true; }
+  }
+
   openSelectDropdown(fieldKey: string) {
     // Close all other dropdowns first
     const wasOpen = this.fieldDropdownOpen[fieldKey];
