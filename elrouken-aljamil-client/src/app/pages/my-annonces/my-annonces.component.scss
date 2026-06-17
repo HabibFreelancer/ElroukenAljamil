@@ -4,128 +4,83 @@
   padding: 0 20px;
   font-family: sans-serif;
 
+  .breadcrumb {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 15px;
+    a { color: #003366; text-decoration: none; &:hover { text-decoration: underline; } }
+    span { margin: 0 5px; }
+  }
+
   h1 { font-size: 24px; margin-bottom: 20px; color: #333; }
 
-  .tabs {
+  .tabs-row {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-bottom: 2px solid #eee;
     margin-bottom: 20px;
 
-    .tab {
-      padding: 12px 20px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #555;
-      font-size: 14px;
-      transition: all 0.2s;
+    .tabs {
+      display: flex;
+      .tab {
+        padding: 12px 20px; cursor: pointer; font-weight: 600; color: #555; font-size: 14px;
+        &:hover { color: #333; }
+        &.active { color: #000; border-bottom: 3px solid #000; }
+      }
+    }
 
-      &:hover { color: #333; }
-      &.active { color: #000; border-bottom: 3px solid #000; }
+    .sort-select select {
+      padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none;
+      &:focus { border-color: #ff6e14; }
     }
   }
 
   .search-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-
-    input {
-      flex: 1;
-      padding: 12px 14px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      outline: none;
-      &:focus { border-color: #ff6e14; }
-    }
-
-    .btn-search {
-      background: #ff6e14;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      &:hover { background: #e65c00; }
-    }
+    display: flex; gap: 10px; margin-bottom: 25px;
+    input { flex: 1; padding: 12px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; &:focus { border-color: #ff6e14; } }
+    .btn-search { background: #ff6e14; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; &:hover { background: #e65c00; } }
   }
 
-  .annonces-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+  .annonces-list { display: flex; flex-direction: column; gap: 12px; }
 
   .ad-card {
-    border: 1px solid #e0e0e0;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-radius: 8px;
-    background: #fff;
-    transition: border-color 0.2s;
-
+    border: 1px solid #e0e0e0; padding: 16px; display: flex; align-items: flex-start; gap: 15px;
+    border-radius: 8px; background: #fff; transition: border-color 0.2s;
     &:hover { border-color: #ff6e14; }
+    &.paused { opacity: 0.6; border-style: dashed; }
 
-    input[type="checkbox"] { accent-color: #ff6e14; width: 18px; height: 18px; }
+    .checkbox { margin-top: 5px; accent-color: #ff6e14; width: 18px; height: 18px; }
 
-    .ad-img {
-      width: 120px;
-      height: 80px;
-      background: #f0f0f0;
-      border-radius: 6px;
-      flex-shrink: 0;
-    }
+    .ad-image { width: 120px; height: 80px; border-radius: 6px; object-fit: cover; background: #f0f0f0; flex-shrink: 0; }
 
-    .ad-info {
+    .ad-details {
       flex: 1;
-
       .ad-title { font-weight: 700; font-size: 16px; color: #333; margin-bottom: 4px; }
       .ad-price { font-weight: 700; font-size: 15px; color: #ff6e14; margin-bottom: 4px; }
-      .ad-meta { font-size: 12px; color: #666; margin-bottom: 8px; }
-
-      .btn-promote {
-        background: #ff6e14;
-        color: white;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        &:hover { background: #e65c00; }
+      .ad-meta { font-size: 12px; color: #666; margin-bottom: 10px; }
+      .actions {
+        display: flex; gap: 8px; flex-wrap: wrap;
+        .btn {
+          padding: 7px 12px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px;
+          font-weight: 600; cursor: pointer; background: white; text-decoration: none; color: #333;
+          &:hover { border-color: #333; }
+        }
+        .btn-primary { background: #ff6e14; color: white; border: none; &:hover { background: #e65c00; } }
+        .btn-icon { padding: 7px 10px; font-size: 14px; }
       }
     }
 
     .stats {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 13px;
-      color: #666;
-      min-width: 50px;
-      text-align: center;
+      display: flex; flex-direction: column; gap: 6px; font-size: 12px;
+      border-left: 1px solid #eee; padding-left: 15px; color: #555; min-width: 80px;
+      .perf-link { margin-top: 8px; font-weight: 700; cursor: pointer; color: #003366; &:hover { color: #ff6e14; } }
     }
   }
 
   .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #666;
-
+    text-align: center; padding: 60px 20px; color: #666;
     p { font-size: 16px; margin-bottom: 20px; }
-
-    .btn-deposit {
-      background: #ff6e14;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      &:hover { background: #e65c00; }
-    }
+    .btn-deposit { background: #ff6e14; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; &:hover { background: #e65c00; } }
   }
 }

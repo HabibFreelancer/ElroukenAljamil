@@ -112,7 +112,7 @@ public class AnnoncesController : ControllerBase
     }
 
     [HttpGet("my")]
-    public async Task<ActionResult> GetMyAnnonces([FromQuery] string? email, [FromQuery] string? search, [FromQuery] string? status)
+    public async Task<ActionResult> GetMyAnnonces([FromQuery] string? email, [FromQuery] string? search, [FromQuery] string? status, [FromQuery] string? sortBy)
     {
         var query = _context.Annonces.AsQueryable();
 
@@ -127,16 +127,45 @@ public class AnnoncesController : ControllerBase
         else
             query = query.Where(a => a.Status != "draft");
 
-        var annonces = await query.OrderByDescending(a => a.CreatedAt).ToListAsync();
+        // Sorting
+        query = sortBy switch
+        {
+            "price_asc" => query.OrderBy(a => a.Price),
+            "price_desc" => query.OrderByDescending(a => a.Price),
+            _ => query.OrderByDescending(a => a.CreatedAt)
+        };
+
+        var annonces = await query.ToListAsync();
 
         var result = annonces.Select(a => new
         {
             a.Id, a.Title, a.Description, a.Price, a.CategoryId, a.AdType,
             a.Location, a.Status, a.CreatedAt,
-            category = _context.Categories.Where(c => c.Id == a.CategoryId).Select(c => c.Name).FirstOrDefault() ?? ""
+            category = _context.Categories.Where(c => c.Id == a.CategoryId).Select(c => c.Name).FirstOrDefault() ?? "",
+            views = 0, favorites = 0, messages = 0
         });
 
         return Ok(result);
+    }
+
+    [HttpPut("{id}/pause")]
+    public async Task<ActionResult> PauseAnnonce(int id)
+    {
+        var annonce = await _context.Annonces.FindAsync(id);
+        if (annonce == null) return NotFound();
+        annonce.Status = annonce.Status == "paused" ? "published" : "paused";
+        await _context.SaveChangesAsync();
+        return Ok(new { status = annonce.Status });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteAnnonce(int id)
+    {
+        var annonce = await _context.Annonces.FindAsync(id);
+        if (annonce == null) return NotFound();
+        _context.Annonces.Remove(annonce);
+        await _context.SaveChangesAsync();
+        return Ok();
     }
 
     [HttpGet("ad-types/{categoryId}")]

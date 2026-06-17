@@ -1,29 +1,53 @@
 <div class="my-annonces-container">
-  <h1>Mes annonces</h1>
-
-  <div class="tabs">
-    <div class="tab" [class.active]="activeTab === 'published'" (click)="setTab('published')">En ligne ({{ publishedCount }})</div>
-    <div class="tab" [class.active]="activeTab === 'expired'" (click)="setTab('expired')">Expirées ({{ expiredCount }})</div>
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a routerLink="/">Mon Compte</a> <span>&gt;</span> <span>Mes annonces</span>
   </div>
 
+  <h1>Mes annonces</h1>
+
+  <!-- Tabs + Sort -->
+  <div class="tabs-row">
+    <div class="tabs">
+      <div class="tab" [class.active]="activeTab === 'published'" (click)="setTab('published')">En ligne ({{ publishedCount }})</div>
+      <div class="tab" [class.active]="activeTab === 'expired'" (click)="setTab('expired')">Expirées ({{ expiredCount }})</div>
+    </div>
+    <div class="sort-select">
+      <select [(ngModel)]="sortBy" (change)="onSortChange()">
+        <option value="date">Trier par : Date</option>
+        <option value="price_asc">Prix croissant</option>
+        <option value="price_desc">Prix décroissant</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Search -->
   <div class="search-bar">
     <input type="text" [(ngModel)]="searchText" placeholder="Recherchez dans vos annonces" (keyup.enter)="search()" />
     <button class="btn-search" (click)="search()">Rechercher</button>
   </div>
 
+  <!-- Annonces list -->
   <div class="annonces-list">
-    <div class="ad-card" *ngFor="let ad of filteredAnnonces">
-      <input type="checkbox" />
-      <div class="ad-img"></div>
-      <div class="ad-info">
+    <div class="ad-card" *ngFor="let ad of filteredAnnonces" [class.paused]="ad.status === 'paused'">
+      <input type="checkbox" class="checkbox" />
+      <img [src]="getImageUrl(ad)" alt="Photo" class="ad-image" />
+      <div class="ad-details">
         <div class="ad-title">{{ ad.title }}</div>
         <div class="ad-price">{{ ad.price }} TND</div>
         <div class="ad-meta">{{ ad.category }} · {{ getTimeAgo(ad.createdAt) }}</div>
-        <button class="btn-promote">Vendez plus vite</button>
+        <div class="actions">
+          <button class="btn btn-primary">Vendez plus vite</button>
+          <button class="btn" (click)="pauseAnnonce(ad.id)">{{ ad.status === 'paused' ? 'Reprendre' : 'Mettre en pause' }}</button>
+          <a class="btn" [routerLink]="['/deposer']">Modifier gratuitement</a>
+          <button class="btn btn-icon" (click)="deleteAnnonce(ad.id)">🗑</button>
+        </div>
       </div>
       <div class="stats">
-        <div>👁 0</div>
-        <div>♥ 0</div>
+        <div>👁 {{ ad.views }}</div>
+        <div>♥ {{ ad.favorites }}</div>
+        <div>💬 {{ ad.messages }}</div>
+        <div class="perf-link">Performance ▾</div>
       </div>
     </div>
 
