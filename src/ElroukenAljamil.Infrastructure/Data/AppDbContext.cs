@@ -16,6 +16,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<WorkflowStep> WorkflowSteps => Set<WorkflowStep>();
     public DbSet<StepField> StepFields => Set<StepField>();
     public DbSet<Feedback> Feedbacks => Set<Feedback>();
+    public DbSet<AnnonceView> AnnonceViews => Set<AnnonceView>();
+    public DbSet<AnnonceFavorite> AnnonceFavorites => Set<AnnonceFavorite>();
+    public DbSet<Message> Messages => Set<Message>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

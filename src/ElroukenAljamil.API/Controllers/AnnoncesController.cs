@@ -142,10 +142,65 @@ public class AnnoncesController : ControllerBase
             a.Id, a.Title, a.Description, a.Price, a.CategoryId, a.AdType,
             a.Location, a.Status, a.CreatedAt,
             category = _context.Categories.Where(c => c.Id == a.CategoryId).Select(c => c.Name).FirstOrDefault() ?? "",
-            views = 0, favorites = 0, messages = 0
+            views = _context.AnnonceViews.Count(v => v.AnnonceId == a.Id),
+            favorites = _context.AnnonceFavorites.Count(f => f.AnnonceId == a.Id),
+            messages = _context.Messages.Count(m => m.AnnonceId == a.Id)
         });
 
         return Ok(result);
+    }
+
+    [HttpPost("{id}/view")]
+    public async Task<ActionResult> TrackView(int id, [FromBody] TrackRequest req)
+    {
+        _context.AnnonceViews.Add(new AnnonceView { AnnonceId = id, UserId = req.UserId ?? "anonymous" });
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpPost("{id}/favorite")]
+    public async Task<ActionResult> ToggleFavorite(int id, [FromBody] TrackRequest req)
+    {
+        var userId = req.UserId ?? "anonymous";
+        var existing = await _context.AnnonceFavorites.FirstOrDefaultAsync(f => f.AnnonceId == id && f.UserId == userId);
+        if (existing != null)
+        {
+            _context.AnnonceFavorites.Remove(existing);
+            await _context.SaveChangesAsync();
+            return Ok(new { favorited = false });
+        }
+        _context.AnnonceFavorites.Add(new AnnonceFavorite { AnnonceId = id, UserId = userId });
+        await _context.SaveChangesAsync();
+        return Ok(new { favorited = true });
+    }
+
+    [HttpPost("{id}/message")]
+    public async Task<ActionResult> SendMessage(int id, [FromBody] SendMessageRequest req)
+    {
+        var annonce = await _context.Annonces.FindAsync(id);
+        if (annonce == null) return NotFound();
+
+        var message = new Message
+        {
+            AnnonceId = id,
+            SenderId = req.SenderId ?? "anonymous",
+            SenderEmail = req.SenderEmail ?? "",
+            ReceiverId = annonce.Email,
+            Content = req.Content ?? ""
+        };
+        _context.Messages.Add(message);
+        await _context.SaveChangesAsync();
+        return Ok(new { id = message.Id });
+    }
+
+    [HttpGet("{id}/messages")]
+    public async Task<ActionResult> GetMessages(int id)
+    {
+        var messages = await _context.Messages
+            .Where(m => m.AnnonceId == id)
+            .OrderByDescending(m => m.CreatedAt)
+            .ToListAsync();
+        return Ok(messages);
     }
 
     [HttpPut("{id}/pause")]
@@ -290,4 +345,16 @@ public class CreateDraftDto
     public bool HidePhone { get; set; }
     public int CurrentStep { get; set; }
     public Dictionary<string, object>? ExtraData { get; set; }
+}
+
+public class TrackRequest
+{
+    public string? UserId { get; set; }
+}
+
+public class SendMessageRequest
+{
+    public string? SenderId { get; set; }
+    public string? SenderEmail { get; set; }
+    public string? Content { get; set; }
 }
