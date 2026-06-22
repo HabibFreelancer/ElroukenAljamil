@@ -37,7 +37,7 @@ export class WorkflowManagementComponent implements OnInit {
   fields: any[] = [];
   showFieldForm = false;
   editingField = false;
-  currentField = { id: 0, fieldKey: '', label: '', fieldType: 'text', placeholder: '', options: '', defaultValue: '', suffix: '', helperText: '', isRequired: false, displayOrder: 1, isActive: true, maxLength: null as number | null };
+  currentField = { id: 0, fieldKey: '', label: '', fieldType: 'text', placeholder: '', options: '', defaultValue: '', suffix: '', helperText: '', isRequired: false, displayOrder: 1, isActive: true, maxLength: null as number | null, visibilityCondition: '' };
 
   fieldTypes = ['text', 'number', 'select', 'dependent_select', 'multiselect', 'textarea', 'radio', 'pills', 'toggle', 'address', 'email', 'phone', 'immatriculation', 'date_month', 'text_counter', 'textarea_counter'];
   stepKeys = ['title', 'photos', 'details', 'salary', 'description', 'location', 'contact', 'recap', 'custom'];
@@ -226,7 +226,7 @@ export class WorkflowManagementComponent implements OnInit {
   cancelField() {
     this.showFieldForm = false;
     this.editingField = false;
-    this.currentField = { id: 0, fieldKey: '', label: '', fieldType: 'text', placeholder: '', options: '', defaultValue: '', suffix: '', helperText: '', isRequired: false, displayOrder: this.fields.length + 1, isActive: true, maxLength: null };
+    this.currentField = { id: 0, fieldKey: '', label: '', fieldType: 'text', placeholder: '', options: '', defaultValue: '', suffix: '', helperText: '', isRequired: false, displayOrder: this.fields.length + 1, isActive: true, maxLength: null, visibilityCondition: '' };
   }
 
   refreshFields() {

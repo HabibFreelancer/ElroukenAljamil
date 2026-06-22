@@ -146,8 +146,125 @@
           </div>
         </div>
 
-        <!-- Generic dynamic step (not title, not photos) -->
-        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey !== 'title' && step.stepKey !== 'photos'">
+        <!-- Details step for Immobilier: property type icons + "Les critères indispensables" -->
+        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey === 'details' && isImmobilierCategory()">
+          <h2 class="step-title">{{ step.title }}</h2>
+          <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
+
+          <!-- Property type icon selector -->
+          <div class="field-group spaced">
+            <label>Choisissez votre type de bien <span>*</span></label>
+            <div class="property-type-grid">
+              <div class="property-type-card"
+                   [class.selected]="formData['propertyType'] === 'maison'"
+                   (click)="selectPropertyType('maison')">
+                <i class="fa-solid fa-house"></i>
+                <span>Maison</span>
+              </div>
+              <div class="property-type-card"
+                   [class.selected]="formData['propertyType'] === 'appartement'"
+                   (click)="selectPropertyType('appartement')">
+                <i class="fa-solid fa-building"></i>
+                <span>Appartement</span>
+              </div>
+              <div class="property-type-card"
+                   [class.selected]="formData['propertyType'] === 'villa'"
+                   (click)="selectPropertyType('villa')">
+                <i class="fa-solid fa-house-chimney"></i>
+                <span>Villa</span>
+              </div>
+              <div class="property-type-card"
+                   [class.selected]="formData['propertyType'] === 'autre'"
+                   (click)="selectPropertyType('autre')">
+                <i class="fa-solid fa-ellipsis"></i>
+                <span>Autre</span>
+              </div>
+            </div>
+            <p class="error-text" *ngIf="fieldErrors['propertyType']">Veuillez sélectionner un type de bien.</p>
+          </div>
+
+          <!-- Critères indispensables: shown after a property type is selected -->
+          <div class="criteres-section" *ngIf="formData['propertyType']">
+            <h3 class="criteres-title">Les critères indispensables</h3>
+
+            <ng-container *ngFor="let field of step.fields">
+              <ng-container *ngIf="field.fieldKey !== 'propertyType' && isFieldVisible(field)">
+
+                <!-- Number input -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'number'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div *ngIf="field.suffix" class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
+                    <input type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey)" min="0" />
+                    <div class="suffix">{{ field.suffix }}</div>
+                  </div>
+                  <input *ngIf="!field.suffix" type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)" min="0" />
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                  <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+                </div>
+
+                <!-- Select -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'select'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="searchable-select">
+                    <input type="text" class="select-search" placeholder="Rechercher..." [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" />
+                    <div class="selected-value" *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]" (click)="openSelectDropdown(field.fieldKey)">
+                      {{ getSelectedLabel(field) }}
+                      <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
+                    </div>
+                    <div class="select-dropdown" *ngIf="fieldDropdownOpen[field.fieldKey]">
+                      <div class="select-option" *ngFor="let opt of getFilteredOptions(field)" (click)="selectOption(field.fieldKey, opt.value); clearFieldError(field.fieldKey)">
+                        {{ opt.label }}
+                      </div>
+                      <div class="select-empty" *ngIf="getFilteredOptions(field).length === 0">Aucun résultat</div>
+                    </div>
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                </div>
+
+                <!-- Multiselect (checkbox list) -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'multiselect'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="multiselect-group">
+                    <label class="multiselect-option" *ngFor="let opt of field.options">
+                      <input type="checkbox" [checked]="isMultiselectChecked(field.fieldKey, opt.value)" (change)="toggleMultiselect(field.fieldKey, opt.value)" />
+                      <span>{{ opt.label }}</span>
+                    </label>
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                </div>
+
+                <!-- Date month (MM/AAAA) -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'date_month'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="date-month-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                    <i class="fa-regular fa-calendar"></i>
+                    <input type="text" [(ngModel)]="formData[field.fieldKey]" placeholder="MM / AAAA" maxlength="7" (input)="onDateMonthInput(field.fieldKey); clearFieldError(field.fieldKey)" />
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                  <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+                </div>
+
+                <!-- Toggle -->
+                <div class="toggle-group" *ngIf="field.fieldType === 'toggle'">
+                  <div class="toggle" [class.active]="formData[field.fieldKey] === 'true' || formData[field.fieldKey] === true" (click)="formData[field.fieldKey] = formData[field.fieldKey] === 'true' || formData[field.fieldKey] === true ? 'false' : 'true'">
+                    <div class="toggle-knob"></div>
+                  </div>
+                  <span>{{ field.label }}</span>
+                </div>
+
+              </ng-container>
+            </ng-container>
+          </div>
+
+          <!-- Hint when nothing selected yet -->
+          <p class="property-type-hint" *ngIf="!formData['propertyType']">
+            <i class="fa-solid fa-circle-info"></i>
+            Sélectionnez un type de bien pour voir les critères correspondants.
+          </p>
+        </div>
+
+        <!-- Generic dynamic step (not title, not photos, not immobilier details) -->
+        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey !== 'title' && step.stepKey !== 'photos' && !(step.stepKey === 'details' && isImmobilierCategory())">
           <h2 class="step-title">{{ step.title }}</h2>
           <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
 

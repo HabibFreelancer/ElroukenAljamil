@@ -171,7 +171,8 @@ public class WorkflowController : ControllerBase
             IsRequired = req.IsRequired,
             DisplayOrder = req.DisplayOrder,
             IsActive = true,
-            MaxLength = req.MaxLength
+            MaxLength = req.MaxLength,
+            VisibilityCondition = req.VisibilityCondition
         };
         _context.StepFields.Add(field);
         await _context.SaveChangesAsync();
@@ -195,6 +196,7 @@ public class WorkflowController : ControllerBase
         field.DisplayOrder = req.DisplayOrder;
         field.IsActive = req.IsActive;
         field.MaxLength = req.MaxLength;
+        field.VisibilityCondition = req.VisibilityCondition;
         await _context.SaveChangesAsync();
         return Ok();
     }
@@ -242,4 +244,5 @@ public class CreateFieldRequest
     public int DisplayOrder { get; set; }
     public bool IsActive { get; set; } = true;
     public int? MaxLength { get; set; }
+    public string VisibilityCondition { get; set; } = string.Empty;
 }

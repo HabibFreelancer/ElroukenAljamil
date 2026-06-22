@@ -521,8 +521,16 @@ export class DeposerAnnonceComponent implements OnInit {
     if (step) {
       let valid = true;
       for (const field of step.fields) {
-        if (field.isRequired && !this.formData[field.fieldKey]?.toString().trim()) {
+        // Only validate fields that are currently visible
+        if (field.isRequired && this.isFieldVisible(field) && !this.formData[field.fieldKey]?.toString().trim()) {
           this.fieldErrors[field.fieldKey] = true;
+          valid = false;
+        }
+      }
+      // For immobilier details step, also require propertyType
+      if (step.stepKey === 'details' && this.isImmobilierCategory()) {
+        if (!this.formData['propertyType']) {
+          this.fieldErrors['propertyType'] = true;
           valid = false;
         }
       }
@@ -1146,6 +1154,26 @@ export class DeposerAnnonceComponent implements OnInit {
 
   isMotoCategory(): boolean {
     return this.annonce.category.toLowerCase().includes('moto');
+  }
+
+  isImmobilierCategory(): boolean {
+    return this.annonce.category.toLowerCase().includes('immobilier') ||
+           this.annonce.category.toLowerCase().includes('immobili');
+  }
+
+  selectPropertyType(type: string) {
+    // Reset all fields that depend on propertyType when type changes
+    if (this.formData['propertyType'] !== type) {
+      const conditionalFields = ['surface', 'rooms', 'bedrooms', 'bathrooms', 'levels',
+        'constructionYear', 'propertyNature', 'condition', 'features', 'landSurface',
+        'parking', 'heatingMode', 'exterior', 'exposure'];
+      conditionalFields.forEach(key => {
+        this.formData[key] = '';
+        this.fieldErrors[key] = false;
+      });
+    }
+    this.formData['propertyType'] = type;
+    this.fieldErrors['propertyType'] = false;
   }
 
   onQuitClick(event: Event) {

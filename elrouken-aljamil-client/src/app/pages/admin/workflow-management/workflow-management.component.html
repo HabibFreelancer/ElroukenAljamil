@@ -249,6 +249,10 @@
           <input [(ngModel)]="currentField.helperText" placeholder="Aide contextuelle sous le champ" />
         </div>
         <div class="form-group full-width">
+          <label>Condition de visibilité <small>(JSON, ex: {{ '{' }}"field":"propertyType","values":["maison","appartement"]{{ '}' }})</small></label>
+          <input [(ngModel)]="currentField.visibilityCondition" placeholder='Laisser vide = toujours visible' />
+        </div>
+        <div class="form-group full-width">
           <label>Options JSON <small>(pour select/radio)</small></label>
           <textarea [(ngModel)]="currentField.options" rows="3" placeholder='[{"value":"x","label":"Label X"},{"value":"y","label":"Label Y"}]'></textarea>
         </div>
@@ -258,7 +262,11 @@
         <label class="checkbox-label"><input type="checkbox" [(ngModel)]="currentField.isActive" /> Actif</label>
       </div>
       <div class="form-actions">
-        <button class="btn-save" (click)="saveField()"><i class="fa-solid fa-check"></i> {{ editingField ? 'Modifier' : 'Créer' }}</button>
+        <button class="btn-save" (click)="saveField()">
+          <i class="fa-solid fa-check"></i>
+          <span *ngIf="editingField">Modifier</span>
+          <span *ngIf="!editingField">Créer</span>
+        </button>
         <button class="btn-cancel" (click)="cancelField()">Annuler</button>
       </div>
     </div>
