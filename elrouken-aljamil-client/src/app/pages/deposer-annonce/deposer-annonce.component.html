@@ -151,41 +151,23 @@
           <h2 class="step-title">{{ step.title }}</h2>
           <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
 
-          <!-- Property type icon selector: Maison / Appartement / Terrain / Parking / Autre -->
+          <!-- Property type icon selector — driven by field options from API -->
           <div class="field-group spaced">
             <label>Choisissez votre type de bien <span>*</span></label>
-            <div class="property-type-grid">
-              <div class="property-type-card"
-                   [class.selected]="formData['propertyType'] === 'maison'"
-                   (click)="selectPropertyType('maison')">
-                <i class="fa-solid fa-house"></i>
-                <span>Maison</span>
-              </div>
-              <div class="property-type-card"
-                   [class.selected]="formData['propertyType'] === 'appartement'"
-                   (click)="selectPropertyType('appartement')">
-                <i class="fa-solid fa-building"></i>
-                <span>Appartement</span>
-              </div>
-              <div class="property-type-card"
-                   [class.selected]="formData['propertyType'] === 'terrain'"
-                   (click)="selectPropertyType('terrain')">
-                <i class="fa-solid fa-mountain-sun"></i>
-                <span>Terrain</span>
-              </div>
-              <div class="property-type-card"
-                   [class.selected]="formData['propertyType'] === 'parking'"
-                   (click)="selectPropertyType('parking')">
-                <i class="fa-solid fa-square-parking"></i>
-                <span>Parking</span>
-              </div>
-              <div class="property-type-card"
-                   [class.selected]="formData['propertyType'] === 'autre'"
-                   (click)="selectPropertyType('autre')">
-                <i class="fa-solid fa-ellipsis"></i>
-                <span>Autre</span>
-              </div>
-            </div>
+            <ng-container *ngFor="let field of step.fields">
+              <ng-container *ngIf="field.fieldKey === 'propertyType'">
+                <div class="property-type-grid" [class.grid-3]="field.options.length <= 3">
+                  <ng-container *ngFor="let opt of field.options">
+                    <div class="property-type-card"
+                         [class.selected]="formData['propertyType'] === opt.value"
+                         (click)="selectPropertyType(opt.value)">
+                      <i [class]="getPropertyTypeIcon(opt.value)"></i>
+                      <span>{{ opt.label }}</span>
+                    </div>
+                  </ng-container>
+                </div>
+              </ng-container>
+            </ng-container>
             <p class="error-text" *ngIf="fieldErrors['propertyType']">Veuillez sélectionner un type de bien.</p>
           </div>
 
@@ -271,6 +253,21 @@
                   <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
                 </div>
 
+                <!-- Radio group (e.g. "Ce bien est : Non meublé / Meublé") -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'radio'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="radio-card-group">
+                    <label class="radio-card" *ngFor="let opt of field.options"
+                           [class.selected]="formData[field.fieldKey] === opt.value"
+                           (click)="formData[field.fieldKey] = opt.value; clearFieldError(field.fieldKey)">
+                      <input type="radio" [name]="field.fieldKey" [value]="opt.value"
+                             [(ngModel)]="formData[field.fieldKey]" />
+                      <span>{{ opt.label }}</span>
+                    </label>
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                </div>
+
                 <!-- Toggle -->
                 <div class="toggle-group" *ngIf="field.fieldType === 'toggle'">
                   <div class="toggle" [class.active]="formData[field.fieldKey] === 'true' || formData[field.fieldKey] === true" (click)="formData[field.fieldKey] = formData[field.fieldKey] === 'true' || formData[field.fieldKey] === true ? 'false' : 'true'">
@@ -290,8 +287,33 @@
           </p>
         </div>
 
-        <!-- Generic dynamic step (not title, not photos, not immobilier details) -->
-        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey !== 'title' && step.stepKey !== 'photos' && !(step.stepKey === 'details' && isImmobilierCategory())">
+        <!-- Price step for Location immobilier: loyer + dépôt de garantie -->
+        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey === 'price' && isLocationCategory()">
+          <h2 class="step-title">{{ step.title }}</h2>
+          <p class="step-subtitle location-price-intro">
+            Vous le savez, le prix est important. Soyez juste, mais ayez en tête une marge de négociation si besoin.
+          </p>
+
+          <ng-container *ngFor="let field of step.fields">
+            <!-- Loyer mensuel -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'number'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey)" min="0" />
+                <div class="suffix">{{ field.suffix || 'TND' }}</div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <!-- Legal indication displayed as helper text -->
+              <p class="deposit-legal-hint" *ngIf="field.fieldKey === 'deposit' && field.helperText">
+                <i class="fa-solid fa-circle-info"></i>
+                {{ field.helperText }}
+              </p>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Generic dynamic step (not title, not photos, not immobilier details, not location price) -->
+        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey !== 'title' && step.stepKey !== 'photos' && !(step.stepKey === 'details' && isImmobilierCategory()) && !(step.stepKey === 'price' && isLocationCategory())">
           <h2 class="step-title">{{ step.title }}</h2>
           <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
 
@@ -542,10 +564,26 @@
             <!-- Phone -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'phone'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
-              <div class="phone-input">
-                <span class="phone-prefix">TN ˅ +216</span>
-                <input type="text" [(ngModel)]="formData[field.fieldKey]" />
+              <div class="phone-input-wrapper" [class.input-error]="fieldErrors[field.fieldKey]" [class.focused]="phoneFieldFocused">
+                <div class="phone-country">
+                  <span class="phone-flag">🇹🇳</span>
+                  <span class="phone-code">+216</span>
+                </div>
+                <div class="phone-divider"></div>
+                <input
+                  type="tel"
+                  class="phone-number-input"
+                  [(ngModel)]="formData[field.fieldKey]"
+                  placeholder="XX XXX XXX"
+                  maxlength="11"
+                  inputmode="numeric"
+                  (focus)="phoneFieldFocused = true"
+                  (blur)="phoneFieldFocused = false"
+                  (input)="onPhoneInput(field.fieldKey); clearFieldError(field.fieldKey)"
+                />
               </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text">Ex : 20 123 456</p>
             </div>
            </ng-container>
           </ng-container>
@@ -863,10 +901,25 @@
 
       <div class="field-group spaced">
         <label>Téléphone *</label>
-        <div class="phone-input">
-          <span class="phone-prefix">TN ˅ +216</span>
-          <input type="text" [(ngModel)]="contactForm.phone" />
+        <div class="phone-input-wrapper" [class.focused]="phoneFieldFocused">
+          <div class="phone-country">
+            <span class="phone-flag">🇹🇳</span>
+            <span class="phone-code">+216</span>
+          </div>
+          <div class="phone-divider"></div>
+          <input
+            type="tel"
+            class="phone-number-input"
+            [(ngModel)]="contactForm.phone"
+            placeholder="XX XXX XXX"
+            maxlength="11"
+            inputmode="numeric"
+            (focus)="phoneFieldFocused = true"
+            (blur)="phoneFieldFocused = false"
+            (input)="onPhoneInputLegacy()"
+          />
         </div>
+        <p class="helper-text">Ex : 20 123 456</p>
       </div>
 
       <div class="toggle-group">

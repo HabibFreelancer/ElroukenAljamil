@@ -81,6 +81,7 @@ export class DeposerAnnonceComponent implements OnInit {
   immatSuccess = '';
   immatLoading = false;
   aiGenerating = false;
+  phoneFieldFocused = false;
 
   // Workflow
   workflow: Workflow | null = null;
@@ -1157,17 +1158,41 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   isImmobilierCategory(): boolean {
-    return this.annonce.category.toLowerCase().includes('immobilier') ||
-           this.annonce.category.toLowerCase().includes('immobili');
+    const cat = this.annonce.category.toLowerCase();
+    return cat.includes('immobilier') || cat.includes('immobili')
+        || cat.includes('ventes') || cat.includes('locations')
+        || cat.includes('location/') || cat.includes('neuf')
+        || cat.includes('coloc');
+  }
+
+  isLocationCategory(): boolean {
+    const cat = this.annonce.category.toLowerCase();
+    return cat.includes('location') && !cat.includes('coloc');
+  }
+
+  isColocationCategory(): boolean {
+    return this.annonce.category.toLowerCase().includes('coloc');
+  }
+
+  getPropertyTypeIcon(value: string): string {
+    const icons: { [key: string]: string } = {
+      maison:      'fa-solid fa-house',
+      appartement: 'fa-solid fa-building',
+      terrain:     'fa-solid fa-mountain-sun',
+      parking:     'fa-solid fa-square-parking',
+      autre:       'fa-solid fa-ellipsis'
+    };
+    return icons[value] ?? 'fa-solid fa-home';
   }
 
   selectPropertyType(type: string) {
     // Reset all fields that depend on propertyType when type changes
     if (this.formData['propertyType'] !== type) {
       const conditionalFields = [
-        'surface', 'rooms', 'bedrooms', 'bathrooms', 'cuisine', 'levels',
+        'surface', 'rooms', 'bedrooms', 'bathrooms', 'cuisine', 'furnished', 'levels',
         'constructionYear', 'condition',
         'floor', 'totalFloors', 'elevator',
+        'roomType', 'roommatesCount', 'smokingPolicy', 'petsAllowed', 'heatingType',
         'propertyNature', 'terrainNature', 'parkingNature', 'features',
         'landSurface', 'parking', 'heatingMode', 'exterior', 'exposure', 'availableFrom'
       ];
@@ -1185,6 +1210,24 @@ export class DeposerAnnonceComponent implements OnInit {
     let val = (this.formData[fieldKey] || '').replace(/[^0-9]/g, '');
     if (val.length > 4) val = val.substring(0, 4);
     this.formData[fieldKey] = val;
+  }
+
+  onPhoneInput(fieldKey: string) {
+    // Keep only digits, format as XX XXX XXX (8 digits Tunisian)
+    let digits = (this.formData[fieldKey] || '').replace(/\D/g, '').substring(0, 8);
+    this.formData[fieldKey] = this.formatTunisianPhone(digits);
+  }
+
+  onPhoneInputLegacy() {
+    let digits = (this.contactForm.phone || '').replace(/\D/g, '').substring(0, 8);
+    this.contactForm.phone = this.formatTunisianPhone(digits);
+  }
+
+  private formatTunisianPhone(digits: string): string {
+    // Format: XX XXX XXX
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return `${digits.slice(0, 2)} ${digits.slice(2)}`;
+    return `${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
   }
 
   onQuitClick(event: Event) {

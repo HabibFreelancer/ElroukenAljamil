@@ -31,7 +31,9 @@ public class AnnoncesController : ControllerBase
 
         var isImmobilier = category?.Menu?.Name.ToLower().Contains("immobilier") == true
                         || category?.Name.ToLower().Contains("immobilier") == true
-                        || category?.Name.ToLower().Contains("immobili") == true;
+                        || category?.Name.ToLower().Contains("immobili") == true
+                        || category?.Name.ToLower().Contains("coloc") == true
+                        || category?.Name.ToLower().Contains("location") == true;
 
         // Resolve condition: prefer ExtraData['condition'] for immobilier
         var condition = dto.Condition ?? "";

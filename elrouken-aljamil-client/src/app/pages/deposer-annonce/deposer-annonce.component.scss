@@ -1164,6 +1164,81 @@
 }
 
 // Phone input (Vos coordonnées)
+.phone-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  max-width: 280px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: #999;
+  }
+
+  &.focused {
+    border-color: #ff6e14;
+    box-shadow: 0 0 0 3px rgba(255, 110, 20, 0.1);
+  }
+
+  &.input-error {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.08);
+  }
+
+  .phone-country {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 14px;
+    background: #f5f7f9;
+    cursor: default;
+    flex-shrink: 0;
+
+    .phone-flag {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .phone-code {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .phone-divider {
+    width: 1px;
+    height: 24px;
+    background: #ddd;
+    flex-shrink: 0;
+  }
+
+  .phone-number-input {
+    flex: 1;
+    padding: 12px 14px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #222;
+    background: transparent;
+    font-family: inherit;
+
+    &::placeholder {
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      color: #bbb;
+    }
+  }
+}
+
+// Keep legacy .phone-input for backward compatibility
 .phone-input {
   display: flex;
   align-items: center;
@@ -2064,6 +2139,11 @@ textarea.input-error {
 // ===== Property type grid: 5 items row =====
 .property-type-grid {
   grid-template-columns: repeat(5, 1fr);
+
+  &.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 480px;
+  }
 
   @media (max-width: 700px) {
     grid-template-columns: repeat(3, 1fr);
