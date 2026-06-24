@@ -20,11 +20,11 @@ public class AiController : ControllerBase
     [HttpPost("generate-description")]
     public async Task<ActionResult> GenerateDescription([FromBody] JsonElement context)
     {
-        var prompt = BuildPrompt(context); 
+        var prompt = BuildPrompt(context);
 
         // Try Hugging Face Inference API (free)
         var hfToken = _configuration["HuggingFace:ApiToken"] ?? "";
-        
+
         if (!string.IsNullOrEmpty(hfToken))
         {
             try
@@ -37,7 +37,14 @@ public class AiController : ControllerBase
         }
 
         // Fallback: generate a template-based description
-        var fallback = GenerateFallbackDescription(context);
+        var category = context.TryGetProperty("category", out var cat) ? cat.GetString() ?? "" : "";
+        var propertyType = context.TryGetProperty("propertyType", out var pt) ? pt.GetString() ?? "" : "";
+        var isImmobilier = category.ToLower().Contains("immobilier") || category.ToLower().Contains("immobili");
+
+        var fallback = isImmobilier
+            ? GenerateFallbackImmobilier(context, propertyType)
+            : GenerateFallbackDescription(context);
+
         return Ok(new { description = fallback });
     }
 
@@ -45,6 +52,15 @@ public class AiController : ControllerBase
     {
         var sb = new StringBuilder();
         var category = GetValue(context, "category") ?? "";
+        var propertyType = GetValue(context, "propertyType") ?? "";
+
+        // ── Immobilier prompts ──────────────────────────────────────────────
+        var isImmobilier = category.ToLower().Contains("immobilier") || category.ToLower().Contains("immobili");
+        if (isImmobilier)
+        {
+            return BuildImmobilierPrompt(context, propertyType);
+        }
+
         var isMoto = category.ToLower().Contains("moto") || (GetValue(context, "cylindree") != null) || (GetValue(context, "motoType") != null);
         var isCaravan = category.ToLower().Contains("caravan");
         var isUtilitaire = category.ToLower().Contains("utilitaire");
@@ -180,6 +196,249 @@ public class AiController : ControllerBase
 
         sb.AppendLine("\nR\u00e9ponds UNIQUEMENT avec la description g\u00e9n\u00e9r\u00e9e, sans commentaire ni explication.");
         return sb.ToString();
+    }
+
+    private string BuildImmobilierPrompt(JsonElement context, string propertyType)
+    {
+        var sb = new StringBuilder();
+
+        // ── Choose template by property type ──
+        switch (propertyType.ToLower())
+        {
+            case "maison":
+                sb.AppendLine("Génère une description d'annonce immobilière pour une MAISON à vendre, en français, dans un style professionnel et attractif.");
+                sb.AppendLine("Voici un exemple du format attendu :");
+                sb.AppendLine();
+                sb.AppendLine("Magnifique maison de ville de 120 m² proposée à la vente, idéalement située à Tunis.");
+                sb.AppendLine("Elle se compose de 5 pièces dont 3 chambres spacieuses, 2 salles de bain et une cuisine équipée ouverte sur le salon.");
+                sb.AppendLine("- Surface habitable : 120 m²");
+                sb.AppendLine("- Nombre de pièces : 5");
+                sb.AppendLine("- Chambres : 3");
+                sb.AppendLine("- Salles de bain : 2");
+                sb.AppendLine("- Cuisine : Équipée, Ouverte");
+                sb.AppendLine("- Niveaux : 2");
+                sb.AppendLine("- État : Très bon état");
+                sb.AppendLine("- Année de construction : 2010");
+                sb.AppendLine("- Chauffage : Gaz");
+                sb.AppendLine("- Extérieur : Jardin, Terrasse");
+                sb.AppendLine("Bien rare sur le marché, à visiter sans tarder !");
+                sb.AppendLine("N'hésitez pas à me contacter pour organiser une visite.");
+                break;
+
+            case "appartement":
+                sb.AppendLine("Génère une description d'annonce immobilière pour un APPARTEMENT à vendre, en français, dans un style professionnel et attractif.");
+                sb.AppendLine("Voici un exemple du format attendu :");
+                sb.AppendLine();
+                sb.AppendLine("Bel appartement lumineux de 75 m² en plein centre-ville, au 4ème étage avec ascenseur.");
+                sb.AppendLine("Il comprend un séjour avec cuisine ouverte, 2 chambres, 1 salle de bain et un balcon avec vue dégagée.");
+                sb.AppendLine("- Surface habitable : 75 m²");
+                sb.AppendLine("- Nombre de pièces : 3");
+                sb.AppendLine("- Chambres : 2");
+                sb.AppendLine("- Salles de bain : 1");
+                sb.AppendLine("- Cuisine : Ouverte");
+                sb.AppendLine("- Étage : 4");
+                sb.AppendLine("- Ascenseur : Oui");
+                sb.AppendLine("- Nombre d'étages dans l'immeuble : 8");
+                sb.AppendLine("- État : Rénové");
+                sb.AppendLine("- Année de construction : 2005");
+                sb.AppendLine("- Chauffage : Électricité");
+                sb.AppendLine("- Extérieur : Balcon");
+                sb.AppendLine("- Exposition : Sud");
+                sb.AppendLine("Idéal pour une famille ou un investissement locatif.");
+                sb.AppendLine("N'hésitez pas à me contacter pour organiser une visite.");
+                break;
+
+            case "terrain":
+                sb.AppendLine("Génère une description d'annonce immobilière pour un TERRAIN à vendre, en français, dans un style professionnel et attractif.");
+                sb.AppendLine("Voici un exemple du format attendu :");
+                sb.AppendLine();
+                sb.AppendLine("Terrain constructible de 500 m² à vendre dans un quartier résidentiel calme et bien desservi.");
+                sb.AppendLine("Idéalement situé à proximité des commodités, ce terrain offre de belles possibilités de construction.");
+                sb.AppendLine("- Surface : 500 m²");
+                sb.AppendLine("- Nature : Terrain constructible");
+                sb.AppendLine("- Surface totale du terrain : 500 m²");
+                sb.AppendLine("Toutes les viabilisations sont en place (eau, électricité, assainissement).");
+                sb.AppendLine("Opportunité rare à saisir rapidement !");
+                sb.AppendLine("N'hésitez pas à me contacter pour plus d'informations ou pour une visite.");
+                break;
+
+            case "parking":
+                sb.AppendLine("Génère une description d'annonce immobilière pour un PARKING ou GARAGE à vendre, en français, dans un style professionnel et concis.");
+                sb.AppendLine("Voici un exemple du format attendu :");
+                sb.AppendLine();
+                sb.AppendLine("Box fermé sécurisé de 15 m² à vendre dans une résidence gardée en plein centre-ville.");
+                sb.AppendLine("Accès 24h/24, idéal pour protéger votre véhicule ou l'utiliser comme espace de stockage.");
+                sb.AppendLine("- Nature : Box ou garage fermé");
+                sb.AppendLine("- État : Très bon état");
+                sb.AppendLine("- Année de construction : 2008");
+                sb.AppendLine("Investissement idéal ou usage personnel.");
+                sb.AppendLine("N'hésitez pas à me contacter pour plus d'informations.");
+                break;
+
+            default: // "autre" et fallback
+                sb.AppendLine("Génère une description d'annonce immobilière en français, dans un style professionnel et attractif.");
+                sb.AppendLine("Voici un exemple du format attendu :");
+                sb.AppendLine();
+                sb.AppendLine("Bien immobilier de 90 m² à vendre, en très bon état général, situé dans un quartier recherché.");
+                sb.AppendLine("Il se compose de 4 pièces lumineuses avec de belles prestations.");
+                sb.AppendLine("- Surface : 90 m²");
+                sb.AppendLine("- Pièces : 4");
+                sb.AppendLine("- État : Très bon état");
+                sb.AppendLine("Disponible rapidement. N'hésitez pas à me contacter pour organiser une visite.");
+                break;
+        }
+
+        // ── Inject actual field values ──
+        sb.AppendLine();
+        sb.AppendLine("Maintenant génère une description EXACTEMENT dans ce format avec les informations suivantes :");
+
+        var surface        = GetValue(context, "surface");
+        var rooms          = GetValue(context, "rooms");
+        var bedrooms       = GetValue(context, "bedrooms");
+        var bathrooms      = GetValue(context, "bathrooms");
+        var cuisine        = GetValue(context, "cuisine");
+        var levels         = GetValue(context, "levels");
+        var floor          = GetValue(context, "floor");
+        var totalFloors    = GetValue(context, "totalFloors");
+        var elevator       = GetValue(context, "elevator");
+        var constructYear  = GetValue(context, "constructionYear");
+        var conditionVal   = GetValue(context, "condition");
+        var propertyNature = GetValue(context, "propertyNature");
+        var terrainNature  = GetValue(context, "terrainNature");
+        var parkingNature  = GetValue(context, "parkingNature");
+        var features       = GetValue(context, "features");
+        var landSurface    = GetValue(context, "landSurface");
+        var parkingSpots   = GetValue(context, "parking");
+        var heatingMode    = GetValue(context, "heatingMode");
+        var exterior       = GetValue(context, "exterior");
+        var exposure       = GetValue(context, "exposure");
+        var address        = GetValue(context, "address");
+        var title          = GetValue(context, "title");
+
+        if (!string.IsNullOrEmpty(title))        sb.AppendLine($"- Titre souhaité : {title}");
+        if (!string.IsNullOrEmpty(address))      sb.AppendLine($"- Localisation : {address}");
+        if (!string.IsNullOrEmpty(surface))      sb.AppendLine($"- Surface habitable : {surface} m²");
+        if (!string.IsNullOrEmpty(landSurface))  sb.AppendLine($"- Surface totale du terrain : {landSurface} m²");
+        if (!string.IsNullOrEmpty(rooms))        sb.AppendLine($"- Nombre de pièces : {rooms}");
+        if (!string.IsNullOrEmpty(bedrooms))     sb.AppendLine($"- Chambres : {bedrooms}");
+        if (!string.IsNullOrEmpty(bathrooms))    sb.AppendLine($"- Salles de bain : {bathrooms}");
+        if (!string.IsNullOrEmpty(cuisine))      sb.AppendLine($"- Cuisine : {cuisine}");
+        if (!string.IsNullOrEmpty(levels))       sb.AppendLine($"- Niveaux : {levels}");
+        if (!string.IsNullOrEmpty(floor))        sb.AppendLine($"- Étage : {floor}");
+        if (!string.IsNullOrEmpty(totalFloors))  sb.AppendLine($"- Nombre d'étages dans l'immeuble : {totalFloors}");
+        if (!string.IsNullOrEmpty(elevator))     sb.AppendLine($"- Ascenseur : {(elevator == "true" ? "Oui" : "Non")}");
+        if (!string.IsNullOrEmpty(conditionVal)) sb.AppendLine($"- État du bien : {conditionVal}");
+        if (!string.IsNullOrEmpty(constructYear))sb.AppendLine($"- Année de construction : {constructYear}");
+        if (!string.IsNullOrEmpty(propertyNature))sb.AppendLine($"- Nature du bien : {propertyNature}");
+        if (!string.IsNullOrEmpty(terrainNature)) sb.AppendLine($"- Nature du terrain : {terrainNature}");
+        if (!string.IsNullOrEmpty(parkingNature)) sb.AppendLine($"- Nature du parking : {parkingNature}");
+        if (!string.IsNullOrEmpty(features))     sb.AppendLine($"- Caractéristiques : {features}");
+        if (!string.IsNullOrEmpty(parkingSpots)) sb.AppendLine($"- Places de parking : {parkingSpots}");
+        if (!string.IsNullOrEmpty(heatingMode))  sb.AppendLine($"- Chauffage : {heatingMode}");
+        if (!string.IsNullOrEmpty(exterior))     sb.AppendLine($"- Extérieur : {exterior}");
+        if (!string.IsNullOrEmpty(exposure))     sb.AppendLine($"- Exposition : {exposure}");
+
+        sb.AppendLine();
+        sb.AppendLine("Réponds UNIQUEMENT avec la description générée, sans commentaire ni explication.");
+        return sb.ToString();
+    }
+
+    private string GenerateFallbackImmobilier(JsonElement context, string propertyType)
+    {
+        var sb = new StringBuilder();
+
+        var surface       = GetValue(context, "surface") ?? "";
+        var rooms         = GetValue(context, "rooms") ?? "";
+        var bedrooms      = GetValue(context, "bedrooms") ?? "";
+        var bathrooms     = GetValue(context, "bathrooms") ?? "";
+        var cuisine       = GetValue(context, "cuisine") ?? "";
+        var levels        = GetValue(context, "levels") ?? "";
+        var floor         = GetValue(context, "floor") ?? "";
+        var totalFloors   = GetValue(context, "totalFloors") ?? "";
+        var elevator      = GetValue(context, "elevator") ?? "";
+        var constructYear = GetValue(context, "constructionYear") ?? "";
+        var condition     = GetValue(context, "condition") ?? "";
+        var propNature    = GetValue(context, "propertyNature") ?? GetValue(context, "terrainNature") ?? GetValue(context, "parkingNature") ?? "";
+        var features      = GetValue(context, "features") ?? "";
+        var landSurface   = GetValue(context, "landSurface") ?? "";
+        var parking       = GetValue(context, "parking") ?? "";
+        var heatingMode   = GetValue(context, "heatingMode") ?? "";
+        var exterior      = GetValue(context, "exterior") ?? "";
+        var exposure      = GetValue(context, "exposure") ?? "";
+        var address       = GetValue(context, "address") ?? "";
+        var title         = GetValue(context, "title") ?? "";
+
+        // Intro sentence by type
+        switch (propertyType.ToLower())
+        {
+            case "maison":
+                sb.Append(!string.IsNullOrEmpty(surface)
+                    ? $"Belle maison de {surface} m² à vendre"
+                    : "Belle maison à vendre");
+                if (!string.IsNullOrEmpty(address)) sb.Append($", idéalement située à {address}");
+                sb.AppendLine(".");
+                if (!string.IsNullOrEmpty(rooms))    sb.AppendLine($"Elle se compose de {rooms} pièces" + (!string.IsNullOrEmpty(bedrooms) ? $" dont {bedrooms} chambre(s)" : "") + ".");
+                break;
+
+            case "appartement":
+                sb.Append(!string.IsNullOrEmpty(surface)
+                    ? $"Bel appartement de {surface} m² à vendre"
+                    : "Bel appartement à vendre");
+                if (!string.IsNullOrEmpty(floor)) sb.Append($", au {floor}ème étage");
+                if (!string.IsNullOrEmpty(address)) sb.Append($" à {address}");
+                sb.AppendLine(".");
+                if (!string.IsNullOrEmpty(rooms)) sb.AppendLine($"Il comprend {rooms} pièces" + (!string.IsNullOrEmpty(bedrooms) ? $" dont {bedrooms} chambre(s)" : "") + ".");
+                break;
+
+            case "terrain":
+                sb.Append(!string.IsNullOrEmpty(surface)
+                    ? $"Terrain de {surface} m² à vendre"
+                    : "Terrain à vendre");
+                if (!string.IsNullOrEmpty(address)) sb.Append($" à {address}");
+                sb.AppendLine(".");
+                if (!string.IsNullOrEmpty(propNature)) sb.AppendLine($"Nature : {propNature}.");
+                break;
+
+            case "parking":
+                sb.Append("Emplacement de parking à vendre");
+                if (!string.IsNullOrEmpty(address)) sb.Append($" à {address}");
+                sb.AppendLine(".");
+                if (!string.IsNullOrEmpty(propNature)) sb.AppendLine($"Nature : {propNature}.");
+                break;
+
+            default:
+                sb.Append(!string.IsNullOrEmpty(surface)
+                    ? $"Bien immobilier de {surface} m² à vendre"
+                    : "Bien immobilier à vendre");
+                if (!string.IsNullOrEmpty(address)) sb.Append($" à {address}");
+                sb.AppendLine(".");
+                break;
+        }
+
+        // Details block
+        if (!string.IsNullOrEmpty(surface))       sb.AppendLine($"- Surface habitable : {surface} m²");
+        if (!string.IsNullOrEmpty(landSurface))   sb.AppendLine($"- Surface totale du terrain : {landSurface} m²");
+        if (!string.IsNullOrEmpty(rooms))         sb.AppendLine($"- Nombre de pièces : {rooms}");
+        if (!string.IsNullOrEmpty(bedrooms))      sb.AppendLine($"- Chambres : {bedrooms}");
+        if (!string.IsNullOrEmpty(bathrooms))     sb.AppendLine($"- Salles de bain : {bathrooms}");
+        if (!string.IsNullOrEmpty(cuisine))       sb.AppendLine($"- Cuisine : {cuisine}");
+        if (!string.IsNullOrEmpty(levels))        sb.AppendLine($"- Niveaux : {levels}");
+        if (!string.IsNullOrEmpty(floor))         sb.AppendLine($"- Étage : {floor}");
+        if (!string.IsNullOrEmpty(totalFloors))   sb.AppendLine($"- Nombre d'étages dans l'immeuble : {totalFloors}");
+        if (!string.IsNullOrEmpty(elevator))      sb.AppendLine($"- Ascenseur : {(elevator == "true" ? "Oui" : "Non")}");
+        if (!string.IsNullOrEmpty(condition))     sb.AppendLine($"- État : {condition}");
+        if (!string.IsNullOrEmpty(constructYear)) sb.AppendLine($"- Année de construction : {constructYear}");
+        if (!string.IsNullOrEmpty(propNature))    sb.AppendLine($"- Nature : {propNature}");
+        if (!string.IsNullOrEmpty(features))      sb.AppendLine($"- Caractéristiques : {features}");
+        if (!string.IsNullOrEmpty(parking))       sb.AppendLine($"- Places de parking : {parking}");
+        if (!string.IsNullOrEmpty(heatingMode))   sb.AppendLine($"- Chauffage : {heatingMode}");
+        if (!string.IsNullOrEmpty(exterior))      sb.AppendLine($"- Extérieur : {exterior}");
+        if (!string.IsNullOrEmpty(exposure))      sb.AppendLine($"- Exposition : {exposure}");
+
+        sb.AppendLine();
+        sb.AppendLine("N'hésitez pas à me contacter pour organiser une visite !");
+
+        return sb.ToString().Trim();
     }
 
     private async Task<string?> CallHuggingFace(string prompt, string token)

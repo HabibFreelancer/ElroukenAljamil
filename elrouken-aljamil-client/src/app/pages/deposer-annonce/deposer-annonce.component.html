@@ -151,7 +151,7 @@
           <h2 class="step-title">{{ step.title }}</h2>
           <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
 
-          <!-- Property type icon selector -->
+          <!-- Property type icon selector: Maison / Appartement / Terrain / Parking / Autre -->
           <div class="field-group spaced">
             <label>Choisissez votre type de bien <span>*</span></label>
             <div class="property-type-grid">
@@ -168,10 +168,16 @@
                 <span>Appartement</span>
               </div>
               <div class="property-type-card"
-                   [class.selected]="formData['propertyType'] === 'villa'"
-                   (click)="selectPropertyType('villa')">
-                <i class="fa-solid fa-house-chimney"></i>
-                <span>Villa</span>
+                   [class.selected]="formData['propertyType'] === 'terrain'"
+                   (click)="selectPropertyType('terrain')">
+                <i class="fa-solid fa-mountain-sun"></i>
+                <span>Terrain</span>
+              </div>
+              <div class="property-type-card"
+                   [class.selected]="formData['propertyType'] === 'parking'"
+                   (click)="selectPropertyType('parking')">
+                <i class="fa-solid fa-square-parking"></i>
+                <span>Parking</span>
               </div>
               <div class="property-type-card"
                    [class.selected]="formData['propertyType'] === 'autre'"
@@ -183,14 +189,19 @@
             <p class="error-text" *ngIf="fieldErrors['propertyType']">Veuillez sélectionner un type de bien.</p>
           </div>
 
-          <!-- Critères indispensables: shown after a property type is selected -->
+          <!-- Fields section: shown after a property type is selected -->
           <div class="criteres-section" *ngIf="formData['propertyType']">
             <h3 class="criteres-title">Les critères indispensables</h3>
 
             <ng-container *ngFor="let field of step.fields">
               <ng-container *ngIf="field.fieldKey !== 'propertyType' && isFieldVisible(field)">
 
-                <!-- Number input -->
+                <!-- Section title divider (e.g. "Les atouts qui font la différence") -->
+                <div class="criteres-section-divider" *ngIf="field.fieldType === 'section_title'">
+                  <h3 class="criteres-title">{{ field.label }}</h3>
+                </div>
+
+                <!-- Number input (with or without suffix) -->
                 <div class="field-group spaced" *ngIf="field.fieldType === 'number'">
                   <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
                   <div *ngIf="field.suffix" class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
@@ -202,7 +213,23 @@
                   <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
                 </div>
 
-                <!-- Select -->
+                <!-- Year input (AAAA — 4 digits) -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'year'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="year-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                    <input type="text"
+                           [(ngModel)]="formData[field.fieldKey]"
+                           placeholder="AAAA"
+                           maxlength="4"
+                           inputmode="numeric"
+                           pattern="[0-9]{4}"
+                           (input)="onYearInput(field.fieldKey); clearFieldError(field.fieldKey)" />
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                  <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+                </div>
+
+                <!-- Select (single, searchable) -->
                 <div class="field-group spaced" *ngIf="field.fieldType === 'select'">
                   <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
                   <div class="searchable-select">
@@ -221,7 +248,7 @@
                   <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
                 </div>
 
-                <!-- Multiselect (checkbox list) -->
+                <!-- Multiselect (checkbox pills) -->
                 <div class="field-group spaced" *ngIf="field.fieldType === 'multiselect'">
                   <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
                   <div class="multiselect-group">

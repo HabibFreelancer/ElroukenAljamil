@@ -2016,3 +2016,60 @@ textarea.input-error {
     flex-shrink: 0;
   }
 }
+
+
+// ===== Year input (AAAA) =====
+.year-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  max-width: 140px;
+  transition: border-color 0.2s;
+
+  &:focus-within { border-color: #ff6e14; }
+  &.input-error { border-color: #d32f2f; }
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    font-family: inherit;
+    background: transparent;
+    border-radius: 6px;
+
+    &::placeholder {
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      color: #aaa;
+    }
+  }
+}
+
+// ===== Section divider inside criteres block =====
+.criteres-section-divider {
+  margin-top: 32px;
+
+  .criteres-title {
+    margin-bottom: 20px;
+  }
+}
+
+// ===== Property type grid: 5 items row =====
+.property-type-grid {
+  grid-template-columns: repeat(5, 1fr);
+
+  @media (max-width: 700px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 450px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

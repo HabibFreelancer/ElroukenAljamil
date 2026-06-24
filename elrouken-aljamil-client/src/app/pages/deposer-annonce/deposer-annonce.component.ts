@@ -1164,9 +1164,13 @@ export class DeposerAnnonceComponent implements OnInit {
   selectPropertyType(type: string) {
     // Reset all fields that depend on propertyType when type changes
     if (this.formData['propertyType'] !== type) {
-      const conditionalFields = ['surface', 'rooms', 'bedrooms', 'bathrooms', 'levels',
-        'constructionYear', 'propertyNature', 'condition', 'features', 'landSurface',
-        'parking', 'heatingMode', 'exterior', 'exposure'];
+      const conditionalFields = [
+        'surface', 'rooms', 'bedrooms', 'bathrooms', 'cuisine', 'levels',
+        'constructionYear', 'condition',
+        'floor', 'totalFloors', 'elevator',
+        'propertyNature', 'terrainNature', 'parkingNature', 'features',
+        'landSurface', 'parking', 'heatingMode', 'exterior', 'exposure', 'availableFrom'
+      ];
       conditionalFields.forEach(key => {
         this.formData[key] = '';
         this.fieldErrors[key] = false;
@@ -1174,6 +1178,13 @@ export class DeposerAnnonceComponent implements OnInit {
     }
     this.formData['propertyType'] = type;
     this.fieldErrors['propertyType'] = false;
+  }
+
+  onYearInput(fieldKey: string) {
+    // Keep only digits, max 4 characters
+    let val = (this.formData[fieldKey] || '').replace(/[^0-9]/g, '');
+    if (val.length > 4) val = val.substring(0, 4);
+    this.formData[fieldKey] = val;
   }
 
   onQuitClick(event: Event) {
@@ -1227,17 +1238,26 @@ export class DeposerAnnonceComponent implements OnInit {
 
   submit() {
     this.submitting = true;
+
+    // For immobilier workflow: title comes from formData['description'] (text_counter field in description step)
+    const resolvedTitle = this.isImmobilierCategory()
+      ? (this.formData['description'] || this.annonce.title || '')
+      : this.annonce.title;
+
+    // condition: for immobilier it lives in formData['condition'], not annonce.condition
+    const resolvedCondition = this.formData['condition'] || this.annonce.condition || '';
+
     const payload: any = {
-      title: this.annonce.title,
+      title: resolvedTitle,
       categoryId: this.selectedCategoryId,
       adType: this.annonce.adType,
-      description: this.annonce.description || this.formData['annonce_description'] || this.formData['experienceDesc'] || '',
-      price: this.annonce.price || this.formData['price'] || this.formData['salary'] || 0,
-      condition: this.annonce.condition,
-      location: this.annonce.location || this.formData['address'] || this.emploiForm.address || '',
-      phone: this.contactForm.phone || this.formData['phone'] || '',
-      email: this.contactForm.email || this.formData['email'] || '',
-      hidePhone: this.contactForm.hidePhone || this.formData['hidePhone'] === 'true',
+      description: this.formData['annonce_description'] || this.annonce.description || this.formData['experienceDesc'] || '',
+      price: this.formData['price'] || this.annonce.price || this.formData['salary'] || 0,
+      condition: resolvedCondition,
+      location: this.formData['address'] || this.annonce.location || this.emploiForm.address || '',
+      phone: this.formData['phone'] || this.contactForm.phone || '',
+      email: this.formData['email'] || this.contactForm.email || '',
+      hidePhone: this.formData['hidePhone'] === 'true' || this.formData['hidePhone'] === true || this.contactForm.hidePhone,
       extraData: this.workflow ? this.formData : {
         ...this.emploiForm,
         contactPhone: this.contactForm.phone,

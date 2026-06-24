@@ -24,20 +24,45 @@ public class AnnoncesController : ControllerBase
         if (string.IsNullOrWhiteSpace(dto.Title) || dto.CategoryId == 0)
             return BadRequest(new { message = "Le titre et la catégorie sont obligatoires." });
 
+        // Detect immobilier category to enrich standard fields from ExtraData
+        var category = await _context.Categories
+            .Include(c => c.Menu)
+            .FirstOrDefaultAsync(c => c.Id == dto.CategoryId);
+
+        var isImmobilier = category?.Menu?.Name.ToLower().Contains("immobilier") == true
+                        || category?.Name.ToLower().Contains("immobilier") == true
+                        || category?.Name.ToLower().Contains("immobili") == true;
+
+        // Resolve condition: prefer ExtraData['condition'] for immobilier
+        var condition = dto.Condition ?? "";
+        var location  = dto.Location ?? "";
+
+        if (isImmobilier && dto.ExtraData != null)
+        {
+            if (string.IsNullOrEmpty(condition) && dto.ExtraData.TryGetValue("condition", out var condObj))
+                condition = condObj?.ToString() ?? "";
+            if (string.IsNullOrEmpty(location) && dto.ExtraData.TryGetValue("address", out var addrObj))
+                location = addrObj?.ToString() ?? "";
+        }
+
         var annonce = new Annonce
         {
-            Title = dto.Title,
-            Description = dto.Description,
-            Price = dto.Price,
-            CategoryId = dto.CategoryId,
-            AdType = dto.AdType,
-            Condition = dto.Condition,
-            Location = dto.Location,
-            Phone = dto.Phone,
-            Email = dto.Email,
-            HidePhone = dto.HidePhone,
-            ExtraData = dto.ExtraData != null ? JsonSerializer.Serialize(dto.ExtraData) : "",
-            CreatedAt = DateTime.UtcNow
+            Title       = dto.Title.Trim(),
+            Description = dto.Description ?? "",
+            Price       = dto.Price,
+            CategoryId  = dto.CategoryId,
+            AdType      = dto.AdType ?? "",
+            Condition   = condition,
+            Location    = location,
+            Phone       = dto.Phone ?? "",
+            Email       = dto.Email ?? "",
+            HidePhone   = dto.HidePhone,
+            ExtraData   = dto.ExtraData != null
+                            ? JsonSerializer.Serialize(dto.ExtraData,
+                                new JsonSerializerOptions { WriteIndented = false })
+                            : "{}",
+            CreatedAt   = DateTime.UtcNow,
+            Status      = "published"
         };
 
         _context.Annonces.Add(annonce);
@@ -229,17 +254,98 @@ public class AnnoncesController : ControllerBase
         var annonce = await _context.Annonces.FindAsync(id);
         if (annonce == null) return NotFound();
 
-        var category = await _context.Categories.Where(c => c.Id == annonce.CategoryId).Select(c => c.Name).FirstOrDefaultAsync() ?? "";
-        var views = await _context.AnnonceViews.CountAsync(v => v.AnnonceId == id);
-        var favorites = await _context.AnnonceFavorites.CountAsync(f => f.AnnonceId == id);
+        var category = await _context.Categories
+            .Include(c => c.Menu)
+            .FirstOrDefaultAsync(c => c.Id == annonce.CategoryId);
+
+        var categoryName = category?.Name ?? "";
+        var menuName     = category?.Menu?.Name ?? "";
+        var views        = await _context.AnnonceViews.CountAsync(v => v.AnnonceId == id);
+        var favorites    = await _context.AnnonceFavorites.CountAsync(f => f.AnnonceId == id);
+
+        // Deserialize ExtraData
+        Dictionary<string, JsonElement>? extra = null;
+        if (!string.IsNullOrEmpty(annonce.ExtraData))
+        {
+            try
+            {
+                extra = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(annonce.ExtraData);
+            }
+            catch { /* keep null */ }
+        }
+
+        var isImmobilier = menuName.ToLower().Contains("immobilier")
+                        || categoryName.ToLower().Contains("immobilier")
+                        || categoryName.ToLower().Contains("immobili");
+
+        // Build immobilier-specific fields from ExtraData
+        object? immobilierDetails = null;
+        if (isImmobilier && extra != null)
+        {
+            immobilierDetails = new
+            {
+                propertyType    = GetExtraString(extra, "propertyType"),
+                surface         = GetExtraString(extra, "surface"),
+                rooms           = GetExtraString(extra, "rooms"),
+                bedrooms        = GetExtraString(extra, "bedrooms"),
+                bathrooms       = GetExtraString(extra, "bathrooms"),
+                cuisine         = GetExtraString(extra, "cuisine"),
+                levels          = GetExtraString(extra, "levels"),
+                floor           = GetExtraString(extra, "floor"),
+                totalFloors     = GetExtraString(extra, "totalFloors"),
+                elevator        = GetExtraString(extra, "elevator"),
+                constructionYear= GetExtraString(extra, "constructionYear"),
+                condition       = GetExtraString(extra, "condition"),
+                propertyNature  = GetExtraString(extra, "propertyNature"),
+                terrainNature   = GetExtraString(extra, "terrainNature"),
+                parkingNature   = GetExtraString(extra, "parkingNature"),
+                features        = GetExtraString(extra, "features"),
+                landSurface     = GetExtraString(extra, "landSurface"),
+                parkingSpots    = GetExtraString(extra, "parking"),
+                heatingMode     = GetExtraString(extra, "heatingMode"),
+                exterior        = GetExtraString(extra, "exterior"),
+                exposure        = GetExtraString(extra, "exposure"),
+                availableFrom   = GetExtraString(extra, "availableFrom"),
+            };
+        }
 
         return Ok(new
         {
-            annonce.Id, annonce.Title, annonce.Description, annonce.Price, annonce.CategoryId,
-            annonce.AdType, annonce.Condition, annonce.Location, annonce.Phone, annonce.Email,
-            annonce.HidePhone, annonce.ExtraData, annonce.Status, annonce.CreatedAt,
-            category, views, favorites
+            annonce.Id,
+            annonce.Title,
+            annonce.Description,
+            annonce.Price,
+            annonce.CategoryId,
+            annonce.AdType,
+            annonce.Condition,
+            annonce.Location,
+            annonce.Phone,
+            annonce.Email,
+            annonce.HidePhone,
+            annonce.ExtraData,
+            annonce.Status,
+            annonce.CreatedAt,
+            category    = categoryName,
+            menu        = menuName,
+            isImmobilier,
+            immobilierDetails,
+            views,
+            favorites
         });
+    }
+
+    private static string GetExtraString(Dictionary<string, JsonElement> extra, string key)
+    {
+        if (!extra.TryGetValue(key, out var el)) return "";
+        return el.ValueKind switch
+        {
+            JsonValueKind.String => el.GetString() ?? "",
+            JsonValueKind.Number => el.GetRawText(),
+            JsonValueKind.True   => "true",
+            JsonValueKind.False  => "false",
+            JsonValueKind.Array  => string.Join(", ", el.EnumerateArray().Select(e => e.GetString() ?? e.GetRawText())),
+            _                    => el.GetRawText()
+        };
     }
 
     [HttpGet("ad-types/{categoryId}")]
