@@ -39,11 +39,14 @@ public class AiController : ControllerBase
         // Fallback: generate a template-based description
         var category = context.TryGetProperty("category", out var cat) ? cat.GetString() ?? "" : "";
         var propertyType = context.TryGetProperty("propertyType", out var pt) ? pt.GetString() ?? "" : "";
-        var isImmobilier = category.ToLower().Contains("immobilier") || category.ToLower().Contains("immobili");
+        var isImmobilier    = category.ToLower().Contains("immobilier") || category.ToLower().Contains("immobili");
+        var isBureauCommerce = category.ToLower().Contains("bureau") || category.ToLower().Contains("commerce");
 
-        var fallback = isImmobilier
-            ? GenerateFallbackImmobilier(context, propertyType)
-            : GenerateFallbackDescription(context);
+        var fallback = isBureauCommerce
+            ? GenerateFallbackBureauCommerce(context)
+            : isImmobilier
+                ? GenerateFallbackImmobilier(context, propertyType)
+                : GenerateFallbackDescription(context);
 
         return Ok(new { description = fallback });
     }
@@ -56,6 +59,13 @@ public class AiController : ControllerBase
 
         // ── Immobilier prompts ──────────────────────────────────────────────
         var isImmobilier = category.ToLower().Contains("immobilier") || category.ToLower().Contains("immobili");
+        var isBureauCommerce = category.ToLower().Contains("bureau") || category.ToLower().Contains("commerce");
+
+        if (isBureauCommerce)
+        {
+            return BuildBureauCommercePrompt(context);
+        }
+
         if (isImmobilier)
         {
             return BuildImmobilierPrompt(context, propertyType);
@@ -438,6 +448,130 @@ public class AiController : ControllerBase
         sb.AppendLine();
         sb.AppendLine("N'hésitez pas à me contacter pour organiser une visite !");
 
+        return sb.ToString().Trim();
+    }
+
+    private string BuildBureauCommercePrompt(JsonElement context)
+    {
+        var sb = new StringBuilder();
+        var businessType  = GetValue(context, "businessType") ?? "";
+        var surface       = GetValue(context, "surface") ?? "";
+        var divSurface    = GetValue(context, "divisibleSurface") ?? "";
+        var levels        = GetValue(context, "levels") ?? "";
+        var floor         = GetValue(context, "floor") ?? "";
+        var elevator      = GetValue(context, "elevator") ?? "";
+        var exterior      = GetValue(context, "exterior") ?? "";
+        var parking       = GetValue(context, "parking") ?? "";
+        var constructYear = GetValue(context, "constructionYear") ?? "";
+        var availableFrom = GetValue(context, "availableFrom") ?? "";
+        var salePrice     = GetValue(context, "salePrice") ?? "";
+        var taxFonciere   = GetValue(context, "taxFonciere") ?? "";
+        var chargesCopro  = GetValue(context, "chargesCopro") ?? "";
+        var address       = GetValue(context, "address") ?? "";
+        var title         = GetValue(context, "title") ?? "";
+
+        // Choose intro example by businessType
+        var typeLabel = businessType switch
+        {
+            "bureaux"            => "bureau",
+            "conteneurs"         => "conteneur aménagé",
+            "entrepots"          => "entrepôt",
+            "restaurants_hotels" => "restaurant / hôtel",
+            "boutiques_kiosques" => "boutique / kiosque",
+            _                    => "local commercial"
+        };
+
+        sb.AppendLine($"Génère une description d'annonce immobilière professionnelle pour un LOCAL DE TYPE \"{typeLabel.ToUpper()}\" à vendre, en français.");
+        sb.AppendLine("Le style doit être professionnel, précis et attractif pour des acheteurs professionnels.");
+        sb.AppendLine("Voici un exemple du format attendu :");
+        sb.AppendLine();
+        sb.AppendLine($"Excellent {typeLabel} de 120 m² à vendre en plein cœur de Tunis, idéalement situé dans une zone à fort passage.");
+        sb.AppendLine("Le bien se présente au 2ème étage d'un immeuble récent avec ascenseur, offrant un espace lumineux et modulable.");
+        sb.AppendLine("- Type d'activité : Bureaux");
+        sb.AppendLine("- Surface habitable : 120 m²");
+        sb.AppendLine("- Surface divisible minimale : 40 m²");
+        sb.AppendLine("- Nombre d'étages : 1");
+        sb.AppendLine("- Étage : 2");
+        sb.AppendLine("- Ascenseur : Oui");
+        sb.AppendLine("- Extérieur : Terrasse");
+        sb.AppendLine("- Places de parking : 2");
+        sb.AppendLine("- Année de construction : 2015");
+        sb.AppendLine("Opportunité rare pour investisseur ou profession libérale. Disponible immédiatement.");
+        sb.AppendLine("N'hésitez pas à nous contacter pour organiser une visite.");
+        sb.AppendLine();
+        sb.AppendLine("Maintenant génère une description EXACTEMENT dans ce format avec les informations suivantes :");
+
+        if (!string.IsNullOrEmpty(title))        sb.AppendLine($"- Titre souhaité : {title}");
+        if (!string.IsNullOrEmpty(address))      sb.AppendLine($"- Localisation : {address}");
+        if (!string.IsNullOrEmpty(businessType)) sb.AppendLine($"- Type d'activité : {typeLabel}");
+        if (!string.IsNullOrEmpty(surface))      sb.AppendLine($"- Surface habitable : {surface} m²");
+        if (!string.IsNullOrEmpty(divSurface))   sb.AppendLine($"- Surface divisible minimale : {divSurface} m²");
+        if (!string.IsNullOrEmpty(levels))       sb.AppendLine($"- Nombre d'étages : {levels}");
+        if (!string.IsNullOrEmpty(floor))        sb.AppendLine($"- Étage : {floor}");
+        if (!string.IsNullOrEmpty(elevator))     sb.AppendLine($"- Ascenseur : {(elevator == "true" ? "Oui" : "Non")}");
+        if (!string.IsNullOrEmpty(exterior))     sb.AppendLine($"- Extérieur : {exterior}");
+        if (!string.IsNullOrEmpty(parking))      sb.AppendLine($"- Places de parking : {parking}");
+        if (!string.IsNullOrEmpty(constructYear))sb.AppendLine($"- Année de construction : {constructYear}");
+        if (!string.IsNullOrEmpty(availableFrom))sb.AppendLine($"- Disponible à partir de : {availableFrom}");
+        if (!string.IsNullOrEmpty(salePrice))    sb.AppendLine($"- Prix de vente : {salePrice} TND");
+        if (!string.IsNullOrEmpty(taxFonciere))  sb.AppendLine($"- Taxe foncière : {taxFonciere} TND/an");
+        if (!string.IsNullOrEmpty(chargesCopro)) sb.AppendLine($"- Charges de copropriété : {chargesCopro} TND/an");
+
+        sb.AppendLine();
+        sb.AppendLine("Réponds UNIQUEMENT avec la description générée, sans commentaire ni explication.");
+        return sb.ToString();
+    }
+
+    private string GenerateFallbackBureauCommerce(JsonElement context)
+    {
+        var sb = new StringBuilder();
+        var businessType  = GetValue(context, "businessType") ?? "";
+        var surface       = GetValue(context, "surface") ?? "";
+        var divSurface    = GetValue(context, "divisibleSurface") ?? "";
+        var levels        = GetValue(context, "levels") ?? "";
+        var floor         = GetValue(context, "floor") ?? "";
+        var elevator      = GetValue(context, "elevator") ?? "";
+        var exterior      = GetValue(context, "exterior") ?? "";
+        var parking       = GetValue(context, "parking") ?? "";
+        var constructYear = GetValue(context, "constructionYear") ?? "";
+        var availableFrom = GetValue(context, "availableFrom") ?? "";
+        var salePrice     = GetValue(context, "salePrice") ?? "";
+        var taxFonciere   = GetValue(context, "taxFonciere") ?? "";
+        var chargesCopro  = GetValue(context, "chargesCopro") ?? "";
+        var address       = GetValue(context, "address") ?? "";
+
+        var typeLabel = businessType switch
+        {
+            "bureaux"            => "bureau",
+            "conteneurs"         => "conteneur aménagé",
+            "entrepots"          => "entrepôt",
+            "restaurants_hotels" => "local restauration/hôtellerie",
+            "boutiques_kiosques" => "boutique/kiosque",
+            _                    => "local commercial"
+        };
+
+        sb.Append(!string.IsNullOrEmpty(surface)
+            ? $"{char.ToUpper(typeLabel[0])}{typeLabel.Substring(1)} de {surface} m² à vendre"
+            : $"{char.ToUpper(typeLabel[0])}{typeLabel.Substring(1)} à vendre");
+        if (!string.IsNullOrEmpty(address)) sb.Append($" à {address}");
+        sb.AppendLine(".");
+
+        if (!string.IsNullOrEmpty(businessType))  sb.AppendLine($"- Type d'activité : {typeLabel}");
+        if (!string.IsNullOrEmpty(surface))       sb.AppendLine($"- Surface habitable : {surface} m²");
+        if (!string.IsNullOrEmpty(divSurface))    sb.AppendLine($"- Surface divisible minimale : {divSurface} m²");
+        if (!string.IsNullOrEmpty(levels))        sb.AppendLine($"- Nombre d'étages : {levels}");
+        if (!string.IsNullOrEmpty(floor))         sb.AppendLine($"- Étage : {floor}");
+        if (!string.IsNullOrEmpty(elevator))      sb.AppendLine($"- Ascenseur : {(elevator == "true" ? "Oui" : "Non")}");
+        if (!string.IsNullOrEmpty(exterior))      sb.AppendLine($"- Extérieur : {exterior}");
+        if (!string.IsNullOrEmpty(parking))       sb.AppendLine($"- Places de parking : {parking}");
+        if (!string.IsNullOrEmpty(constructYear)) sb.AppendLine($"- Année de construction : {constructYear}");
+        if (!string.IsNullOrEmpty(availableFrom)) sb.AppendLine($"- Disponible à partir de : {availableFrom}");
+        if (!string.IsNullOrEmpty(salePrice))     sb.AppendLine($"- Prix de vente : {salePrice} TND");
+        if (!string.IsNullOrEmpty(taxFonciere))   sb.AppendLine($"- Taxe foncière : {taxFonciere} TND/an");
+        if (!string.IsNullOrEmpty(chargesCopro))  sb.AppendLine($"- Charges copropriété : {chargesCopro} TND/an");
+
+        sb.AppendLine();
+        sb.AppendLine("N'hésitez pas à nous contacter pour organiser une visite !");
         return sb.ToString().Trim();
     }
 

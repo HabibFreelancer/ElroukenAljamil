@@ -1282,25 +1282,43 @@ export class DeposerAnnonceComponent implements OnInit {
   submit() {
     this.submitting = true;
 
-    // For immobilier workflow: title comes from formData['description'] (text_counter field in description step)
+    // For immobilier/location/colocation workflows:
+    // title comes from formData['description'] (text_counter in description step)
     const resolvedTitle = this.isImmobilierCategory()
-      ? (this.formData['description'] || this.annonce.title || '')
+      ? (this.formData['description'] || this.annonce.title || '').trim()
       : this.annonce.title;
 
-    // condition: for immobilier it lives in formData['condition'], not annonce.condition
+    // condition lives in formData['condition'] for immobilier workflows
     const resolvedCondition = this.formData['condition'] || this.annonce.condition || '';
 
+    // price: colocation + location use monthlyRent, others use price field
+    const resolvedPrice = this.formData['monthlyRent']
+      || this.formData['price']
+      || this.annonce.price
+      || this.formData['salary']
+      || 0;
+
+    // phone / email: always prefer formData (workflow contact step)
+    const resolvedPhone = (this.formData['phone'] || this.contactForm.phone || '').toString().replace(/\s/g, '');
+    const resolvedEmail = this.formData['email'] || this.contactForm.email || '';
+    const resolvedHidePhone = this.formData['hidePhone'] === 'true'
+      || this.formData['hidePhone'] === true
+      || this.contactForm.hidePhone;
+
     const payload: any = {
-      title: resolvedTitle,
+      title:      resolvedTitle,
       categoryId: this.selectedCategoryId,
-      adType: this.annonce.adType,
-      description: this.formData['annonce_description'] || this.annonce.description || this.formData['experienceDesc'] || '',
-      price: this.formData['price'] || this.annonce.price || this.formData['salary'] || 0,
+      adType:     this.annonce.adType || '',
+      description: this.formData['annonce_description']
+                  || this.annonce.description
+                  || this.formData['experienceDesc']
+                  || '',
+      price:     resolvedPrice,
       condition: resolvedCondition,
-      location: this.formData['address'] || this.annonce.location || this.emploiForm.address || '',
-      phone: this.formData['phone'] || this.contactForm.phone || '',
-      email: this.formData['email'] || this.contactForm.email || '',
-      hidePhone: this.formData['hidePhone'] === 'true' || this.formData['hidePhone'] === true || this.contactForm.hidePhone,
+      location:  this.formData['address'] || this.annonce.location || this.emploiForm.address || '',
+      phone:     resolvedPhone,
+      email:     resolvedEmail,
+      hidePhone: resolvedHidePhone,
       extraData: this.workflow ? this.formData : {
         ...this.emploiForm,
         contactPhone: this.contactForm.phone,

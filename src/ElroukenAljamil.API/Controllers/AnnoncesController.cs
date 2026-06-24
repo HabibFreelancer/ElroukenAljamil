@@ -33,7 +33,12 @@ public class AnnoncesController : ControllerBase
                         || category?.Name.ToLower().Contains("immobilier") == true
                         || category?.Name.ToLower().Contains("immobili") == true
                         || category?.Name.ToLower().Contains("coloc") == true
-                        || category?.Name.ToLower().Contains("location") == true;
+                        || category?.Name.ToLower().Contains("location") == true
+                        || category?.Name.ToLower().Contains("bureau") == true
+                        || category?.Name.ToLower().Contains("commerce") == true;
+
+        var isBureauCommerce = category?.Name.ToLower().Contains("bureau") == true
+                            || category?.Name.ToLower().Contains("commerce") == true;
 
         // Resolve condition: prefer ExtraData['condition'] for immobilier
         var condition = dto.Condition ?? "";
@@ -47,11 +52,31 @@ public class AnnoncesController : ControllerBase
                 location = addrObj?.ToString() ?? "";
         }
 
+        // Resolve price:
+        // - colocation + location → monthlyRent
+        // - bureau/commerce       → salePrice
+        // - others                → price field
+        var price = dto.Price;
+        if (price == 0 && dto.ExtraData != null)
+        {
+            if (isBureauCommerce
+                && dto.ExtraData.TryGetValue("salePrice", out var spObj)
+                && decimal.TryParse(spObj?.ToString(), out var sp) && sp > 0)
+            {
+                price = sp;
+            }
+            else if (dto.ExtraData.TryGetValue("monthlyRent", out var rentObj)
+                && decimal.TryParse(rentObj?.ToString(), out var rent) && rent > 0)
+            {
+                price = rent;
+            }
+        }
+
         var annonce = new Annonce
         {
             Title       = dto.Title.Trim(),
             Description = dto.Description ?? "",
-            Price       = dto.Price,
+            Price       = price,
             CategoryId  = dto.CategoryId,
             AdType      = dto.AdType ?? "",
             Condition   = condition,
@@ -278,36 +303,51 @@ public class AnnoncesController : ControllerBase
 
         var isImmobilier = menuName.ToLower().Contains("immobilier")
                         || categoryName.ToLower().Contains("immobilier")
-                        || categoryName.ToLower().Contains("immobili");
+                        || categoryName.ToLower().Contains("immobili")
+                        || categoryName.ToLower().Contains("coloc")
+                        || categoryName.ToLower().Contains("location");
 
-        // Build immobilier-specific fields from ExtraData
+        var isColocation = categoryName.ToLower().Contains("coloc");
+
+        // Build immobilier/colocation-specific fields from ExtraData
         object? immobilierDetails = null;
         if (isImmobilier && extra != null)
         {
             immobilierDetails = new
             {
-                propertyType    = GetExtraString(extra, "propertyType"),
-                surface         = GetExtraString(extra, "surface"),
-                rooms           = GetExtraString(extra, "rooms"),
-                bedrooms        = GetExtraString(extra, "bedrooms"),
-                bathrooms       = GetExtraString(extra, "bathrooms"),
-                cuisine         = GetExtraString(extra, "cuisine"),
-                levels          = GetExtraString(extra, "levels"),
-                floor           = GetExtraString(extra, "floor"),
-                totalFloors     = GetExtraString(extra, "totalFloors"),
-                elevator        = GetExtraString(extra, "elevator"),
-                constructionYear= GetExtraString(extra, "constructionYear"),
-                condition       = GetExtraString(extra, "condition"),
-                propertyNature  = GetExtraString(extra, "propertyNature"),
-                terrainNature   = GetExtraString(extra, "terrainNature"),
-                parkingNature   = GetExtraString(extra, "parkingNature"),
-                features        = GetExtraString(extra, "features"),
-                landSurface     = GetExtraString(extra, "landSurface"),
-                parkingSpots    = GetExtraString(extra, "parking"),
-                heatingMode     = GetExtraString(extra, "heatingMode"),
-                exterior        = GetExtraString(extra, "exterior"),
-                exposure        = GetExtraString(extra, "exposure"),
-                availableFrom   = GetExtraString(extra, "availableFrom"),
+                // Common immobilier fields
+                propertyType     = GetExtraString(extra, "propertyType"),
+                surface          = GetExtraString(extra, "surface"),
+                rooms            = GetExtraString(extra, "rooms"),
+                bedrooms         = GetExtraString(extra, "bedrooms"),
+                bathrooms        = GetExtraString(extra, "bathrooms"),
+                cuisine          = GetExtraString(extra, "cuisine"),
+                levels           = GetExtraString(extra, "levels"),
+                floor            = GetExtraString(extra, "floor"),
+                totalFloors      = GetExtraString(extra, "totalFloors"),
+                elevator         = GetExtraString(extra, "elevator"),
+                constructionYear = GetExtraString(extra, "constructionYear"),
+                condition        = GetExtraString(extra, "condition"),
+                propertyNature   = GetExtraString(extra, "propertyNature"),
+                terrainNature    = GetExtraString(extra, "terrainNature"),
+                parkingNature    = GetExtraString(extra, "parkingNature"),
+                features         = GetExtraString(extra, "features"),
+                landSurface      = GetExtraString(extra, "landSurface"),
+                parkingSpots     = GetExtraString(extra, "parking"),
+                heatingMode      = GetExtraString(extra, "heatingMode"),
+                exterior         = GetExtraString(extra, "exterior"),
+                exposure         = GetExtraString(extra, "exposure"),
+                availableFrom    = GetExtraString(extra, "availableFrom"),
+                // Location / Colocation fields
+                furnished        = GetExtraString(extra, "furnished"),
+                monthlyRent      = GetExtraString(extra, "monthlyRent"),
+                deposit          = GetExtraString(extra, "deposit"),
+                // Colocation-specific fields
+                roomType         = GetExtraString(extra, "roomType"),
+                roommatesCount   = GetExtraString(extra, "roommatesCount"),
+                smokingPolicy    = GetExtraString(extra, "smokingPolicy"),
+                petsAllowed      = GetExtraString(extra, "petsAllowed"),
+                heatingType      = GetExtraString(extra, "heatingType"),
             };
         }
 
@@ -327,9 +367,10 @@ public class AnnoncesController : ControllerBase
             annonce.ExtraData,
             annonce.Status,
             annonce.CreatedAt,
-            category    = categoryName,
-            menu        = menuName,
+            category        = categoryName,
+            menu            = menuName,
             isImmobilier,
+            isColocation,
             immobilierDetails,
             views,
             favorites
