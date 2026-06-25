@@ -10,4 +10,16 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ElroukenAljamil.Search.Application\ElroukenAljamil.Search.Application.csproj" />
+    <ProjectReference Include="..\ElroukenAljamil.Search.Infrastructure\ElroukenAljamil.Search.Infrastructure.csproj" />
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="8.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+	</ItemGroup>
+
 </Project>
