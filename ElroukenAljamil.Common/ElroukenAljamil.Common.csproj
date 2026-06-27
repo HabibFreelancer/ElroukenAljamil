@@ -4,11 +4,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	  <Description>Classes de base partagées : Entity, ValueObject, DomainEvent, Result pattern, exceptions métier</Description>
   </PropertyGroup>
-
+	<ItemGroup>
+		<!-- MediatR pour les domain events -->
+		<PackageReference Include="MediatR.Contracts" Version="2.0.1" />
+		<!-- FluentValidation pour les validateurs partagés -->
+		<PackageReference Include="FluentValidation" Version="11.11.0" />
+		<!-- Sérialisation JSON -->
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+	</ItemGroup>
   <ItemGroup>
-    <Folder Include="Events\" />
-    <Folder Include="Interfaces\" />
+    <Folder Include="Events\Abstractions\" />
     <Folder Include="Models\" />
   </ItemGroup>
 

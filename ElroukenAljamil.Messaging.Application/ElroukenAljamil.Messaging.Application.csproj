@@ -5,5 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="MediatR" Version="12.*" />
+		<PackageReference Include="FluentValidation" Version="11.*" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.*" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\ElroukenAljamil.Messaging.Domain\ElroukenAljamil.Messaging.Domain.csproj" />
+	</ItemGroup>
 
 </Project>

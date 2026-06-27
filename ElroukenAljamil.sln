@@ -105,6 +105,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Media.UnitT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Notification.Application", "ElroukenAljamil.Notification.Application\ElroukenAljamil.Notification.Application.csproj", "{2F74C084-41A7-4960-AF36-854D8E5575AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Security", "ElroukenAljamil.Security\ElroukenAljamil.Security.csproj", "{235C1781-D5FB-4D9A-95F6-66A57A848D96}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9553598C-EDBD-4DC5-B94A-FCB64DA43F0B}"
+	ProjectSection(SolutionItems) = preProject
+		Installation RabbitMQ via Docker.txt = Installation RabbitMQ via Docker.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -559,6 +566,18 @@ Global
 		{2F74C084-41A7-4960-AF36-854D8E5575AB}.Release|x64.Build.0 = Release|Any CPU
 		{2F74C084-41A7-4960-AF36-854D8E5575AB}.Release|x86.ActiveCfg = Release|Any CPU
 		{2F74C084-41A7-4960-AF36-854D8E5575AB}.Release|x86.Build.0 = Release|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Debug|x64.Build.0 = Debug|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Debug|x86.Build.0 = Debug|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|x64.ActiveCfg = Release|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|x64.Build.0 = Release|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|x86.ActiveCfg = Release|Any CPU
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -610,6 +629,7 @@ Global
 		{DDD997E2-F660-40CC-9FE8-61C1F0CF9C60} = {2D1C94FB-9FAF-44DB-98D0-7800AF4810A2}
 		{B74DF7CE-EB2A-4B8F-831A-22D625492130} = {6BBE1A47-7671-4FA7-BB81-96E101BB8950}
 		{2F74C084-41A7-4960-AF36-854D8E5575AB} = {CEE99A05-D365-4A61-ADC1-4825ABE61C15}
+		{235C1781-D5FB-4D9A-95F6-66A57A848D96} = {51333F6A-42E4-4CA5-A12E-3DA743F802EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D570F108-396D-4699-97F6-AB1EA8510839}

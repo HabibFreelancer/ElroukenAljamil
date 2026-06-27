@@ -14,11 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Middleware\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ElroukenAljamil.Listings.Domain\ElroukenAljamil.Listings.Domain.csproj" />
+    <ProjectReference Include="..\ElroukenAljamil.Listings.Application\ElroukenAljamil.Listings.Application.csproj" />
+    <ProjectReference Include="..\ElroukenAljamil.Listings.Infrastructure\ElroukenAljamil.Listings.Infrastructure.csproj" />
   </ItemGroup>
 	
 </Project>

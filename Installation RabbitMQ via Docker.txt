@@ -1,0 +1,52 @@
+﻿#!/bin/bash
+# ============================================================
+# OPTION A : Lancement rapide (commande unique)
+# ============================================================
+
+# Image avec le plugin Management (interface web d'administration)
+docker run -d \
+  --name rabbitmq-marketplace \
+  --hostname rabbitmq \
+  -p 5672:5672 \
+  -p 15672:15672 \
+  -e RABBITMQ_DEFAULT_USER=marketplace_user \
+  -e RABBITMQ_DEFAULT_PASS=marketplace_secret \
+  -e RABBITMQ_DEFAULT_VHOST=marketplace \
+  -v rabbitmq_data:/var/lib/rabbitmq \
+  rabbitmq:3.13-management-alpine
+
+# Ports :
+#   5672  → AMQP (connexion des services)
+#   15672 → Interface web d'administration
+
+# Accès interface web : http://localhost:15672
+# Login : marketplace_user / marketplace_secret
+
+# ============================================================
+# OPTION B : Via Docker Compose (intégré à l'architecture)
+# ============================================================
+
+# Le docker-compose.yml de l'architecture inclut déjà RabbitMQ.
+# Il suffit de lancer :
+docker-compose up -d rabbitmq
+
+# Vérifier que RabbitMQ est prêt :
+docker-compose logs -f rabbitmq
+
+# Attendre le message : "Server startup complete"
+
+# ============================================================
+# Vérification de santé
+# ============================================================
+
+# Via CLI Docker
+docker exec rabbitmq-marketplace rabbitmqctl status
+
+# Via API HTTP (health check)
+curl -u marketplace_user:marketplace_secret \
+  http://localhost:15672/api/health/checks/alarms
+
+# Lister les queues
+curl -u marketplace_user:marketplace_secret \
+  http://localhost:15672/api/queues/marketplace
+
