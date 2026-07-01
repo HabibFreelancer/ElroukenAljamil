@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.Security.Services
+namespace ElroukenAljamil.BuildingBlocks.Security.Services
 {
     /// <summary>
     /// Service injecté dans les couches Application pour accéder

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using ElroukenAljamil.Listings.Domain.Exceptions;
+using ElroukenAljamil.BuildingBlocks.Common.Exceptions;
 using System.Net;
 using System.Text.Json;
 
@@ -41,7 +41,7 @@ namespace ElroukenAljamil.Listings.API.Middleware
                     HttpStatusCode.BadRequest,
                     new ErrorResponse("Validation échouée", validationEx.Errors.Select(e => e.ErrorMessage).ToList())
                 ),
-                ListingDomainException domainEx => (
+                DomainException domainEx => (
                     HttpStatusCode.BadRequest,
                     new ErrorResponse(domainEx.Message, new List<string>())
                 ),

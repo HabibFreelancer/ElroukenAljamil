@@ -1,68 +1,68 @@
+using ElroukenAljamil.BuildingBlocks.Security;
+using ElroukenAljamil.BuildingBlocks.Security.Extensions;
 using ElroukenAljamil.Listings.Application;
 using ElroukenAljamil.Listings.Infrastructure;
-using ElroukenAljamil.Listings.API.Middleware;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer; // Ajouté pour AddJwtBearer
+using ElroukenAljamil.Listings.Infrastructure.BackgroundJobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---- Enregistrement des couches Clean Architecture ----
+// --- Couches applicatives ---
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddListingsInfrastructure(builder.Configuration);
 
-// ---- Configuration API ----
+// --- Authentification JWT (BuildingBlocks) ---
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddCurrentUserService();
+
+// --- Background Worker ---
+builder.Services.AddHostedService<ListingExpirationWorker>();
+
+// --- API ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Marketplace - Listings API", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new() { Title = "Marketplace Listings API", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        In = ParameterLocation.Header,
-        Description = "Entrez le token JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Entrez le token JWT : Bearer {token}",
         Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer"
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+    });
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
-// ---- Authentification JWT ----
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) // Correction ici
-    .AddJwtBearer(options => // Correction ici
-    {
-        options.Authority = builder.Configuration["Identity:Authority"];
-        options.Audience = builder.Configuration["Identity:Audience"];
-        options.RequireHttpsMetadata = false;
-    });
-
-builder.Services.AddAuthorization();
-
-// ---- Health Checks (Corrigé pour SQL Server) ----
+// --- Health Checks ---
 builder.Services.AddHealthChecks()
-    .AddSqlServer(builder.Configuration.GetConnectionString("ListingsDb")!);
-
-// ---- CORS ----
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("Default", policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    });
-});
+     .AddSqlServer(builder.Configuration.GetConnectionString("ListingsDb")!)
+    .AddRabbitMQ(builder.Configuration.GetConnectionString("RabbitMQ")!, name: "rabbitmq");
 
 var app = builder.Build();
 
-// ---- Pipeline HTTP ----
+// --- Middleware Pipeline ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseCors("Default");
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.MapHealthChecks("/health");
 

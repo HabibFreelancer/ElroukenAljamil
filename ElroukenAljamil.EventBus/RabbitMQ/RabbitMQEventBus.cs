@@ -1,13 +1,13 @@
 ﻿using System.Text;
 using System.Text.Json;
-using ElroukenAljamil.EventBus.Abstractions;
-using ElroukenAljamil.EventBus.Events;
-using ElroukenAljamil.Events.Abstractions;
+using ElroukenAljamil.BuildingBlocks.EventBus.Abstractions;
+using ElroukenAljamil.BuildingBlocks.EventBus.Events;
+using ElroukenAljamil.BuildingBlocks.Events.Abstractions;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 
-namespace ElroukenAljamil.EventBus.RabbitMQ
+namespace ElroukenAljamil.BuildingBlocks.EventBus.RabbitMQ
 {
     /// <summary>
     /// Implémentation du bus d'événements avec RabbitMQ.

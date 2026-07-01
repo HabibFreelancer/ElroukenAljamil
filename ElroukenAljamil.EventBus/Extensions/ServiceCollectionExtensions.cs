@@ -1,9 +1,9 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ElroukenAljamil.EventBus.Configuration;
+using ElroukenAljamil.BuildingBlocks.EventBus.Configuration;
 
-namespace ElroukenAljamil.EventBus.Extensions
+namespace ElroukenAljamil.BuildingBlocks.EventBus.Extensions
 {
     public static class ServiceCollectionExtensions
     {

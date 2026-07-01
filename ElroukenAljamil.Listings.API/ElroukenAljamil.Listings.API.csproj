@@ -8,14 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-<PackageReference Include="MediatR" Version="12.*" />
- <PackageReference Include="FluentValidation" Version="11.*" />
- <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.*" />
+	  <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
+	  <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.*" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ElroukenAljamil.Listings.Application\ElroukenAljamil.Listings.Application.csproj" />
+    <ProjectReference Include="..\ElroukenAljamil.Listings.Domain\ElroukenAljamil.Listings.Domain.csproj" />
     <ProjectReference Include="..\ElroukenAljamil.Listings.Infrastructure\ElroukenAljamil.Listings.Infrastructure.csproj" />
+    <ProjectReference Include="..\ElroukenAljamil.Security\ElroukenAljamil.Security.csproj" />
   </ItemGroup>
 	
 </Project>

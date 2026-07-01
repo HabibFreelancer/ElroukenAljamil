@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	  <Description>Bus d'événements partagé basé sur MassTransit et RabbitMQ pour la communication inter-services</Description>
+	  <RootNamespace>ElroukenAljamil.BuildingBlocks.EventBus</RootNamespace>
   </PropertyGroup>
 	<ItemGroup>
 		<!-- MassTransit : abstraction du message broker -->

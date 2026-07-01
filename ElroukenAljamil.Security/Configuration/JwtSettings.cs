@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.Security.Configuration
+namespace ElroukenAljamil.BuildingBlocks.Security.Configuration
 {
     /// <summary>
     /// Configuration JWT partagée — tous les services utilisent la même clé
@@ -17,7 +17,7 @@ namespace ElroukenAljamil.Security.Configuration
         public string Secret { get; set; } = string.Empty;
         public string Issuer { get; set; } = "Marketplace.Identity";
         public string Audience { get; set; } = "Marketplace.Services";
-        public int ExpirationMinutes { get; set; } = 60;
+        public int ExpirationInMinutes { get; set; } = 60;
         public int RefreshTokenExpirationDays { get; set; } = 7;
     }
 }

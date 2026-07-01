@@ -1,11 +1,12 @@
 ﻿using System.Text;
+using ElroukenAljamil.BuildingBlocks.Security.Configuration;
+using ElroukenAljamil.BuildingBlocks.Security.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using ElroukenAljamil.Security.Configuration;
 
-namespace ElroukenAljamil.Security.Extensions
+namespace ElroukenAljamil.BuildingBlocks.Security.Extensions
 {
     public static class AuthenticationExtensions
     {
@@ -89,6 +90,22 @@ namespace ElroukenAljamil.Security.Extensions
                 options.AddPolicy("RequireEmailVerified", policy =>
                     policy.RequireClaim("email_verified", "true"));
             });
+
+            return services;
+        }
+
+
+        /// <summary>
+        /// Enregistre ICurrentUserService + IHttpContextAccessor.
+        /// À appeler après AddJwtAuthentication.
+        /// </summary>
+        public static IServiceCollection AddCurrentUserService(this IServiceCollection services)
+        {
+            // HttpContextAccessor nécessaire pour accéder au ClaimsPrincipal
+            services.AddHttpContextAccessor();
+
+            // CurrentUserService en Scoped : une instance par requête HTTP
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             return services;
         }

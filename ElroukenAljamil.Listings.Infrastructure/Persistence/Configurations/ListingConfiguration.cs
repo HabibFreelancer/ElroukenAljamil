@@ -1,4 +1,5 @@
-﻿using ElroukenAljamil.Listings.Domain.Entities;
+﻿using System.Text.Json;
+using ElroukenAljamil.Listings.Domain.Entities;
 using ElroukenAljamil.Listings.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,84 +12,50 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Listing> builder)
         {
             builder.ToTable("Listings");
+            builder.HasKey(e => e.Id);
 
+            builder.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            builder.Property(e => e.Description).IsRequired().HasMaxLength(5000);
+            builder.Property(e => e.SellerName).IsRequired().HasMaxLength(100);
+            builder.Property(e => e.SellerId).IsRequired();
+            builder.Property(e => e.ViewCount).HasDefaultValue(0);
 
-            builder.HasKey(l => l.Id);
-
-
-            builder.Property(l => l.Title)
-                .HasMaxLength(150)
-                .IsRequired();
-
-
-            builder.Property(l => l.Description)
-                .HasMaxLength(5000)
-                .IsRequired();
-
-
-            builder.Property(l => l.Status)
-                .HasConversion<string>()
-                .HasMaxLength(20);
-
-
-            // Mapping du Value Object Price (Owned Entity)
-            builder.OwnsOne(l => l.Price, price =>
+            // Value Object : Money
+            builder.OwnsOne(e => e.Price, price =>
             {
-                price.Property(p => p.Amount)
-                    .HasColumnName("Price")
-                    .HasColumnType("decimal(18,2)")
-                    .IsRequired();
-
-
-                price.Property(p => p.Currency)
-                    .HasColumnName("Currency")
-                    .HasMaxLength(3)
-                    .IsRequired();
+                price.Property(p => p.Amount).HasColumnName("Price").HasPrecision(18, 2).IsRequired();
+                price.Property(p => p.Currency).HasColumnName("Currency").HasMaxLength(3).IsRequired();
             });
 
-
-            // Mapping du Value Object Address (Owned Entity)
-            builder.OwnsOne(l => l.Location, address =>
+            // Value Object : Category
+            builder.OwnsOne(e => e.Category, category =>
             {
-                address.Property(a => a.City)
-                    .HasColumnName("City")
-                    .HasMaxLength(100)
-                    .IsRequired();
-
-
-                address.Property(a => a.PostalCode)
-                    .HasColumnName("PostalCode")
-                    .HasMaxLength(10)
-                    .IsRequired();
-
-
-                address.Property(a => a.Country)
-                    .HasColumnName("Country")
-                    .HasMaxLength(2)
-                    .IsRequired();
-
-
-                address.Property(a => a.Latitude).HasColumnName("Latitude");
-                address.Property(a => a.Longitude).HasColumnName("Longitude");
+                category.Property(c => c.Name).HasColumnName("Category").HasMaxLength(100).IsRequired();
             });
 
+            // Value Object : Location
+            builder.OwnsOne(e => e.Location, location =>
+            {
+                location.Property(l => l.City).HasColumnName("City").HasMaxLength(100).IsRequired();
+                location.Property(l => l.Latitude).HasColumnName("Latitude");
+                location.Property(l => l.Longitude).HasColumnName("Longitude");
+            });
 
-            // Relation 1-N avec les images
-            builder.HasMany(l => l.Images)
-                .WithOne()
-                .HasForeignKey(i => i.ListingId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Enum
+            builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(20).IsRequired();
 
+            // ImageUrls - Note: jsonb est spécifique à PostgreSQL. 
+            // Si vous êtes sur SQL Server, utilisez .HasColumnType("nvarchar(max)")
+            builder.Property(e => e.ImageUrls)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>())
+                .HasColumnType("nvarchar(max)"); // Pour SQL Server
 
-            // Index pour les requêtes fréquentes
-            builder.HasIndex(l => l.SellerId);
-            builder.HasIndex(l => l.CategoryId);
-            builder.HasIndex(l => l.Status);
-            builder.HasIndex(l => l.CreatedAt);
-
-
-            // Ignorer les domain events pour la persistance
-            builder.Ignore(l => l.DomainEvents);
+            builder.HasIndex(e => e.SellerId);
+            builder.HasIndex(e => e.Status);
+            builder.HasIndex(e => e.CreatedAt);
+            builder.HasIndex(e => e.ExpiresAt);
         }
     }
 

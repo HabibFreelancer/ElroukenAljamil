@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.Common.Exceptions
+namespace ElroukenAljamil.BuildingBlocks.Common.Exceptions
 {
     /// <summary>
     /// Exception métier levée par le domaine.

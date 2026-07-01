@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
-using ElroukenAljamil.Security.Extensions;
+using ElroukenAljamil.BuildingBlocks.Security.Extensions;
 using Microsoft.AspNetCore.Http;
 
-namespace ElroukenAljamil.Security.Services
+namespace ElroukenAljamil.BuildingBlocks.Security.Services
 {
     /// <summary>
     /// Implémentation qui lit les claims depuis le HttpContext.
@@ -37,5 +37,7 @@ namespace ElroukenAljamil.Security.Services
             : Enumerable.Empty<string>();
 
         public bool IsAdmin => IsAuthenticated && User!.IsAdmin();
+
+       
     }
 }

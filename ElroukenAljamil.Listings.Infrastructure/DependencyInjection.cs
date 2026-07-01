@@ -1,33 +1,40 @@
-﻿using ElroukenAljamil.Listings.Domain.Interfaces;
+﻿using ElroukenAljamil.BuildingBlocks.EventBus.Extensions;
 using ElroukenAljamil.Listings.Infrastructure.Persistence;
 using ElroukenAljamil.Listings.Infrastructure.Repositories;
+using ElroukenAljamil.Listings.Infrastructure.EventPublishing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore.SqlServer;
-using ElroukenAljamil.Common.Interfaces;
+using ElroukenAljamil.Listings.Application.Interfaces;
+
 
 
 namespace ElroukenAljamil.Listings.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddListingsInfrastructure(
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
-            // Configuration SQL Server
+            // PostgreSQL via EF Core
             services.AddDbContext<ListingsDbContext>(options =>
-                options.UseSqlServer(
-                    configuration.GetConnectionString("ListingsDb"),
-                    b => b.MigrationsAssembly(typeof(ListingsDbContext).Assembly.FullName)));
+          options.UseSqlServer(
+              configuration.GetConnectionString("ListingsDb"),
+              b => b.MigrationsAssembly(typeof(ListingsDbContext).Assembly.FullName)));
 
-            // Enregistrement des repositories
+            // Repositories
             services.AddScoped<IListingRepository, ListingRepository>();
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<ListingsDbContext>());
 
+            // Event publishing
+            services.AddScoped<ListingIntegrationEventPublisher>();
+
+            // MassTransit + RabbitMQ via BuildingBlocks
+            services.AddEventBus(configuration);
 
             return services;
         }
     }
+
 
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.EventBus.Events.Media
+namespace ElroukenAljamil.BuildingBlocks.EventBus.Events.Media
 {
     public record MediaProcessingCompletedEvent : IntegrationEvent
     {

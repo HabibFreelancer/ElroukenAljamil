@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.EventBus.Events
+namespace ElroukenAljamil.BuildingBlocks.EventBus.Events
 {
     /// <summary>
     /// Classe de base pour les événements d'intégration entre microservices.

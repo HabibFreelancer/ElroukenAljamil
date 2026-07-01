@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ElroukenAljamil.EventBus.Events;
 
-namespace ElroukenAljamil.EventBus.Configuration
+namespace ElroukenAljamil.BuildingBlocks.EventBus.Configuration
 {
     /// <summary>
     /// Configuration RabbitMQ partagée entre tous les services.

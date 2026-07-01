@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 
-namespace ElroukenAljamil.Common.Domain
+namespace ElroukenAljamil.BuildingBlocks.Common.Domain
 {
     /// <summary>
     /// Marqueur pour les événements de domaine (intra-service via MediatR).

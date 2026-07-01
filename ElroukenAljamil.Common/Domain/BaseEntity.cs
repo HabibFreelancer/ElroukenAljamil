@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace ElroukenAljamil.Common.Domain
+namespace ElroukenAljamil.BuildingBlocks.Common.Domain
 {
     /// <summary>
     /// Classe de base pour toutes les entités du domaine.

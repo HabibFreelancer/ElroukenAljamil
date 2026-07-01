@@ -12,7 +12,8 @@ namespace ElroukenAljamil.Listings.Domain.Enums
         Active = 1,
         Paused = 2,
         Sold = 3,
-        Expired = 4
+        Expired = 4,
+        Deactivated = 5
     }
 
 }

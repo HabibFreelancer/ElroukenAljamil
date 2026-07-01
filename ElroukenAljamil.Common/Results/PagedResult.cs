@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.Common.Results
+namespace ElroukenAljamil.BuildingBlocks.Common.Results
 {
 
     /// <summary>
@@ -12,10 +12,11 @@ namespace ElroukenAljamil.Common.Results
     /// </summary>
     public class PagedResult<T>
     {
-        public IReadOnlyList<T> Items { get; }
-        public int TotalCount { get; }
-        public int Page { get; }
-        public int PageSize { get; }
+        // Utilisation de { get; init; } au lieu de { get; }
+        public IReadOnlyList<T> Items { get; init; } = new List<T>();
+        public int TotalCount { get; init; }
+        public int Page { get; init; }
+        public int PageSize { get; init; }
         public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
         public bool HasNextPage => Page < TotalPages;
         public bool HasPreviousPage => Page > 1;

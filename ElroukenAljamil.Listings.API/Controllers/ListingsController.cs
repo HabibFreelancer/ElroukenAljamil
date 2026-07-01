@@ -1,54 +1,95 @@
-﻿using MediatR;
+﻿using ElroukenAljamil.BuildingBlocks.Security.Services;
+using ElroukenAljamil.Listings.Application.Commands.CreateListing;
+using ElroukenAljamil.Listings.Application.Commands.DeactivateListing;
+using ElroukenAljamil.Listings.Application.Commands.UpdateListing;
+using ElroukenAljamil.Listings.Application.DTOs;
+using ElroukenAljamil.Listings.Application.Queries.GetListingById;
+using ElroukenAljamil.Listings.Application.Queries.GetListings;
+using ElroukenAljamil.Listings.Application.Queries.GetMyListings;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ElroukenAljamil.Listings.Application.Commands;
-using ElroukenAljamil.Listings.Application.DTOs;
-using ElroukenAljamil.Listings.Application.Queries;
-using System.Security.Claims;
+
 
 
 namespace ElroukenAljamil.Listings.API.Controllers
 {
+
     [ApiController]
-    [Route("api/v1/[controller]")]
-    [Produces("application/json")]
+    [Route("api/[controller]")]
     public class ListingsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ICurrentUserService _currentUser;
 
-        public ListingsController(IMediator mediator)
+        public ListingsController(IMediator mediator, ICurrentUserService currentUser)
         {
             _mediator = mediator;
+            _currentUser = currentUser;
+        }
+
+        /// <summary>
+        /// Récupère la liste paginée des annonces.
+        /// </summary>
+        [HttpGet]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(PagedResult<ListingSummaryDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListings(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] string? category = null,
+            [FromQuery] string? status = null,
+            [FromQuery] Guid? sellerId = null,
+            CancellationToken ct = default)
+        {
+            var query = new GetListingsQuery
+            {
+                Page = page,
+                PageSize = pageSize,
+                Category = category,
+                Status = status,
+                SellerId = sellerId
+            };
+
+            var result = await _mediator.Send(query, ct);
+
+            if (!result.IsSuccess)
+                return BadRequest(new { error = result.Error });
+
+            return Ok(result.Value);
         }
 
         /// <summary>
         /// Récupère une annonce par son identifiant.
         /// </summary>
         [HttpGet("{id:guid}")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ListingDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
         {
-            var result = await _mediator.Send(new GetListingByIdQuery(id), cancellationToken);
+            var result = await _mediator.Send(new GetListingByIdQuery(id), ct);
 
-            return result is not null ? Ok(result) : NotFound();
+            if (!result.IsSuccess)
+                return NotFound(new { error = result.Error });
+
+            return Ok(result.Value);
         }
 
         /// <summary>
-        /// Récupère les annonces actives d'une catégorie (paginé).
+        /// Récupère les annonces de l'utilisateur connecté.
         /// </summary>
-        [HttpGet("category/{categoryId:guid}")]
-        [ProducesResponseType(typeof(IReadOnlyList<ListingDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetByCategory(
-            Guid categoryId,
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 20,
-            CancellationToken cancellationToken = default)
+        [HttpGet("mine")]
+        [Authorize]
+        [ProducesResponseType(typeof(List<ListingSummaryDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyListings(CancellationToken ct)
         {
-            var result = await _mediator.Send(
-                new GetListingsByCategoryQuery(categoryId, page, pageSize), cancellationToken);
+            var result = await _mediator.Send(new GetMyListingsQuery(), ct);
 
-            return Ok(result);
+            if (!result.IsSuccess)
+                return BadRequest(new { error = result.Error });
+
+            return Ok(result.Value);
         }
 
         /// <summary>
@@ -56,49 +97,61 @@ namespace ElroukenAljamil.Listings.API.Controllers
         /// </summary>
         [HttpPost]
         [Authorize]
-        [ProducesResponseType(typeof(ListingDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create(
-            [FromBody] CreateListingRequest request,
-            CancellationToken cancellationToken)
+        public async Task<IActionResult> Create([FromBody] CreateListingCommand command, CancellationToken ct)
         {
-            var sellerId = GetCurrentUserId();
+            var result = await _mediator.Send(command, ct);
 
-            var command = new CreateListingCommand(
-                Title: request.Title,
-                Description: request.Description,
-                Price: request.Price,
-                Currency: request.Currency,
-                SellerId: sellerId,
-                CategoryId: request.CategoryId,
-                City: request.City,
-                PostalCode: request.PostalCode,
-                Country: request.Country
-            );
+            if (!result.IsSuccess)
+                return BadRequest(new { error = result.Error });
 
-            var result = await _mediator.Send(command, cancellationToken);
-
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            return CreatedAtAction(nameof(GetById), new { id = result.Value }, result.Value);
         }
 
         /// <summary>
-        /// Publie une annonce (la rend visible).
+        /// Met à jour une annonce existante.
         /// </summary>
-        [HttpPost("{id:guid}/publish")]
+        [HttpPut("{id:guid}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Publish(Guid id, CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateListingCommand command, CancellationToken ct)
         {
-            await _mediator.Send(new PublishListingCommand(id), cancellationToken);
+            // S'assurer que l'Id du path correspond au command
+            var commandWithId = command with { Id = id };
+            var result = await _mediator.Send(commandWithId, ct);
+
+            if (!result.IsSuccess)
+            {
+                if (result.Error!.Contains("introuvable"))
+                    return NotFound(new { error = result.Error });
+                return BadRequest(new { error = result.Error });
+            }
+
             return NoContent();
         }
 
-        private Guid GetCurrentUserId()
+        /// <summary>
+        /// Désactive une annonce.
+        /// </summary>
+        [HttpDelete("{id:guid}")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Deactivate(Guid id, CancellationToken ct)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+            var result = await _mediator.Send(new DeactivateListingCommand(id), ct);
+
+            if (!result.IsSuccess)
+            {
+                if (result.Error!.Contains("introuvable"))
+                    return NotFound(new { error = result.Error });
+                return BadRequest(new { error = result.Error });
+            }
+
+            return NoContent();
         }
     }
-
 }

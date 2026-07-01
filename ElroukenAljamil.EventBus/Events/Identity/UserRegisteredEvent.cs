@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.EventBus.Events.Identity
+namespace ElroukenAljamil.BuildingBlocks.EventBus.Events.Identity
 {
     public record UserRegisteredEvent : IntegrationEvent
     {
@@ -14,6 +14,8 @@ namespace ElroukenAljamil.EventBus.Events.Identity
         public string LastName { get; init; } = string.Empty;
         public string? PhoneNumber { get; init; }
         public string ConfirmationToken { get; init; } = string.Empty;
+        public string UserName { get; set; }
+        public DateTime RegisteredAt { get; set; }
     }
 
     public record PasswordResetRequestedEvent : IntegrationEvent

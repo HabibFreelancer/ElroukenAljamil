@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.EventBus.Events.Messaging
+namespace ElroukenAljamil.BuildingBlocks.EventBus.Events.Messaging
 {
     public record NewMessageReceivedEvent : IntegrationEvent
     {

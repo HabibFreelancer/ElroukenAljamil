@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using ElroukenAljamil.Listings.Application.Commands;
+using ElroukenAljamil.Listings.Application.Commands.CreateListing;
 
 
 namespace ElroukenAljamil.Listings.Application.Validators
@@ -34,18 +34,12 @@ namespace ElroukenAljamil.Listings.Application.Validators
             RuleFor(x => x.SellerId)
                 .NotEmpty().WithMessage("L'identifiant du vendeur est obligatoire.");
 
-
-            RuleFor(x => x.CategoryId)
-                .NotEmpty().WithMessage("La catégorie est obligatoire.");
-
+                     
 
             RuleFor(x => x.City)
                 .NotEmpty().WithMessage("La ville est obligatoire.");
 
-
-            RuleFor(x => x.PostalCode)
-                .NotEmpty().WithMessage("Le code postal est obligatoire.");
-        }
+       }
     }
 
 }

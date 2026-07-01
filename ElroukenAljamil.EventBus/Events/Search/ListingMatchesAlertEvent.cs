@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.EventBus.Events.Search
+namespace ElroukenAljamil.BuildingBlocks.EventBus.Events.Search
 {
     public record ListingMatchesAlertEvent : IntegrationEvent
     {

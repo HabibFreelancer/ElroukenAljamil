@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ElroukenAljamil.EventBus.Abstractions;
-using ElroukenAljamil.EventBus.Events;
-
-namespace ElroukenAljamil.Events.Abstractions
+using ElroukenAljamil.BuildingBlocks.EventBus.Events;
+using ElroukenAljamil.BuildingBlocks.EventBus.Abstractions;
+namespace ElroukenAljamil.BuildingBlocks.Events.Abstractions
 {
     /// <summary>
     /// Interface du bus d'événements pour la communication inter-services.

@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
-using ElroukenAljamil.Common.Domain;
+using ElroukenAljamil.BuildingBlocks.Common.Domain;
 
-namespace ElroukenAljamil.Common.Interfaces
+namespace ElroukenAljamil.BuildingBlocks.Common.Interfaces
 {
     /// <summary>
     /// Interface générique de repository.

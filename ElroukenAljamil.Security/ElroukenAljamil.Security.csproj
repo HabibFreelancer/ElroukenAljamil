@@ -5,6 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Configuration JWT partagée, extensions d'authentification, extraction des claims utilisateur</Description>
+		<RootNamespace>ElroukenAljamil.BuildingBlocks.Security</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
 		<!-- Authentification JWT Bearer -->

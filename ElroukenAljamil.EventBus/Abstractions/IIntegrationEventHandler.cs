@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ElroukenAljamil.EventBus.Events;
+using ElroukenAljamil.BuildingBlocks.EventBus.Events;
 
-namespace ElroukenAljamil.EventBus.Abstractions
+namespace ElroukenAljamil.BuildingBlocks.EventBus.Abstractions
 {
     public interface IIntegrationEventHandler<in TEvent> where TEvent : IntegrationEvent
     {

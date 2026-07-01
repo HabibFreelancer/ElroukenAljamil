@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.Common.Domain
+namespace ElroukenAljamil.BuildingBlocks.Common.Domain
 {
     /// <summary>
     /// Racine d'agrégat : seule entrée pour modifier un agrégat.

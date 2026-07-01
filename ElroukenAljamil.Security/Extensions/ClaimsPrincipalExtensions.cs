@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace ElroukenAljamil.Security.Extensions
+namespace ElroukenAljamil.BuildingBlocks.Security.Extensions
 {
     /// <summary>
     /// Extensions pour extraire facilement les informations utilisateur depuis les claims JWT.

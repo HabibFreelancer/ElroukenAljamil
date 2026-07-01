@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.Common.Domain
+namespace ElroukenAljamil.BuildingBlocks.Common.Domain
 {
     /// <summary>
     /// Classe de base pour les Value Objects (comparaison par valeur).

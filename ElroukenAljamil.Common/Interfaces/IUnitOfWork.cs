@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.Common.Interfaces
+namespace ElroukenAljamil.BuildingBlocks.Common.Interfaces
 {
     /// <summary>
     /// Unit of Work pour la gestion transactionnelle.

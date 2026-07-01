@@ -1,44 +1,47 @@
-﻿using ElroukenAljamil.Common.Interfaces;
+﻿using ElroukenAljamil.BuildingBlocks.Common.Domain;
 using ElroukenAljamil.Listings.Domain.Entities;
+using ElroukenAljamil.Listings.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace ElroukenAljamil.Listings.Infrastructure.Persistence
 {
-    /// <summary>
-    /// DbContext dédié au microservice Listings.
-    /// Chaque microservice possède sa propre base de données (Database per Service).
-    /// </summary>
-    public class ListingsDbContext : DbContext, IUnitOfWork
+    public class ListingsDbContext : DbContext
     {
         public DbSet<Listing> Listings => Set<Listing>();
-        public DbSet<Category> Categories => Set<Category>();
-        public DbSet<ListingImage> ListingImages => Set<ListingImage>();
 
-
-        public ListingsDbContext(DbContextOptions<ListingsDbContext> options) : base(options) { }
-
-
+        public ListingsDbContext(DbContextOptions<ListingsDbContext> options)
+            : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ListingsDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+
+            // Applique cette configuration spécifique
+            modelBuilder.ApplyConfiguration(new ListingConfiguration());
         }
 
-        public Task BeginTransactionAsync(CancellationToken ct = default)
+        /// <summary>
+        /// Dispatch les domain events avant de sauvegarder.
+        /// </summary>
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-        }
+            // Récupérer les domain events avant sauvegarde
+            var domainEvents = ChangeTracker.Entries<AggregateRoot>()
+                .SelectMany(e => e.Entity.DomainEvents)
+                .ToList();
 
-        public Task CommitTransactionAsync(CancellationToken ct = default)
-        {
-            throw new NotImplementedException();
-        }
+            // Sauvegarder en base
+            var result = await base.SaveChangesAsync(cancellationToken);
 
-        public Task RollbackTransactionAsync(CancellationToken ct = default)
-        {
-            throw new NotImplementedException();
+            // Nettoyer les events après persistance
+            foreach (var entry in ChangeTracker.Entries<AggregateRoot>())
+            {
+                entry.Entity.ClearDomainEvents();
+            }
+
+            return result;
         }
     }
+
 
 }

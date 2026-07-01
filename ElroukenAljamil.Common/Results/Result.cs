@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElroukenAljamil.Common.Results
+namespace ElroukenAljamil.BuildingBlocks.Common.Results
 {
     /// <summary>
     /// Pattern Result pour éviter les exceptions dans le flux métier.

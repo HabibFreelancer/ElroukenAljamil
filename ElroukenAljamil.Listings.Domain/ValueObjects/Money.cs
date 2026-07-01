@@ -8,19 +8,24 @@ namespace ElroukenAljamil.Listings.Domain.ValueObjects
 {
     /// <summary>
     /// Value Object représentant un montant monétaire.
-    /// Immuable par conception.
     /// </summary>
     public record Money
     {
-        public decimal Amount { get; init; }
-        public string Currency { get; init; }
+        public decimal Amount { get; }
+        public string Currency { get; }
 
-
-        public Money(decimal amount, string currency = "EUR")
+        public Money(decimal amount, string currency)
         {
+            if (amount < 0)
+                throw new ArgumentException("Le montant ne peut pas être négatif.", nameof(amount));
+            if (string.IsNullOrWhiteSpace(currency) || currency.Length != 3)
+                throw new ArgumentException("La devise doit être un code ISO 4217 (3 caractères).", nameof(currency));
+
             Amount = amount;
-            Currency = currency?.ToUpperInvariant() ?? "EUR";
+            Currency = currency.ToUpperInvariant();
         }
+
+        public override string ToString() => $"{Amount:F2} {Currency}";
     }
 
 
