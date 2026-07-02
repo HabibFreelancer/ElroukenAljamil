@@ -109,6 +109,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Security", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9553598C-EDBD-4DC5-B94A-FCB64DA43F0B}"
 	ProjectSection(SolutionItems) = preProject
+		exemple structure micro service.txt = exemple structure micro service.txt
 		Installation RabbitMQ via Docker.txt = Installation RabbitMQ via Docker.txt
 	EndProjectSection
 EndProject

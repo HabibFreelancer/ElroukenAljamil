@@ -1,0 +1,64 @@
+﻿Structure complète des fichiers
+src/Services/Listings/
+├── Marketplace.Listings.Domain/
+│   ├── Marketplace.Listings.Domain.csproj
+│   ├── Entities/
+│   │   └── Listing.cs
+│   ├── Enums/
+│   │   └── ListingStatus.cs
+│   ├── ValueObjects/
+│   │   ├── Money.cs
+│   │   ├── Category.cs
+│   │   └── Location.cs
+│   └── Events/
+│       └── ListingDomainEvents.cs
+├── Marketplace.Listings.Application/
+│   ├── Marketplace.Listings.Application.csproj
+│   ├── DependencyInjection.cs
+│   ├── Behaviors/
+│   │   └── ValidationBehavior.cs
+│   ├── DTOs/
+│   │   └── ListingDto.cs
+│   ├── Mappings/
+│   │   └── ListingProfile.cs
+│   ├── Interfaces/
+│   │   └── IListingRepository.cs
+│   ├── Commands/
+│   │   ├── CreateListing/
+│   │   │   ├── CreateListingCommand.cs
+│   │   │   ├── CreateListingCommandValidator.cs
+│   │   │   └── CreateListingCommandHandler.cs
+│   │   ├── UpdateListing/
+│   │   │   ├── UpdateListingCommand.cs
+│   │   │   └── UpdateListingCommandHandler.cs
+│   │   └── DeactivateListing/
+│   │       ├── DeactivateListingCommand.cs
+│   │       └── DeactivateListingCommandHandler.cs
+│   └── Queries/
+│       ├── GetListingById/
+│       │   ├── GetListingByIdQuery.cs
+│       │   └── GetListingByIdQueryHandler.cs
+│       ├── GetListings/
+│       │   ├── GetListingsQuery.cs
+│       │   └── GetListingsQueryHandler.cs
+│       └── GetMyListings/
+│           ├── GetMyListingsQuery.cs
+│           └── GetMyListingsQueryHandler.cs
+├── Marketplace.Listings.Infrastructure/
+│   ├── Marketplace.Listings.Infrastructure.csproj
+│   ├── DependencyInjection.cs
+│   ├── Persistence/
+│   │   └── ListingsDbContext.cs
+│   ├── Repositories/
+│   │   └── ListingRepository.cs
+│   └── BackgroundJobs/
+│       └── ListingExpirationWorker.cs
+└── Marketplace.Listings.API/
+    ├── Marketplace.Listings.API.csproj
+    ├── Program.cs
+    ├── appsettings.json
+    └── Controllers/
+        └── ListingsController.cs
+
+
+Voilà le Listings.Service complet et adapté aux BuildingBlocks. Le bonus par rapport à la version initiale : j'ai ajouté un ListingExpirationWorker qui vérifie toutes les heures les annonces expirées et publie les événements correspondants pour que le Search.Service et le Notification.Service puissent réagir.
