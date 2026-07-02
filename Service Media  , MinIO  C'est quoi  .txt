@@ -1,0 +1,61 @@
+﻿MinIO — C'est quoi ?
+MinIO est un serveur de stockage d'objets (object storage) open source, auto-hébergé, 100% compatible avec l'API Amazon S3. Concrètement, c'est l'équivalent de AWS S3 mais que vous installez et contrôlez sur vos propres serveurs.
+
+Pourquoi MinIO dans le Media.Service ?
+Dans une marketplace, les images d'annonces sont des fichiers binaires volumineux. Il faut les stocker quelque part. Trois options existent :
+En base de données (PostgreSQL) — Techniquement possible via des colonnes bytea, mais c'est une très mauvaise pratique. Les backups deviennent énormes, les requêtes SQL ralentissent, impossible de servir les images directement aux navigateurs via un CDN, et la base n'est pas optimisée pour servir des fichiers binaires.
+Sur le système de fichiers du serveur — Simple, mais ne scale pas. Si vous avez plusieurs instances du Media.Service, elles ne partagent pas le même disque. Pas de redondance, pas de haute disponibilité.
+Sur un Object Storage (MinIO) — C'est la solution standard de l'industrie. MinIO est un serveur indépendant accessible via HTTP, optimisé pour stocker et servir des millions de fichiers. Toutes les instances du Media.Service peuvent y accéder simultanément.
+
+Comment ça fonctionne concrètement ?
+┌─────────────┐         ┌─────────────────┐         ┌─────────────┐
+│   Client    │  upload  │  Media.Service  │  stocke  │    MinIO    │
+│  (browser)  │ ───────► │    (API .NET)   │ ───────► │  (port 9000)│
+└─────────────┘         └─────────────────┘         └─────────────┘
+                                │                          │
+                                │ métadonnées              │ fichiers binaires
+                                ▼                          ▼
+                         ┌─────────────┐         ┌──────────────────┐
+                         │ PostgreSQL  │         │  Buckets/Objets  │
+                         │ (MediaDb)   │         │  marketplace-media/
+                         └─────────────┘         │   ├── user1/2026/07/
+                                                 │   │   ├── img1.jpg
+                                                 │   │   ├── img1_thumb.webp
+                                                 │   │   └── img1_medium.webp
+                                                 │   └── user2/2026/07/
+                                                 │       └── img2.png
+                                                 └──────────────────┘
+
+PostgreSQL stocke les métadonnées : nom du fichier, dimensions, propriétaire, statut, URLs des variantes.
+MinIO stocke les fichiers physiques : l'image originale + les variantes (thumbnail, medium, large, webp).
+
+Les concepts clés de MinIO
+Bucket — C'est un conteneur logique (comme un dossier racine). Dans notre architecture, on a un bucket marketplace-media qui contient toutes les images.
+Object — C'est un fichier stocké avec un chemin unique (clé). Par exemple : user123/2026/07/abc-def.jpg.
+API S3-compatible — MinIO expose la même API qu'Amazon S3. Le code qui fonctionne avec MinIO fonctionnera sans modification avec AWS S3 si vous migrez un jour vers le cloud.
+
+En pratique dans Docker
+Dans le docker-compose.yml de l'architecture, MinIO est un simple conteneur :
+minio:
+  image: minio/minio:latest
+  container_name: marketplace-minio
+  command: server /data --console-address ":9001"
+  ports:
+    - "9000:9000"   # API S3 (stockage/récupération)
+    - "9001:9001"   # Console web d'administration
+  environment:
+    MINIO_ROOT_USER: minioadmin
+    MINIO_ROOT_PASSWORD: minioadmin
+  volumes:
+    - minio_data:/data
+
+Après docker-compose up, vous accédez à la console web sur http://localhost:9001 (login: minioadmin / minioadmin) pour visualiser vos buckets et fichiers, exactement comme dans la console AWS S3.
+
+Avantages pour une marketplace
+Performance — MinIO peut servir des milliers de fichiers en parallèle via HTTP, et les navigateurs/CDN peuvent les mettre en cache directement.
+Scalabilité — En mode distribué, MinIO répartit les données sur plusieurs disques/serveurs avec de la redondance (erasure coding).
+Coût — Gratuit et open source, pas de facturation au Go stocké comme chez AWS.
+Migration facile — Si un jour vous passez en cloud, il suffit de changer l'endpoint MinIO par celui de S3 (même API) sans toucher au code C#.
+Séparation des concerns — La base de données reste légère (que des métadonnées), les backups SQL sont rapides, et le stockage binaire est géré par un outil spécialisé.
+
+En résumé, MinIO dans notre architecture est le disque dur intelligent dédié aux images. Le Media.Service lui envoie les fichiers via le SDK Minio (paquet NuGet Minio), et les clients récupèrent les images directement depuis MinIO via des URLs HTTP — sans repasser par l'API .NET pour servir les images.

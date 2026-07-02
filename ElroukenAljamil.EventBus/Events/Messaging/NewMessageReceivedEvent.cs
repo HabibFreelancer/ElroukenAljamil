@@ -17,5 +17,6 @@ namespace ElroukenAljamil.BuildingBlocks.EventBus.Events.Messaging
         public string MessagePreview { get; init; } = string.Empty;
         public Guid? ListingId { get; init; }
         public string? ListingTitle { get; init; }
+        public DateTime SentAt { get; set; }
     }
 }

@@ -1,0 +1,65 @@
+﻿Structure complète des fichiers
+src/Services/Search/
+├── Marketplace.Search.Domain/
+│   ├── Marketplace.Search.Domain.csproj
+│   ├── Entities/
+│   │   └── SearchableListingDocument.cs
+│   └── Interfaces/
+│       ├── ISearchRepository.cs
+│       ├── ISearchQueryService.cs
+│       └── IIndexManagementService.cs
+├── Marketplace.Search.Application/
+│   ├── Marketplace.Search.Application.csproj
+│   ├── DependencyInjection.cs
+│   ├── DTOs/
+│   │   └── SearchDtos.cs
+│   └── Queries/
+│       ├── SearchListings/
+│       │   ├── SearchListingsQuery.cs
+│       │   ├── SearchListingsQueryValidator.cs
+│       │   └── SearchListingsQueryHandler.cs
+│       ├── Suggest/
+│       │   ├── SuggestQuery.cs
+│       │   └── SuggestQueryHandler.cs
+│       └── GetFacets/
+│           ├── GetFacetsQuery.cs
+│           └── GetFacetsQueryHandler.cs
+├── Marketplace.Search.Infrastructure/
+│   ├── Marketplace.Search.Infrastructure.csproj
+│   ├── DependencyInjection.cs
+│   ├── Elasticsearch/
+│   │   ├── ElasticsearchRepository.cs
+│   │   ├── ElasticsearchQueryService.cs
+│   │   └── ElasticsearchIndexManagementService.cs
+│   ├── Consumers/
+│   │   ├── ListingPublishedConsumer.cs
+│   │   ├── ListingUpdatedConsumer.cs
+│   │   ├── ListingDeactivatedConsumer.cs
+│   │   └── MediaDeletedSearchConsumer.cs
+│   └── HostedServices/
+│       └── IndexInitializationService.cs
+└── Marketplace.Search.API/
+    ├── Marketplace.Search.API.csproj
+    ├── Program.cs
+    ├── appsettings.json
+    └── Controllers/
+        ├── SearchController.cs
+        └── IndexAdminController.cs
+
+
+Points d'intégration avec les BuildingBlocks
+Composant
+Utilisation BuildingBlocks
+SearchableListingDocument
+Hérite de Entity<Guid> (BuildingBlocks.Common)
+Publication d'événements
+Non applicable (ce service ne publie pas, il consomme)
+Consommation d'événements
+Via AddEventBus(config, busConfig => ...) avec consumers MassTransit
+Authentification
+AddJwtAuthentication() pour protéger les endpoints admin
+CurrentUser
+AddCurrentUserService() disponible si besoin (endpoints admin)
+Événements consommés
+ListingPublishedEvent, ListingUpdatedEvent, ListingDeactivatedEvent, MediaDeletedEvent depuis BuildingBlocks.EventBus.Events
+Le Search.Service est un service exclusivement orienté lecture (CQRS côté query). Il ne possède pas de base PostgreSQL — toutes les données sont dans Elasticsearch. La synchronisation est assurée par les événements RabbitMQ : quand une annonce est créée/modifiée/supprimée dans le Listings.Service, le Search.Service met à jour son index automatiquement.

@@ -20,9 +20,12 @@ namespace ElroukenAljamil.Media.Infrastructure
         {
             // --- SQLServer + EF Core (métadonnées des fichiers) ---
             services.AddDbContext<MediaDbContext>(options =>
+
             options.UseSqlServer(
           configuration.GetConnectionString("MediaDb"),
-          b => b.MigrationsAssembly(typeof(MediaDbContext).Assembly.FullName)));
+          b => b.MigrationsAssembly(typeof(MediaDbContext).Assembly.FullName))
+
+            );
 
 
             // --- MinIO (Object Storage S3-compatible) ---

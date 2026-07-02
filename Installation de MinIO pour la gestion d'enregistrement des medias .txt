@@ -1,0 +1,138 @@
+﻿Installation de MinIO
+
+Option 1 — Docker (la plus simple, recommandée pour le développement)
+# Lancer MinIO avec une seule commande
+docker run -d \
+  --name minio \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  -v minio_data:/data \
+  -e MINIO_ROOT_USER=minioadmin \
+  -e MINIO_ROOT_PASSWORD=minioadmin \
+  minio/minio:latest server /data --console-address ":9001"
+
+Après exécution :
+API S3 (pour le code C#) : http://localhost:9000
+Console web (interface graphique) : http://localhost:9001
+Login : minioadmin / minioadmin
+Option 2 — Docker Compose (intégré à l'architecture marketplace)
+C'est déjà inclus dans le docker-compose.yml de notre architecture. Il suffit de lancer :
+docker-compose up -d minio
+
+Pour vérifier que ça fonctionne :
+# Vérifier le statut
+docker ps | grep minio
+
+# Voir les logs
+docker logs marketplace-minio
+
+
+Option 3 — Installation sur Windows (sans Docker)
+# 1. Télécharger l'exécutable
+Invoke-WebRequest -Uri "https://dl.min.io/server/minio/release/windows-amd64/minio.exe" -OutFile "C:\minio\minio.exe"
+
+# 2. Créer le dossier de données
+New-Item -ItemType Directory -Path "C:\minio\data" -Force
+
+# 3. Définir les credentials
+$env:MINIO_ROOT_USER = "minioadmin"
+$env:MINIO_ROOT_PASSWORD = "minioadmin"
+
+# 4. Lancer le serveur
+C:\minio\minio.exe server C:\minio\data --console-address ":9001"
+
+Pour en faire un service Windows qui démarre automatiquement :
+# Installer NSSM (Non-Sucking Service Manager)
+# Télécharger depuis https://nssm.cc/download
+nssm install MinIO "C:\minio\minio.exe" "server C:\minio\data --console-address :9001"
+nssm set MinIO AppEnvironmentExtra "MINIO_ROOT_USER=minioadmin" "MINIO_ROOT_PASSWORD=minioadmin"
+nssm start MinIO
+Après installation — Premier test
+1. Accéder à la console web
+Ouvrez http://localhost:9001 dans votre navigateur. Connectez-vous avec minioadmin / minioadmin.
+2. Créer le bucket manuellement (optionnel)
+Le code C# le crée automatiquement via EnsureBucketExistsAsync, mais vous pouvez aussi le faire via la console web : cliquez sur Buckets → Create Bucket → nommez-le marketplace-media.
+3. Tester avec le client MinIO (mc)
+# Installer le client CLI
+# Docker :
+docker run --rm -it --entrypoint /bin/sh minio/mc
+
+# Ou télécharger directement :
+# Windows : https://dl.min.io/client/mc/release/windows-amd64/mc.exe
+# Linux :
+wget https://dl.min.io/client/mc/release/linux-amd64/mc
+chmod +x mc
+sudo mv mc /usr/local/bin/
+
+# Configurer la connexion
+mc alias set local http://localhost:9000 minioadmin minioadmin
+
+# Vérifier la connexion
+mc admin info local
+
+# Créer un bucket
+mc mb local/marketplace-media
+
+# Uploader un fichier de test
+mc cp mon-image.jpg local/marketplace-media/test/mon-image.jpg
+
+# Lister les fichiers
+mc ls local/marketplace-media/
+
+# Télécharger
+mc cp local/marketplace-media/test/mon-image.jpg ./downloaded.jpg
+
+
+Vérifier l'intégration avec le Media.Service
+Une fois MinIO démarré, lancez le Media.Service et testez l'upload via Swagger :
+# 1. Démarrer MinIO
+docker-compose up -d minio
+
+# 2. Démarrer le Media.Service
+cd src/Services/Media/Marketplace.Media.API
+dotnet run
+
+# 3. Ouvrir Swagger
+# http://localhost:5004/swagger
+
+# 4. Tester via curl
+curl -X POST http://localhost:5004/api/media/upload \
+  -H "Authorization: Bearer VOTRE_TOKEN_JWT" \
+  -F "file=@/chemin/vers/une-image.jpg"
+
+Après l'upload, vous verrez l'image apparaître dans la console MinIO sous marketplace-media/userId/2026/07/.
+Configuration pour la production
+En production, quelques ajustements importants :
+# /etc/default/minio (production)
+MINIO_ROOT_USER=votre_access_key_securise
+MINIO_ROOT_PASSWORD=VotreMotDePasseTresLong_AuMoins16Caracteres!
+MINIO_VOLUMES="/mnt/disk1/minio-data"
+MINIO_OPTS="--console-address :9001"
+
+# Activer TLS (HTTPS)
+# Placer les certificats dans :
+# /home/minio-user/.minio/certs/public.crt
+# /home/minio-user/.minio/certs/private.key
+
+Et dans le appsettings.Production.json du Media.Service :
+{
+  "MinIO": {
+    "Endpoint": "minio.votre-domaine.com:9000",
+    "AccessKey": "votre_access_key_securise",
+    "SecretKey": "VotreMotDePasseTresLong_AuMoins16Caracteres!",
+    "UseSSL": true,
+    "PublicUrl": "https://media.votre-domaine.com"
+  }
+}
+
+
+Résumé
+Environnement             Méthode recommandée       Temps d'installation 
+Développement local   Docker (une commande)    30 secondes 
+CI/CD                              Docker Compose                          Automatique 
+Production Windows     Service NSSM                               5 minutes 
+
+
+L'installation la plus rapide pour commencer à développer reste Docker. Une fois le conteneur lancé, le Media.Service s'y connecte immédiatement via le SDK Minio et vous pouvez uploader vos premières images.
+
+

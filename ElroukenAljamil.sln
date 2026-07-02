@@ -110,7 +110,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9553598C-EDBD-4DC5-B94A-FCB64DA43F0B}"
 	ProjectSection(SolutionItems) = preProject
 		exemple structure micro service.txt = exemple structure micro service.txt
+		Installation d'Elasticsearch pour l'indexation des annonces.txt = Installation d'Elasticsearch pour l'indexation des annonces.txt
+		Installation de MinIO pour la gestion d'enregistrement des medias .txt = Installation de MinIO pour la gestion d'enregistrement des medias .txt
 		Installation RabbitMQ via Docker.txt = Installation RabbitMQ via Docker.txt
+		Search service , Structure complète des fichiers  .txt = Search service , Structure complète des fichiers  .txt
+		Service Media  , MinIO  C'est quoi  .txt = Service Media  , MinIO  C'est quoi  .txt
+		Structure complète des fichiers Services Messaging .txt = Structure complète des fichiers Services Messaging .txt
 	EndProjectSection
 EndProject
 Global

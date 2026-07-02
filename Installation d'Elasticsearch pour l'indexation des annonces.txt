@@ -1,0 +1,221 @@
+﻿Installation d'Elasticsearch
+
+Option 1 — Docker (la plus simple, recommandée pour le développement)
+# Lancer Elasticsearch avec une seule commande
+docker run -d \
+  --name elasticsearch \
+  -p 9200:9200 \
+  -p 9300:9300 \
+  -e "discovery.type=single-node" \
+  -e "xpack.security.enabled=false" \
+  -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+  -v es_data:/usr/share/elasticsearch/data \
+  docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+
+Après exécution :
+API REST : http://localhost:9200
+Vérification : curl http://localhost:9200 → retourne un JSON avec le nom du cluster
+Option 2 — Docker Compose (intégré à l'architecture marketplace)
+Ajoutez ceci à votre docker-compose.yml :
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: marketplace-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - cluster.name=marketplace-cluster
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Interface graphique pour visualiser les données (optionnel)
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: marketplace-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+volumes:
+  es_data:
+    driver: local
+
+# Démarrer
+docker-compose up -d elasticsearch kibana
+
+# Vérifier
+curl http://localhost:9200/_cluster/health?pretty
+
+
+Option 3 — Installation sur Windows
+# 1. Prérequis : Java n'est plus nécessaire (Elasticsearch embarque son propre JDK depuis v7)
+
+# 2. Télécharger depuis le site officiel
+# https://www.elastic.co/downloads/elasticsearch
+# Ou via PowerShell :
+Invoke-WebRequest -Uri "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.12.0-windows-x86_64.zip" -OutFile "elasticsearch.zip"
+
+# 3. Extraire
+Expand-Archive -Path "elasticsearch.zip" -DestinationPath "C:\elasticsearch"
+
+# 4. Configurer (mode développement, sans sécurité)
+# Éditer C:\elasticsearch\elasticsearch-8.12.0\config\elasticsearch.yml
+
+Contenu de elasticsearch.yml pour le développement :
+cluster.name: marketplace-cluster
+node.name: node-1
+path.data: C:\elasticsearch\data
+path.logs: C:\elasticsearch\logs
+network.host: 0.0.0.0
+http.port: 9200
+discovery.type: single-node
+xpack.security.enabled: false
+
+# 5. Lancer
+C:\elasticsearch\elasticsearch-8.12.0\bin\elasticsearch.bat
+
+# 6. Pour installer en tant que service Windows
+C:\elasticsearch\elasticsearch-8.12.0\bin\elasticsearch-service.bat install
+C:\elasticsearch\elasticsearch-8.12.0\bin\elasticsearch-service.bat start
+
+Vérification post-installation
+Quelle que soit la méthode choisie, vérifiez avec ces commandes :
+# 1. Vérifier qu'Elasticsearch répond
+curl http://localhost:9200
+
+Réponse attendue :
+{
+  "name": "node-1",
+  "cluster_name": "marketplace-cluster",
+  "cluster_uuid": "...",
+  "version": {
+    "number": "8.12.0",
+    "build_type": "docker",
+    "lucene_version": "9.9.1"
+  },
+  "tagline": "You Know, for Search"
+}
+
+# 2. Vérifier la santé du cluster
+curl http://localhost:9200/_cluster/health?pretty
+
+Réponse attendue :
+{
+  "cluster_name": "marketplace-cluster",
+  "status": "green",
+  "number_of_nodes": 1,
+  "number_of_data_nodes": 1,
+  "active_primary_shards": 0,
+  "active_shards": 0
+}
+
+# 3. Vérifier que l'index peut être créé (test rapide)
+curl -X PUT "http://localhost:9200/test-index"
+curl -X DELETE "http://localhost:9200/test-index"
+
+
+Kibana — Interface graphique (optionnel mais utile)
+Kibana est l'interface web pour visualiser et interroger vos données Elasticsearch. Très utile en développement pour déboguer les requêtes.
+# Docker
+docker run -d \
+  --name kibana \
+  --link elasticsearch:elasticsearch \
+  -p 5601:5601 \
+  -e "ELASTICSEARCH_HOSTS=http://elasticsearch:9200" \
+  docker.elastic.co/kibana/kibana:8.12.0
+
+Accès : http://localhost:5601
+Dans Kibana, allez dans Dev Tools pour tester vos requêtes Elasticsearch manuellement :
+// Voir tous les documents de l'index listings
+GET /listings/_search
+{
+  "query": { "match_all": {} }
+}
+
+// Recherche full-text
+GET /listings/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "vélo électrique",
+      "fields": ["title^3", "description"]
+    }
+  }
+}
+
+// Vérifier le mapping de l'index
+GET /listings/_mapping
+Configuration mémoire — Point critique
+Elasticsearch est gourmand en mémoire. Voici les recommandations :
+Environnement
+RAM serveur
+Heap JVM (-Xms / -Xmx)
+Remarque
+Développement
+4 GB
+512m
+Suffisant pour quelques milliers de documents
+Staging
+8 GB
+2g
+Jusqu'à ~500K documents
+Production
+16+ GB
+4g-8g
+Ne jamais dépasser 50% de la RAM totale
+La règle d'or : ne jamais attribuer plus de 50% de la RAM au heap JVM. Le reste est utilisé par le cache filesystem du système d'exploitation, ce qui est crucial pour les performances d'Elasticsearch.
+
+Intégration avec le Search.Service
+Une fois Elasticsearch démarré, le Search.Service s'y connecte automatiquement via la configuration appsettings.json :
+{
+  "Elasticsearch": {
+    "Url": "http://localhost:9200",
+    "DefaultIndex": "listings"
+  }
+}
+
+Au démarrage, le IndexInitializationService vérifie si l'index existe et le crée avec le mapping français (stemming, autocomplétion, géolocalisation). Ensuite, les consumers RabbitMQ indexent les annonces au fil de l'eau.
+# Workflow complet pour tester
+docker-compose up -d rabbitmq elasticsearch
+
+cd src/Services/Search/Marketplace.Search.API
+dotnet run
+
+# L'index "listings" est créé automatiquement au démarrage
+curl http://localhost:9200/listings/_mapping?pretty
+
+
+Résumé
+Environnement
+Méthode recommandée
+Temps d'installation
+Développement local
+Docker (une commande)
+1 minute
+CI/CD
+Docker Compose
+Automatique
+Production Linux
+Package APT/YUM + systemd
+10 minutes
+Production Windows
+Installateur + service Windows
+10 minutes
+Pour le développement avec notre architecture marketplace, le plus simple est de tout lancer via Docker Compose — Elasticsearch, RabbitMQ, MinIO, PostgreSQL démarrent ensemble en une seule commande : docker-compose up -d.

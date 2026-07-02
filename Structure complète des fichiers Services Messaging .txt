@@ -1,0 +1,55 @@
+﻿src/Services/Messaging/
+├── Marketplace.Messaging.Domain/
+│   ├── Marketplace.Messaging.Domain.csproj
+│   ├── Entities/
+│   │   ├── Conversation.cs
+│   │   └── Message.cs
+│   ├── Enums/
+│   │   └── ConversationStatus.cs
+│   ├── Events/
+│   │   └── MessagingDomainEvents.cs
+│   └── Interfaces/
+│       └── IConversationRepository.cs
+├── Marketplace.Messaging.Application/
+│   ├── Marketplace.Messaging.Application.csproj
+│   ├── DependencyInjection.cs
+│   ├── DTOs/
+│   │   └── MessagingDtos.cs
+│   ├── Commands/
+│   │   ├── StartConversation/
+│   │   │   ├── StartConversationCommand.cs
+│   │   │   ├── StartConversationCommandValidator.cs
+│   │   │   └── StartConversationCommandHandler.cs
+│   │   ├── SendMessage/
+│   │   │   ├── SendMessageCommand.cs
+│   │   │   ├── SendMessageCommandValidator.cs
+│   │   │   └── SendMessageCommandHandler.cs
+│   │   ├── MarkAsRead/
+│   │   │   ├── MarkAsReadCommand.cs
+│   │   │   └── MarkAsReadCommandHandler.cs
+│   │   ├── EditMessage/
+│   │   │   ├── EditMessageCommand.cs
+│   │   │   └── EditMessageCommandHandler.cs
+│   │   └── DeleteMessage/
+│   │       ├── DeleteMessageCommand.cs
+│   │       └── DeleteMessageCommandHandler.cs
+│   └── Queries/
+│       ├── GetConversations/
+│       │   ├── GetConversationsQuery.cs
+│       │   └── GetConversationsQueryHandler.cs
+│       └── GetConversationDetail/
+│           ├── GetConversationDetailQuery.cs
+│           └── GetConversationDetailQueryHandler.cs
+├── Marketplace.Messaging.Infrastructure/
+│   ├── Marketplace.Messaging.Infrastructure.csproj
+│   ├── DependencyInjection.cs
+│   ├── Persistence/
+│   │   └── MessagingDbContext.cs
+│   └── Repositories/
+│       └── ConversationRepository.cs
+└── Marketplace.Messaging.API/
+    ├── Marketplace.Messaging.API.csproj
+    ├── Program.cs
+    ├── appsettings.json
+    └── Controllers/
+        └── ConversationsController.cs
