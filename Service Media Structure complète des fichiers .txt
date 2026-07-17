@@ -1,0 +1,59 @@
+﻿Structure complète des fichiers
+src/Services/Media/
+├── Marketplace.Media.Domain/
+│   ├── Marketplace.Media.Domain.csproj
+│   ├── Entities/
+│   │   └── MediaFile.cs
+│   ├── Enums/
+│   │   └── MediaStatus.cs
+│   ├── ValueObjects/
+│   │   ├── ImageDimensions.cs
+│   │   └── MediaVariants.cs
+│   ├── Events/
+│   │   └── MediaDomainEvents.cs
+│   └── Interfaces/
+│       └── IMediaFileRepository.cs
+├── Marketplace.Media.Application/
+│   ├── Marketplace.Media.Application.csproj
+│   ├── DependencyInjection.cs
+│   ├── Interfaces/
+│   │   ├── IFileStorageService.cs
+│   │   └── IImageProcessingService.cs
+│   ├── DTOs/
+│   │   └── MediaDtos.cs
+│   ├── Commands/
+│   │   ├── UploadMedia/
+│   │   │   ├── UploadMediaCommand.cs
+│   │   │   ├── UploadMediaCommandValidator.cs
+│   │   │   └── UploadMediaCommandHandler.cs
+│   │   ├── AssignMedia/
+│   │   │   ├── AssignMediaCommand.cs
+│   │   │   └── AssignMediaCommandHandler.cs
+│   │   └── DeleteMedia/
+│   │       ├── DeleteMediaCommand.cs
+│   │       └── DeleteMediaCommandHandler.cs
+│   └── Queries/
+│       └── GetMediaByListing/
+│           ├── GetMediaByListingQuery.cs
+│           └── GetMediaByListingQueryHandler.cs
+├── Marketplace.Media.Infrastructure/
+│   ├── Marketplace.Media.Infrastructure.csproj
+│   ├── DependencyInjection.cs
+│   ├── Persistence/
+│   │   └── MediaDbContext.cs
+│   ├── Repositories/
+│   │   └── MediaFileRepository.cs
+│   ├── Services/
+│   │   ├── MinioStorageService.cs
+│   │   └── ImageSharpProcessingService.cs
+│   ├── Consumers/
+│   │   ├── MediaUploadedConsumer.cs
+│   │   └── ListingDeletedMediaCleanupConsumer.cs
+│   └── BackgroundJobs/
+│       └── OrphanedMediaCleanupWorker.cs
+└── Marketplace.Media.API/
+    ├── Marketplace.Media.API.csproj
+    ├── Program.cs
+    ├── appsettings.json
+    └── Controllers/
+        └── MediaController.cs

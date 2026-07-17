@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ElroukenAljamil.Common\ElroukenAljamil.Common.csproj" />
+  </ItemGroup>
+
 </Project>

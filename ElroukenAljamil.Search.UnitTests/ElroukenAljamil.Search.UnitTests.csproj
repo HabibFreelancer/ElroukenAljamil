@@ -21,7 +21,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ElroukenAljamil.Search.Application\ElroukenAljamil.Search.Application.csproj" />
     <ProjectReference Include="..\ElroukenAljamil.Search.Domain\ElroukenAljamil.Search.Domain.csproj" />
-    <ProjectReference Include="..\ElroukenAljamil.Search.Infrastructure\ElroukenAljamil.Search.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

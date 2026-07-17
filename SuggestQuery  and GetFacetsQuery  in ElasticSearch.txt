@@ -1,0 +1,83 @@
+﻿SuggestQuery — L'autocomplétion
+Le SuggestQuery implémente la fonctionnalité d'autocomplétion de la barre de recherche. C'est ce qui se passe quand un utilisateur commence à taper dans le champ de recherche et voit des suggestions apparaître en temps réel.
+Exemple concret :
+L'utilisateur tape : "vélo él"
+
+Suggestions retournées :
+  → "vélo électrique"
+  → "vélo électrique pliant"
+  → "vélo électrique VTT"
+  → "vélo électronique"
+
+Côté technique, Elasticsearch utilise un index spécial de type completion avec un tokenizer edge-ngram (découpe les mots par le début). La requête est envoyée à chaque frappe clavier (debounced côté frontend, typiquement 300ms), et Elasticsearch retourne les résultats en moins de 5ms grâce à une structure de données en mémoire (FST — Finite State Transducer).
+Endpoint : GET /api/search/suggest?query=vélo él&max=10
+Cas d'usage : Toute marketplace moderne (Leboncoin, Amazon, eBay) propose cette fonctionnalité pour guider l'utilisateur vers des termes de recherche pertinents et réduire les recherches sans résultat.
+
+GetFacetsQuery — Les filtres dynamiques
+Le GetFacetsQuery fournit les facettes (ou filtres dynamiques) qui apparaissent dans la sidebar d'une page de résultats de recherche. Ce sont les compteurs à côté de chaque filtre.
+Exemple concret — sidebar d'une marketplace :
+Catégories :
+  ☐ Véhicules (1 243)
+  ☐ Immobilier (892)
+  ☐ Électronique (2 456)
+  ☐ Vêtements (734)
+  ☐ Meubles (421)
+
+Fourchette de prix :
+  Min : 5 €
+  Max : 45 000 €
+  Moyenne : 320 €
+
+Ce que retourne l'API :
+{
+  "categories": [
+    { "name": "Électronique", "count": 2456 },
+    { "name": "Véhicules", "count": 1243 },
+    { "name": "Immobilier", "count": 892 },
+    { "name": "Vêtements", "count": 734 },
+    { "name": "Meubles", "count": 421 }
+  ],
+  "priceRange": {
+    "min": 5.00,
+    "max": 45000.00,
+    "average": 320.50
+  }
+}
+
+Pourquoi c'est dynamique ? Les compteurs changent en fonction de la recherche en cours. Si l'utilisateur tape "iPhone", les facettes montreront principalement la catégorie "Électronique" avec un compteur élevé, et les autres catégories auront des compteurs à 0 ou très faibles. Cela aide l'utilisateur à affiner sa recherche sans tomber sur des filtres vides.
+Endpoint : GET /api/search/facets?query=iPhone&category=Électronique
+Côté technique, Elasticsearch calcule ces compteurs via des agrégations (equivalentes aux GROUP BY COUNT(*) en SQL) exécutées directement sur l'index — c'est extrêmement rapide même avec des millions de documents.
+
+Flux utilisateur complet
+Voici comment ces deux services travaillent ensemble dans le parcours de recherche :
+1. L'utilisateur tape "vél..." dans la barre de recherche
+        │
+        ▼
+   GET /api/search/suggest?query=vél
+   → Retourne : ["vélo électrique", "vélo enfant", "vélo route"]
+        │
+        ▼
+2. L'utilisateur clique sur "vélo électrique"
+        │
+        ▼
+   GET /api/search?query=vélo électrique&page=1
+   → Retourne : 127 résultats, page 1/7
+        │
+        ▼
+   GET /api/search/facets?query=vélo électrique
+   → Retourne : Loisirs (89), Électronique (23), Sport (15)
+                 Prix : 150€ - 4500€, moy: 890€
+        │
+        ▼
+3. L'utilisateur clique sur le filtre "Sport" + prix max 1000€
+        │
+        ▼
+   GET /api/search?query=vélo électrique&category=Sport&maxPrice=1000&page=1
+   → Retourne : 8 résultats filtrés
+
+
+Pourquoi les séparer du SearchListingsQuery ?
+On pourrait techniquement tout mettre dans un seul endpoint, mais la séparation a trois avantages :
+Performance — Les suggestions doivent répondre en moins de 50ms (frappe clavier). Les facettes peuvent prendre 100-200ms. La recherche principale peut prendre 200-500ms. En les séparant, le frontend lance les appels en parallèle et affiche chaque élément dès qu'il est prêt.
+Cache — Les facettes changent rarement (cache 2 minutes), les suggestions un peu plus souvent (cache 1 minute), et les résultats de recherche sont plus volatils (cache 30 secondes). Des durées de cache différentes par endpoint optimisent les performances.
+Responsabilité unique — Chaque query fait une seule chose bien. Si demain vous voulez ajouter des facettes de localisation ou de vendeur, vous modifiez uniquement GetFacetsQuery sans impacter la recherche ni les suggestions

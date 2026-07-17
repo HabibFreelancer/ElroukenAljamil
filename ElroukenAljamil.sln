@@ -57,8 +57,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Search.Appl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Search.Domain", "ElroukenAljamil.Search.Domain\ElroukenAljamil.Search.Domain.csproj", "{4F9527AE-CB75-4662-AFAA-6540792C85F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Search.Infrastructure", "ElroukenAljamil.Search.Infrastructure\ElroukenAljamil.Search.Infrastructure.csproj", "{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildingBlocks", "BuildingBlocks", "{51333F6A-42E4-4CA5-A12E-3DA743F802EA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Common", "ElroukenAljamil.Common\ElroukenAljamil.Common.csproj", "{F92D18D4-FF80-4BBC-B077-6DA690472F00}"
@@ -115,8 +113,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9553598C-E
 		Installation RabbitMQ via Docker.txt = Installation RabbitMQ via Docker.txt
 		Search service , Structure complète des fichiers  .txt = Search service , Structure complète des fichiers  .txt
 		Service Media  , MinIO  C'est quoi  .txt = Service Media  , MinIO  C'est quoi  .txt
+		Service Media Structure complète des fichiers .txt = Service Media Structure complète des fichiers .txt
 		Structure complète des fichiers Services Messaging .txt = Structure complète des fichiers Services Messaging .txt
+		SuggestQuery  and GetFacetsQuery  in ElasticSearch.txt = SuggestQuery  and GetFacetsQuery  in ElasticSearch.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Search.Infrastructure", "ElroukenAljamil.Search.Infrastructure\ElroukenAljamil.Search.Infrastructure.csproj", "{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -368,18 +370,6 @@ Global
 		{4F9527AE-CB75-4662-AFAA-6540792C85F6}.Release|x64.Build.0 = Release|Any CPU
 		{4F9527AE-CB75-4662-AFAA-6540792C85F6}.Release|x86.ActiveCfg = Release|Any CPU
 		{4F9527AE-CB75-4662-AFAA-6540792C85F6}.Release|x86.Build.0 = Release|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Debug|x64.Build.0 = Debug|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Debug|x86.Build.0 = Debug|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Release|x64.ActiveCfg = Release|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Release|x64.Build.0 = Release|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Release|x86.ActiveCfg = Release|Any CPU
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA}.Release|x86.Build.0 = Release|Any CPU
 		{F92D18D4-FF80-4BBC-B077-6DA690472F00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F92D18D4-FF80-4BBC-B077-6DA690472F00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F92D18D4-FF80-4BBC-B077-6DA690472F00}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -584,6 +574,18 @@ Global
 		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|x64.Build.0 = Release|Any CPU
 		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|x86.ActiveCfg = Release|Any CPU
 		{235C1781-D5FB-4D9A-95F6-66A57A848D96}.Release|x86.Build.0 = Release|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Debug|x64.Build.0 = Debug|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Debug|x86.Build.0 = Debug|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Release|x64.ActiveCfg = Release|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Release|x64.Build.0 = Release|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Release|x86.ActiveCfg = Release|Any CPU
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -615,7 +617,6 @@ Global
 		{F3C567EF-D164-4036-882E-9F06F8296049} = {03F4C32F-BA5B-46F2-94FA-16ACDB3CB0E9}
 		{8E176420-AD16-49B8-88FF-8C59A61EAA01} = {03F4C32F-BA5B-46F2-94FA-16ACDB3CB0E9}
 		{4F9527AE-CB75-4662-AFAA-6540792C85F6} = {03F4C32F-BA5B-46F2-94FA-16ACDB3CB0E9}
-		{DAD8FF41-B8C2-460F-BFD9-6FBA68D844CA} = {03F4C32F-BA5B-46F2-94FA-16ACDB3CB0E9}
 		{51333F6A-42E4-4CA5-A12E-3DA743F802EA} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{F92D18D4-FF80-4BBC-B077-6DA690472F00} = {51333F6A-42E4-4CA5-A12E-3DA743F802EA}
 		{1CDB920A-EB1E-4ABC-AF0A-DBE2095EC490} = {51333F6A-42E4-4CA5-A12E-3DA743F802EA}
@@ -636,6 +637,7 @@ Global
 		{B74DF7CE-EB2A-4B8F-831A-22D625492130} = {6BBE1A47-7671-4FA7-BB81-96E101BB8950}
 		{2F74C084-41A7-4960-AF36-854D8E5575AB} = {CEE99A05-D365-4A61-ADC1-4825ABE61C15}
 		{235C1781-D5FB-4D9A-95F6-66A57A848D96} = {51333F6A-42E4-4CA5-A12E-3DA743F802EA}
+		{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5} = {03F4C32F-BA5B-46F2-94FA-16ACDB3CB0E9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D570F108-396D-4699-97F6-AB1EA8510839}
