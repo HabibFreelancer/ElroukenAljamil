@@ -1,0 +1,257 @@
+services:
+
+  # =============================================================
+  # INFRASTRUCTURE
+  # =============================================================
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: elrouken-sqlserver
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - elrouken-network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong@Passw0rd", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: elrouken-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - elrouken-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elrouken-elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - elrouken-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: elrouken-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - elrouken-network
+
+  # =============================================================
+  # API GATEWAY
+  # =============================================================
+
+  api-gateway:
+    build:
+      context: ./ElroukenAljamil.ApiGateway
+      dockerfile: Dockerfile
+    container_name: elrouken-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=ElroukenAljamil
+      - Jwt__Audience=ElroukenAljamilApp
+    depends_on:
+      - listings-api
+      - identity-api
+      - messaging-api
+      - media-api
+      - search-api
+      - notification-api
+    networks:
+      - elrouken-network
+
+  # =============================================================
+  # MICROSERVICES
+  # =============================================================
+
+  listings-api:
+    build:
+      context: .
+      dockerfile: ElroukenAljamil.Listings.API/Dockerfile
+    container_name: elrouken-listings
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenListingsDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=admin
+      - RabbitMQ__Password=admin
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - elrouken-network
+
+  identity-api:
+    build:
+      context: .
+      dockerfile: ElroukenAljamil.Identity.API/Dockerfile
+    container_name: elrouken-identity
+    ports:
+      - "5002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenIdentityDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=ElroukenAljamil
+      - Jwt__Audience=ElroukenAljamilApp
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - elrouken-network
+
+  messaging-api:
+    build:
+      context: .
+      dockerfile: ElroukenAljamil.Messaging.API/Dockerfile
+    container_name: elrouken-messaging
+    ports:
+      - "5003:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenMessagingDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=admin
+      - RabbitMQ__Password=admin
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - elrouken-network
+
+  media-api:
+    build:
+      context: .
+      dockerfile: ElroukenAljamil.Media.API/Dockerfile
+    container_name: elrouken-media
+    ports:
+      - "5004:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenMediaDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - MinIO__Endpoint=minio:9000
+      - MinIO__AccessKey=minioadmin
+      - MinIO__SecretKey=minioadmin
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=admin
+      - RabbitMQ__Password=admin
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - elrouken-network
+
+  search-api:
+    build:
+      context: .
+      dockerfile: ElroukenAljamil.Search.API/Dockerfile
+    container_name: elrouken-search
+    ports:
+      - "5005:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Elasticsearch__Uri=http://elasticsearch:9200
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=admin
+      - RabbitMQ__Password=admin
+    depends_on:
+      elasticsearch:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - elrouken-network
+
+  notification-api:
+    build:
+      context: .
+      dockerfile: ElroukenAljamil.Notification.API/Dockerfile
+    container_name: elrouken-notification
+    ports:
+      - "5006:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenNotificationDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=admin
+      - RabbitMQ__Password=admin
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - elrouken-network
+
+  # =============================================================
+  # FRONTEND
+  # =============================================================
+
+  frontend:
+    build:
+      context: ./elrouken-aljamil-client
+      dockerfile: Dockerfile
+    container_name: elrouken-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - elrouken-network
+
+networks:
+  elrouken-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+  rabbitmq-data:
+  elasticsearch-data:
+  minio-data:
