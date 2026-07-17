@@ -107,6 +107,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Security", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9553598C-EDBD-4DC5-B94A-FCB64DA43F0B}"
 	ProjectSection(SolutionItems) = preProject
+		Description Api Getway.txt = Description Api Getway.txt
 		exemple structure micro service.txt = exemple structure micro service.txt
 		Installation d'Elasticsearch pour l'indexation des annonces.txt = Installation d'Elasticsearch pour l'indexation des annonces.txt
 		Installation de MinIO pour la gestion d'enregistrement des medias .txt = Installation de MinIO pour la gestion d'enregistrement des medias .txt

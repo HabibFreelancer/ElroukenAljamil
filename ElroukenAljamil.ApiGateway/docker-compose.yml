@@ -1,0 +1,19 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: elrouken-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=ElroukenAljamil
+      - Jwt__Audience=ElroukenAljamilApp
+    networks:
+      - elrouken-network
+
+networks:
+  elrouken-network:
+    driver: bridge

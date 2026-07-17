@@ -1,0 +1,22 @@
+﻿
+Résumé du fonctionnement
+Fonctionnalité
+Implémentation
+Routage
+Ocelot redirige /api/listings/* → port 5001, /api/auth/* → port 5002, etc.
+Authentification
+JWT validé au niveau du gateway avant routing (routes protégées)
+Rate Limiting
+Par route : 60/min pour la lecture, 10/min pour la création, 5/min pour le batch upload
+Cache
+Réponses GET cachées au gateway (30s listings, 60s suggestions, 120s facettes)
+Circuit Breaker
+Via Polly : si un service échoue 3 fois, le circuit s'ouvre pendant 10s
+CORS
+Configuré pour les frontends React/Angular/Vue
+Health Checks
+Dashboard sur /healthchecks-ui avec l'état de tous les microservices
+Swagger agrégé
+Tous les Swagger des microservices accessibles depuis /swagger du gateway
+Le frontend n'a besoin de connaître qu'une seule URL (http://localhost:5000) et le gateway se charge de router, authentifier, limiter et cacher les requêtes.
+N'hésitez pas si vous souhaitez que j'ajoute du load balancing (plusieurs instances d'un même service), de la transformation de requêtes/réponses, ou de l'agrégation (un seul appel gateway qui interroge plusieurs microservices en parallèle).
