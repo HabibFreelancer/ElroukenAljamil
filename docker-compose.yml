@@ -18,10 +18,11 @@ services:
     networks:
       - elrouken-network
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong@Passw0rd", "-Q", "SELECT 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' -No || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1'"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 15
+      start_period: 30s
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -30,8 +31,9 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_DEFAULT_USER=marketplace
+      - RABBITMQ_DEFAULT_PASS=marketplace
+      - RABBITMQ_DEFAULT_VHOST=marketplace
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
@@ -41,9 +43,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+      start_period: 15s
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.15
     container_name: elrouken-elasticsearch
     ports:
       - "9200:9200"
@@ -55,6 +58,27 @@ services:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
       - elrouken-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: elrouken-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - elrouken-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   minio:
     image: minio/minio:latest
@@ -70,57 +94,15 @@ services:
       - minio-data:/data
     networks:
       - elrouken-network
-
-  # =============================================================
-  # API GATEWAY
-  # =============================================================
-
-  api-gateway:
-    build:
-      context: ./ElroukenAljamil.ApiGateway
-      dockerfile: Dockerfile
-    container_name: elrouken-gateway
-    ports:
-      - "5000:5000"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
-      - Jwt__Issuer=ElroukenAljamil
-      - Jwt__Audience=ElroukenAljamilApp
-    depends_on:
-      - listings-api
-      - identity-api
-      - messaging-api
-      - media-api
-      - search-api
-      - notification-api
-    networks:
-      - elrouken-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # =============================================================
   # MICROSERVICES
   # =============================================================
-
-  listings-api:
-    build:
-      context: .
-      dockerfile: ElroukenAljamil.Listings.API/Dockerfile
-    container_name: elrouken-listings
-    ports:
-      - "5001:80"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenListingsDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
-      - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=admin
-      - RabbitMQ__Password=admin
-    depends_on:
-      sqlserver:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    networks:
-      - elrouken-network
 
   identity-api:
     build:
@@ -131,12 +113,47 @@ services:
       - "5002:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenIdentityDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__IdentityDb=Server=sqlserver;Database=marketplace_identity;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__RabbitMQ=amqp://marketplace:marketplace@rabbitmq:5672/marketplace
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=marketplace
+      - RabbitMQ__Password=marketplace
+      - RabbitMQ__VirtualHost=marketplace
       - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
-      - Jwt__Issuer=ElroukenAljamil
-      - Jwt__Audience=ElroukenAljamilApp
+      - Jwt__Issuer=Marketplace.Identity
+      - Jwt__Audience=Marketplace
     depends_on:
       sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - elrouken-network
+
+  listings-api:
+    build:
+      context: .
+      dockerfile: ElroukenAljamil.Listings.API/Dockerfile
+    container_name: elrouken-listings
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__ListingsDb=Server=sqlserver;Database=marketplace_listings;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__RabbitMQ=amqp://marketplace:marketplace@rabbitmq:5672/marketplace
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=marketplace
+      - RabbitMQ__Password=marketplace
+      - RabbitMQ__VirtualHost=marketplace
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=Marketplace.Identity
+      - Jwt__Audience=Marketplace
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - elrouken-network
@@ -150,10 +167,16 @@ services:
       - "5003:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenMessagingDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__MessagingDb=Server=sqlserver;Database=marketplace_messaging;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__RabbitMQ=amqp://marketplace:marketplace@rabbitmq:5672/marketplace
       - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=admin
-      - RabbitMQ__Password=admin
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=marketplace
+      - RabbitMQ__Password=marketplace
+      - RabbitMQ__VirtualHost=marketplace
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=Marketplace.Identity
+      - Jwt__Audience=Marketplace
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -171,20 +194,28 @@ services:
       - "5004:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenMediaDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__MediaDb=Server=sqlserver;Database=marketplace_media;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__RabbitMQ=amqp://marketplace:marketplace@rabbitmq:5672/marketplace
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=marketplace
+      - RabbitMQ__Password=marketplace
+      - RabbitMQ__VirtualHost=marketplace
       - MinIO__Endpoint=minio:9000
       - MinIO__AccessKey=minioadmin
       - MinIO__SecretKey=minioadmin
-      - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=admin
-      - RabbitMQ__Password=admin
+      - MinIO__UseSSL=false
+      - MinIO__PublicUrl=http://localhost:9000
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=Marketplace.Identity
+      - Jwt__Audience=Marketplace
     depends_on:
       sqlserver:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
       minio:
-        condition: service_started
+        condition: service_healthy
     networks:
       - elrouken-network
 
@@ -197,13 +228,20 @@ services:
       - "5005:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - Elasticsearch__Uri=http://elasticsearch:9200
+      - Elasticsearch__Url=http://elasticsearch:9200
+      - Elasticsearch__DefaultIndex=listings
+      - ConnectionStrings__RabbitMQ=amqp://marketplace:marketplace@rabbitmq:5672/marketplace
       - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=admin
-      - RabbitMQ__Password=admin
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=marketplace
+      - RabbitMQ__Password=marketplace
+      - RabbitMQ__VirtualHost=marketplace
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=Marketplace.Identity
+      - Jwt__Audience=Marketplace
     depends_on:
       elasticsearch:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     networks:
@@ -218,15 +256,50 @@ services:
       - "5006:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ElroukenNotificationDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__NotificationDb=Server=sqlserver;Database=marketplace_notification;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True
+      - ConnectionStrings__RabbitMQ=amqp://marketplace:marketplace@rabbitmq:5672/marketplace
+      - ConnectionStrings__Redis=redis:6379
       - RabbitMQ__Host=rabbitmq
-      - RabbitMQ__Username=admin
-      - RabbitMQ__Password=admin
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=marketplace
+      - RabbitMQ__Password=marketplace
+      - RabbitMQ__VirtualHost=marketplace
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=Marketplace.Identity
+      - Jwt__Audience=Marketplace
     depends_on:
       sqlserver:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - elrouken-network
+
+  # =============================================================
+  # API GATEWAY
+  # =============================================================
+
+  api-gateway:
+    build:
+      context: ./ElroukenAljamil.ApiGateway
+      dockerfile: Dockerfile
+    container_name: elrouken-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Secret=ElroukenAljamilSuperSecretKey2024!@#$%^&*
+      - Jwt__Issuer=Marketplace.Identity
+      - Jwt__Audience=Marketplace
+    depends_on:
+      - listings-api
+      - identity-api
+      - messaging-api
+      - media-api
+      - search-api
+      - notification-api
     networks:
       - elrouken-network
 
@@ -254,4 +327,5 @@ volumes:
   sqlserver-data:
   rabbitmq-data:
   elasticsearch-data:
+  redis-data:
   minio-data:

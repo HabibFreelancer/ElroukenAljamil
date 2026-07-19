@@ -109,12 +109,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9553598C-E
 	ProjectSection(SolutionItems) = preProject
 		Description Api Getway.txt = Description Api Getway.txt
 		exemple structure micro service.txt = exemple structure micro service.txt
+		Guide d'exécution et de test en local.txt = Guide d'exécution et de test en local.txt
+		Historique conversation.txt = Historique conversation.txt
 		Installation d'Elasticsearch pour l'indexation des annonces.txt = Installation d'Elasticsearch pour l'indexation des annonces.txt
 		Installation de MinIO pour la gestion d'enregistrement des medias .txt = Installation de MinIO pour la gestion d'enregistrement des medias .txt
 		Installation RabbitMQ via Docker.txt = Installation RabbitMQ via Docker.txt
+		Ordre de l'execution du projet.txt = Ordre de l'execution du projet.txt
 		Search service , Structure complète des fichiers  .txt = Search service , Structure complète des fichiers  .txt
 		Service Media  , MinIO  C'est quoi  .txt = Service Media  , MinIO  C'est quoi  .txt
 		Service Media Structure complète des fichiers .txt = Service Media Structure complète des fichiers .txt
+		Service notification structure complete.txt = Service notification structure complete.txt
+		Service Search - Commande docker.txt = Service Search - Commande docker.txt
 		Structure complète des fichiers Services Messaging .txt = Structure complète des fichiers Services Messaging .txt
 		SuggestQuery  and GetFacetsQuery  in ElasticSearch.txt = SuggestQuery  and GetFacetsQuery  in ElasticSearch.txt
 	EndProjectSection

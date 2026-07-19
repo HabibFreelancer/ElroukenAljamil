@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediatR;
 
 namespace ElroukenAljamil.Notification.Application.Commands.MarkAsRead
 {
-    internal class MarkAsReadCommand
-    {
-    }
+    public record MarkAsReadCommand(Guid NotificationId, Guid UserId) : IRequest<bool>;
 }

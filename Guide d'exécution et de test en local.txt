@@ -1,0 +1,99 @@
+﻿Guide d'exécution et de test en local
+Il y a 2 modes selon ce que tu veux faire.
+
+Mode 1 — Infra Docker + microservices depuis Visual Studio (recommandé pour le dev)
+C'est le mode le plus pratique : tu lances l'infra en Docker et les APIs depuis VS avec hot-reload.
+
+Étape 1 — Lancer l'infrastructure
+
+cd c:\Users\X280\source\repos\leboncoin
+
+docker compose up sqlserver rabbitmq elasticsearch redis minio -d
+
+Copy
+bash
+Attendre ~30 secondes que tout soit healthy :
+
+docker compose ps
+
+Copy
+bash
+Tous doivent afficher healthy.
+
+Étape 2 — Lancer les microservices depuis Visual Studio
+
+Dans VS, clic droit sur la solution → Set Startup Projects → Multiple startup projects → mettre en Start :
+
+ElroukenAljamil.Identity.API → port 5002
+
+ElroukenAljamil.Listings.API → port 5001
+
+ElroukenAljamil.Messaging.API → port 5003
+
+ElroukenAljamil.Media.API → port 5004
+
+ElroukenAljamil.Search.API → port 5005
+
+ElroukenAljamil.Notification.API → port 5006
+
+ElroukenAljamil.ApiGateway → port 5000
+
+Appuyer sur F5.
+
+Mode 2 — Tout en Docker (stack complet)
+cd c:\Users\X280\source\repos\leboncoin
+
+# Build et lancer tout
+docker compose -f docker-compose.yml up --build -d
+
+# Voir les logs en temps réel
+docker compose logs -f
+
+# Voir l'état de tous les containers
+docker compose ps
+
+Copy
+bash
+Tester les services
+Swagger de chaque service (accès direct) :
+
+Service	URL Swagger
+Identity	http://localhost:5002/swagger
+Listings	http://localhost:5001/swagger
+Messaging	http://localhost:5003/swagger
+Media	http://localhost:5004/swagger
+Search	http://localhost:5005/swagger
+Notification	http://localhost:5006/swagger
+Gateway	http://localhost:5000/swagger
+Health checks :
+
+curl http://localhost:5001/health
+curl http://localhost:5002/health
+curl http://localhost:5005/health
+# Dashboard agrégé (via gateway)
+# http://localhost:5000/healthchecks-ui
+
+Copy
+bash
+Vérifier Elasticsearch :
+
+curl http://localhost:9200/_cluster/health
+curl http://localhost:9200/listings/_count
+
+Copy
+bash
+RabbitMQ Management UI :
+→ http://localhost:15672 (login: marketplace / marketplace)
+
+MinIO Console :
+→ http://localhost:9001 (login: minioadmin / minioadmin)
+
+Flux de test de bout en bout
+1. POST /api/auth/register   → créer un compte
+2. POST /api/auth/login      → récupérer le JWT token
+3. POST /api/listings        → créer une annonce (avec Bearer token)
+   → RabbitMQ publie ListingPublishedEvent
+   → Search.API consomme l'event → indexe dans Elasticsearch
+4. GET  /api/search?q=voiture → rechercher dans Elasticsearch
+5. GET  /api/search/suggest?q=voi → autocomplétion
+

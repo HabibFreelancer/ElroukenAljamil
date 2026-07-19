@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ElroukenAljamil.Notification.Domain.Enums;
+using MediatR;
 
 namespace ElroukenAljamil.Notification.Application.Commands.SendNotification
 {
-    internal class SendNotificationCommand
-    {
-    }
+    public record SendNotificationCommand(
+        Guid RecipientId,
+        NotificationType Type,
+        string Language,
+        Dictionary<string, object> TemplateData
+    ) : IRequest<bool>;
 }

@@ -1,0 +1,34 @@
+services:
+
+  # En mode dev local, on ne lance QUE l'infrastructure.
+  # Les microservices tournent depuis Visual Studio / dotnet run.
+  # Utiliser : docker compose -f docker-compose.yml -f docker-compose.override.yml up sqlserver rabbitmq elasticsearch redis minio -d
+
+  elasticsearch:
+    environment:
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+
+  # Désactiver les microservices et le gateway en mode dev local
+  identity-api:
+    profiles: ["full"]
+
+  listings-api:
+    profiles: ["full"]
+
+  messaging-api:
+    profiles: ["full"]
+
+  media-api:
+    profiles: ["full"]
+
+  search-api:
+    profiles: ["full"]
+
+  notification-api:
+    profiles: ["full"]
+
+  api-gateway:
+    profiles: ["full"]
+
+  frontend:
+    profiles: ["full"]

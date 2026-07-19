@@ -1,0 +1,22 @@
+Conversation Summary
+Project Setup : ElroukenAljamil - Angular 19 + .NET Core 9 classifieds/ads site. Two parallel projects: (1) monolithic src/ folder (API, Application, Domain, Infrastructure) and (2) new microservices architecture.
+
+Deposit Workflow System : Complete configurable workflow system for annonce deposit. Workflows stored in DB with steps and fields. Each category has its own workflow. Field types: text, number, select, dependent_select, multiselect, pills, toggle, address, email, phone, immatriculation, date_month, text_counter, textarea_counter, price_gauge, conditional_form.
+
+Workflows Created : Voitures (7 steps, 27 fields), Motos (7 steps, 19 fields), Caravaning (7 steps, 13 fields), Utilitaires (7 steps, 31 fields), Nautisme (7 steps, 8 fields), Equipement Auto/Moto/Caravaning/Nautisme, Offre d'emploi (8 steps), Immobilier Vente (7 steps, 22 fields with conditional visibility).
+
+Conditional Visibility : New VisibilityCondition column on StepField. JSON format: {"field":"propertyType","values":["maison","appartement"]}. Frontend isFieldVisible(field) checks formData. Applied to Immobilier workflow (14 fields with conditions per property type).
+
+Authentication : ASP.NET Core Identity + JWT. ApplicationUser extends IdentityUser. AuthController with 7 endpoints. Multi-step registration flow in Angular (/auth route). Mock auth always returns true for dev.
+
+Mes Annonces Page : /mes-annonces with tabs (En ligne/Expirées), search, sort, category filter, annonce cards with pause/resume/delete/modify buttons, stats (views/favorites/messages), Performance modal.
+
+Tracking System : AnnonceView, AnnonceFavorite, Message entities. Real stats in Mes Annonces. POST endpoints for tracking views, toggling favorites, sending messages.
+
+Annonce Detail Page : /annonce/:id with auto view tracking, favorite toggle, message form, seller info.
+
+Feedback System : Feedback entity + FeedbackController. Modal after deposit (2 steps: rating + thank you). Admin dashboard at /admin/feedbacks. Redirects to /deposit-success page after completion.
+
+Deposit Success Page : /deposit-success with main site header, emoji, message, buttons to Mes Annonces and new deposit.
+
+Microservices Architecture : 10 projects (Security, Common, EventBus, Identity, Listings, Messaging, Media, Search, Notification, ApiGateway). All compile successfully. Docker files created for all services.

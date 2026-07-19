@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ElroukenAljamil.Notification.Domain.Entities;
+using ElroukenAljamil.Notification.Domain.Enums;
 
 namespace ElroukenAljamil.Notification.Domain.Interfaces
 {
-    internal interface INotificationSender
+    public interface INotificationSender
     {
+        NotificationChannel Channel { get; }
+        Task SendAsync(NotificationRecord notification, CancellationToken ct = default);
     }
 }

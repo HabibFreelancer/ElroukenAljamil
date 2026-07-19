@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ElroukenAljamil.Notification.Domain.Interfaces;
+using Scriban;
 
 namespace ElroukenAljamil.Notification.Infrastructure.Templates
 {
-    internal class ScribanTemplateRenderer
+    public class ScribanTemplateRenderer : ITemplateRenderer
     {
+        public async Task<string> RenderAsync(string templateText, object model, CancellationToken ct = default)
+        {
+            var template = Template.Parse(templateText);
+            return await template.RenderAsync(model);
+        }
     }
 }

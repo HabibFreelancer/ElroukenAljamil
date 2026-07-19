@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.*" />
+    <PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="8.0.*" />
+    <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,10 +17,5 @@
     <ProjectReference Include="..\ElroukenAljamil.Search.Infrastructure\ElroukenAljamil.Search.Infrastructure.csproj" />
     <ProjectReference Include="..\ElroukenAljamil.Security\ElroukenAljamil.Security.csproj" />
   </ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.*" />
-		<PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="8.0.*" />
-		<PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.*" />
-	</ItemGroup>
 
 </Project>

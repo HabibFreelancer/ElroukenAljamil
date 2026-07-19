@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ElroukenAljamil.Notification.Domain.Enums;
 
 namespace ElroukenAljamil.Notification.Application.Services
 {
-    internal class INotificationOrchestrator
+    public interface INotificationOrchestrator
     {
+        Task OrchestrateAsync(
+            Guid recipientId,
+            NotificationType type,
+            string language,
+            Dictionary<string, object> templateData,
+            CancellationToken ct = default);
     }
 }

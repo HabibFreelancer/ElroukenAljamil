@@ -1,25 +1,76 @@
+using ElroukenAljamil.BuildingBlocks.Security;
+using ElroukenAljamil.BuildingBlocks.Security.Extensions;
+using ElroukenAljamil.Notification.Application;
+using ElroukenAljamil.Notification.Infrastructure;
+using ElroukenAljamil.Notification.Infrastructure.Hubs;
+using ElroukenAljamil.Notification.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// --- Couches applicatives ---
+builder.Services.AddApplication();
+builder.Services.AddNotificationInfrastructure(builder.Configuration);
 
+// --- Authentification JWT (BuildingBlocks) ---
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddCurrentUserService();
+
+// --- API ---
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new() { Title = "Marketplace Notification API", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Entrez le token JWT : Bearer {token}",
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+    });
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// --- Health Checks ---
+builder.Services.AddHealthChecks()
+    .AddSqlServer(builder.Configuration.GetConnectionString("NotificationDb")!)
+    .AddRabbitMQ(builder.Configuration.GetConnectionString("RabbitMQ")!, name: "rabbitmq");
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- Migration automatique ---
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
+    await db.Database.MigrateAsync();
+}
+
+// --- Middleware Pipeline ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHealthChecks("/health");
 
 app.Run();

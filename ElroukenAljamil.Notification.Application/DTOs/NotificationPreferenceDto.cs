@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace ElroukenAljamil.Notification.Application.DTOs
 {
-    internal class NotificationPreferenceDto
+    public record NotificationPreferenceDto
     {
+        public string NotificationType { get; init; } = string.Empty;
+        public bool EmailEnabled { get; init; }
+        public bool SmsEnabled { get; init; }
+        public bool PushEnabled { get; init; }
+        public bool InAppEnabled { get; init; }
+    }
+
+    public record UpdatePreferenceRequest
+    {
+        public string NotificationType { get; init; } = string.Empty;
+        public bool EmailEnabled { get; init; }
+        public bool SmsEnabled { get; init; }
+        public bool PushEnabled { get; init; }
+        public bool InAppEnabled { get; init; }
     }
 }

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ElroukenAljamil.Notification.Application.DTOs;
+using MediatR;
 
 namespace ElroukenAljamil.Notification.Application.Queries.GetUserPreferences
 {
-    internal class GetUserPreferencesQuery
-    {
-    }
+    public record GetUserPreferencesQuery(Guid UserId) : IRequest<IReadOnlyList<NotificationPreferenceDto>>;
 }

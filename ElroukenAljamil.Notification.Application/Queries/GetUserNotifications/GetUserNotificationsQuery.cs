@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ElroukenAljamil.Notification.Application.DTOs;
+using MediatR;
 
 namespace ElroukenAljamil.Notification.Application.Queries.GetUserNotifications
 {
-    internal class GetUserNotificationsQuery
-    {
-    }
+    public record GetUserNotificationsQuery(Guid UserId, int Page = 1, int PageSize = 20) : IRequest<IReadOnlyList<NotificationDto>>;
 }

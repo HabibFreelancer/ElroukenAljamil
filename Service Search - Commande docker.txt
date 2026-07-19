@@ -1,0 +1,44 @@
+﻿Commandes Docker
+Lancer uniquement Elasticsearch (dev local) :
+
+docker compose up elasticsearch -d
+
+Copy
+bash
+Lancer tout le stack :
+
+docker compose up -d
+
+Copy
+bash
+Vérifier qu'Elasticsearch est up :
+
+curl http://localhost:9200/_cluster/health
+
+Copy
+bash
+ou dans le navigateur : http://localhost:9200
+
+Voir les logs Elasticsearch :
+
+docker compose logs elasticsearch -f
+
+Copy
+bash
+Arrêter et supprimer les volumes (reset complet) :
+
+docker compose down -v
+
+Copy
+bash
+Architecture Elasticsearch dans le Search service
+RabbitMQ Events (ListingPublished/Updated/Deactivated)
+        ↓
+   Consumers (Search.Infrastructure)
+        ↓
+ElasticsearchRepository → Index ES "listings"
+        ↓
+ElasticsearchQueryService ← SearchListingsQuery / SuggestQuery / GetFacetsQuery
+
+Copy
+L'index ES est créé automatiquement au démarrage avec un mapping optimisé : analyseur français, autocomplete EdgeNGram, GeoPoint pour la recherche par rayon.

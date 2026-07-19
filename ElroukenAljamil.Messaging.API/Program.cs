@@ -2,6 +2,7 @@ using ElroukenAljamil.BuildingBlocks.Security;
 using ElroukenAljamil.BuildingBlocks.Security.Extensions;
 using ElroukenAljamil.Messaging.Application;
 using ElroukenAljamil.Messaging.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,13 @@ builder.Services.AddHealthChecks()
     .AddRabbitMQ(builder.Configuration.GetConnectionString("RabbitMQ")!, name: "rabbitmq");
 
 var app = builder.Build();
+
+// --- Migration automatique ---
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ElroukenAljamil.Messaging.Infrastructure.Persistence.MessagingDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 // --- Middleware Pipeline ---
 if (app.Environment.IsDevelopment())

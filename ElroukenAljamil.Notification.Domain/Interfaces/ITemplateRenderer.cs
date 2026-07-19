@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace ElroukenAljamil.Notification.Domain.Interfaces
 {
-    internal interface ITemplateRenderer
+    public interface ITemplateRenderer
     {
+        Task<string> RenderAsync(string template, object model, CancellationToken ct = default);
     }
 }

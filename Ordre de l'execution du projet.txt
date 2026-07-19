@@ -1,0 +1,47 @@
+﻿Ordre d'exécution :
+
+Infrastructure : RabbitMQ → SQL Server → Elasticsearch → MinIO
+
+ElroukenAljamil.Security (partagé, pas d'exécution)
+
+ElroukenAljamil.Common + ElroukenAljamil.EventBus (partagés)
+
+Identity.API (port 5002) — authentification d'abord
+
+Listings.API (port 5001)
+
+Messaging.API (port 5003)
+
+Media.API (port 5004)
+
+Search.API (port 5005)
+
+Notification.API (port 5006)
+
+ApiGateway (port 5000) — en dernier
+
+==========================
+
+Ordre d'exécution pour démarrer la solution microservices :
+
+RabbitMQ (port 5672)
+
+SQL Server (port 1433)
+
+Elasticsearch (port 9200)
+
+MinIO (port 9000)
+
+Identity.API (port 5002) — JWT d'abord
+
+Listings.API (port 5001)
+
+Messaging.API (port 5003)
+
+Media.API (port 5004)
+
+Search.API (port 5005)
+
+Notification.API (port 5006)
+
+ApiGateway (port 5000) — en dernier

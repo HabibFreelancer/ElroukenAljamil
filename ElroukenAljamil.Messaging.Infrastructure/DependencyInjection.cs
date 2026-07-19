@@ -14,7 +14,7 @@ namespace ElroukenAljamil.Messaging.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // --- PostgreSQL + EF Core ---
+            // --- SQL server + EF Core ---
             services.AddDbContext<MessagingDbContext>(options =>
                      options.UseSqlServer(
           configuration.GetConnectionString("MessagingDb"),

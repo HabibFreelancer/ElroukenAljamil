@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ElroukenAljamil.Notification.Domain.Enums;
+using MediatR;
 
 namespace ElroukenAljamil.Notification.Application.Commands.UpdatePreferences
 {
-    internal class UpdatePreferencesCommand
-    {
-    }
+    public record UpdatePreferencesCommand(
+        Guid UserId,
+        NotificationType NotificationType,
+        bool EmailEnabled,
+        bool SmsEnabled,
+        bool PushEnabled,
+        bool InAppEnabled
+    ) : IRequest<bool>;
 }

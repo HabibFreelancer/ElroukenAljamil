@@ -1,0 +1,159 @@
+﻿---## Structure complète des fichiers (version finale)
+src/Services/Notification/
+├── Marketplace.Notification.Domain/
+│   ├── Marketplace.Notification.Domain.csproj
+│   ├── Entities/
+│   │   ├── NotificationRecord.cs
+│   │   ├── UserNotificationPreference.cs
+│   │   ├── NotificationTemplate.cs
+│   │   ├── DigestSchedule.cs                    ← NOUVEAU
+│   │   └── DeliveryMetric.cs                    ← NOUVEAU
+│   ├── Enums/
+│   │   ├── NotificationEnums.cs
+│   │   └── DigestFrequency.cs                   ← NOUVEAU
+│   ├── Events/
+│   │   └── NotificationDomainEvents.cs
+│   └── Interfaces/
+│       ├── INotificationRepository.cs
+│       ├── IUserPreferenceRepository.cs
+│       ├── INotificationTemplateRepository.cs
+│       ├── IDigestScheduleRepository.cs         ← NOUVEAU
+│       └── IDeliveryMetricRepository.cs         ← NOUVEAU
+├── Marketplace.Notification.Application/
+│   ├── Marketplace.Notification.Application.csproj
+│   ├── DependencyInjection.cs
+│   ├── Interfaces/
+│   │   ├── INotificationDispatcher.cs
+│   │   ├── IEmailSender.cs
+│   │   ├── ISmsSender.cs
+│   │   ├── IPushSender.cs
+│   │   ├── ITemplateRenderer.cs
+│   │   ├── IRecipientResolver.cs
+│   │   ├── IRealTimeNotificationService.cs      ← NOUVEAU
+│   │   ├── IDigestService.cs                    ← NOUVEAU
+│   │   └── IDeliveryMetricsService.cs           ← NOUVEAU
+│   ├── DTOs/
+│   │   ├── NotificationDtos.cs
+│   │   └── AdminDtos.cs                         ← NOUVEAU
+│   ├── Commands/
+│   │   ├── MarkNotificationRead/
+│   │   ├── MarkAllRead/
+│   │   └── UpdatePreferences/
+│   └── Queries/
+│       └── GetNotifications/
+├── Marketplace.Notification.Infrastructure/
+│   ├── Marketplace.Notification.Infrastructure.csproj
+│   ├── DependencyInjection.cs                   ← MIS À JOUR
+│   ├── Settings/
+│   │   └── BrevoSettings.cs
+│   ├── Persistence/
+│   │   └── NotificationDbContext.cs             ← MIS À JOUR (5 tables)
+│   ├── Repositories/
+│   │   ├── NotificationRepository.cs
+│   │   ├── UserPreferenceRepository.cs
+│   │   ├── NotificationTemplateRepository.cs
+│   │   ├── DigestScheduleRepository.cs          ← NOUVEAU
+│   │   └── DeliveryMetricRepository.cs          ← NOUVEAU
+│   ├── Services/
+│   │   ├── NotificationDispatcher.cs
+│   │   ├── BrevoEmailSender.cs
+│   │   ├── BrevoSmsSender.cs
+│   │   ├── FirebasePushSender.cs
+│   │   ├── ScribanTemplateRenderer.cs
+│   │   ├── CachedRecipientResolver.cs
+│   │   ├── SignalRNotificationService.cs        ← NOUVEAU
+│   │   ├── DigestService.cs                     ← NOUVEAU
+│   │   └── DeliveryMetricsService.cs            ← NOUVEAU
+│   ├── Hubs/                                    ← NOUVEAU (dossier)
+│   │   ├── NotificationHub.cs
+│   │   ├── IUserConnectionTracker.cs
+│   │   └── RedisUserConnectionTracker.cs
+│   ├── Consumers/
+│   │   ├── UserRegisteredNotificationConsumer.cs
+│   │   ├── NewMessageNotificationConsumer.cs
+│   │   ├── ListingPublishedNotificationConsumer.cs
+│   │   ├── ListingDeactivatedNotificationConsumer.cs
+│   │   └── MediaProcessingFailedNotificationConsumer.cs
+│   └── BackgroundJobs/
+│       ├── NotificationRetryWorker.cs
+│       └── DigestBackgroundWorker.cs            ← NOUVEAU
+└── Marketplace.Notification.API/
+    ├── Marketplace.Notification.API.csproj      ← MIS À JOUR (SignalR Redis)
+    ├── Program.cs                               ← MIS À JOUR (SignalR + workers)
+    ├── appsettings.json                         ← MIS À JOUR (Redis)
+    └── Controllers/
+        ├── NotificationsController.cs
+        ├── AdminDashboardController.cs          ← NOUVEAU
+        └── DigestController.cs                  ← NOUVEAU
+
+
+Résumé des endpoints complets
+Méthode
+Endpoint
+Auth
+Description
+GET
+/api/notifications
+✅ User
+Notifications in-app paginées
+POST
+/api/notifications/{id}/read
+✅ User
+Marquer comme lue
+POST
+/api/notifications/read-all
+✅ User
+Tout marquer comme lu
+PUT
+/api/notifications/preferences
+✅ User
+Préférences de canaux
+GET
+/api/notifications/digest
+✅ User
+Config digest actuelle
+PUT
+/api/notifications/digest
+✅ User
+Modifier le digest
+GET
+/api/notifications/admin/dashboard
+✅ Admin
+Métriques de délivrance
+GET
+/api/notifications/admin/online-count
+✅ Admin
+Utilisateurs connectés
+WS
+/hubs/notifications
+✅ JWT
+Connexion SignalR temps réel
+Le service est maintenant complet avec les 3 fonctionnalités avancées intégrées. Redis est le seul composant supplémentaire requis (déjà dans le Docker Compose) pour le SignalR backplane et le tracking des connexions.
+N'hésitez pas si vous avez besoin d'un autre aspect ou d'une clarification.
+
+
+Comment ces 3 entités interagissent dans le flux d'envoi
+1. Événement arrive (ex: NewMessageReceivedEvent)
+        │
+        ▼
+2. Consumer appelle NotificationDispatcher.DispatchAsync(recipientId, NotificationType.NewMessage, data)
+        │
+        ▼
+3. Le Dispatcher charge la UserNotificationPreference pour (userId, NewMessage)
+   → Résultat : Email ✅ | SMS ❌ | Push ✅ | InApp ✅
+        │
+        ▼
+4. Pour chaque canal activé, le Dispatcher :
+   a) Charge le NotificationTemplate pour (NewMessage, Email, "fr")
+   b) Rend le template avec Scriban + les données
+   c) Crée un NotificationRecord (channel=Email, status=Pending)
+   d) Envoie via le provider (BrevoEmailSender)
+   e) Marque comme Sent ou Failed
+   f) Persiste le NotificationRecord en BDD
+        │
+        ▼
+5. Résultat : 3 NotificationRecord créés en BDD
+   - Id=aaa, Channel=Email, Status=Sent
+   - Id=bbb, Channel=Push, Status=Sent  
+   - Id=ccc, Channel=InApp, Status=Sent (+ poussé via SignalR)
+
