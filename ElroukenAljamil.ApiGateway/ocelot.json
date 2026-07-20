@@ -215,6 +215,42 @@
         },
 
         // =============================================================
+        // AD TYPES (Listings service - port 5001)
+        // =============================================================
+        {
+            "UpstreamPathTemplate": "/api/adtypes",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/adtypes",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "adtypes" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/adtypes/{id}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/adtypes/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "adtypes" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/adtypes",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/adtypes",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/adtypes/{id}",
+            "UpstreamHttpMethod": [ "PUT", "DELETE" ],
+            "DownstreamPathTemplate": "/api/adtypes/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+
+        // =============================================================
         // IDENTITY SERVICE (port 5002)
         // =============================================================
         {

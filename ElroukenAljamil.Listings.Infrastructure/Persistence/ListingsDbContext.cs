@@ -12,6 +12,7 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
         public DbSet<Listing> Listings => Set<Listing>();
         public DbSet<ListingMenu> Menus => Set<ListingMenu>();
         public DbSet<ListingCategory> Categories => Set<ListingCategory>();
+        public DbSet<ListingAdType> AdTypes => Set<ListingAdType>();
 
         public ListingsDbContext(DbContextOptions<ListingsDbContext> options)
             : base(options) { }
@@ -22,6 +23,7 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new ListingConfiguration());
             modelBuilder.ApplyConfiguration(new MenuConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new AdTypeConfiguration());
         }
 
         /// <summary>
