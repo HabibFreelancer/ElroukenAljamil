@@ -13,6 +13,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // --- Authentification JWT (BuildingBlocks) ---
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCurrentUserService();
+builder.Services.AddDevAuthBypass(builder.Configuration);
 
 // --- Background Worker (nettoyage fichiers orphelins) ---
 builder.Services.AddHostedService<OrphanedMediaCleanupWorker>();
@@ -67,6 +68,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseDevAuthBypass(app.Environment);
 app.UseAuthentication();
 app.UseAuthorization();
 

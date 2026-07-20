@@ -1,4 +1,5 @@
 ﻿using ElroukenAljamil.Identity.Domain.Entities;
+using ElroukenAljamil.Identity.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace ElroukenAljamil.Identity.Infrastructure.Persistence
@@ -6,6 +7,7 @@ namespace ElroukenAljamil.Identity.Infrastructure.Persistence
     public class IdentityDbContext : DbContext
     {
         public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
+        public DbSet<VerificationCode> VerificationCodes => Set<VerificationCode>();
 
         public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
             : base(options) { }
@@ -13,6 +15,8 @@ namespace ElroukenAljamil.Identity.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new VerificationCodeConfiguration());
 
             modelBuilder.Entity<ApplicationUser>(entity =>
             {

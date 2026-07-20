@@ -13,8 +13,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // --- Authentification JWT (BuildingBlocks) ---
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCurrentUserService();
+builder.Services.AddDevAuthBypass(builder.Configuration);
 
-// --- Initialisation de l'index au démarrage ---
+// --- Initialisation de l'index au dï¿½marrage ---
 builder.Services.AddHostedService<IndexInitializationService>();
 
 // --- Response Caching ---
@@ -64,6 +65,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseResponseCaching();
+app.UseDevAuthBypass(app.Environment);
 app.UseAuthentication();
 app.UseAuthorization();
 

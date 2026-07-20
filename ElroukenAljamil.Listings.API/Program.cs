@@ -14,6 +14,7 @@ builder.Services.AddListingsInfrastructure(builder.Configuration);
 // --- Authentification JWT (BuildingBlocks) ---
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCurrentUserService();
+builder.Services.AddDevAuthBypass(builder.Configuration);
 
 // --- Background Worker ---
 builder.Services.AddHostedService<ListingExpirationWorker>();
@@ -68,6 +69,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseDevAuthBypass(app.Environment);
 app.UseAuthentication();
 app.UseAuthorization();
 

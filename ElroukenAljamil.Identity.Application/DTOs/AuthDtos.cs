@@ -15,6 +15,7 @@ namespace ElroukenAljamil.Identity.Application.DTOs
         public string FirstName { get; init; } = string.Empty;
         public string LastName { get; init; } = string.Empty;
         public string? PhoneNumber { get; init; }
+        public string AccountType { get; init; } = "personal"; // personal | pro
     }
 
     public record LoginDto
@@ -50,5 +51,27 @@ namespace ElroukenAljamil.Identity.Application.DTOs
     {
         public string AccessToken { get; init; } = string.Empty;
         public string RefreshToken { get; init; } = string.Empty;
+    }
+
+    public record CheckEmailRequest
+    {
+        public string Email { get; init; } = string.Empty;
+    }
+
+    public record SendCodeRequest
+    {
+        public string Email { get; init; } = string.Empty;
+    }
+
+    public record VerifyCodeRequest
+    {
+        public string Email { get; init; } = string.Empty;
+        public string Code { get; init; } = string.Empty;
+    }
+
+    public record SendSmsCodeRequest
+    {
+        public string Email { get; init; } = string.Empty;
+        public string Phone { get; init; } = string.Empty;
     }
 }

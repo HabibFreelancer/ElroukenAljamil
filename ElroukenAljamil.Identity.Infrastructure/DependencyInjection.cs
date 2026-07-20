@@ -30,6 +30,7 @@ namespace ElroukenAljamil.Identity.Infrastructure
 
             // Repositories
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
 
             // Services
             services.AddScoped<ITokenService, TokenService>();

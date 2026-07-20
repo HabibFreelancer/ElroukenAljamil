@@ -15,6 +15,7 @@ builder.Services.AddNotificationInfrastructure(builder.Configuration);
 // --- Authentification JWT (BuildingBlocks) ---
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddCurrentUserService();
+builder.Services.AddDevAuthBypass(builder.Configuration);
 
 // --- API ---
 builder.Services.AddControllers();
@@ -66,6 +67,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseDevAuthBypass(app.Environment);
 app.UseAuthentication();
 app.UseAuthorization();
 
