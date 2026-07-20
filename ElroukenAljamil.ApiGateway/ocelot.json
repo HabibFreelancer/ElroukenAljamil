@@ -7,7 +7,7 @@
         "RateLimitOptions": {
             "ClientIdHeader": "X-ClientId",
             "HttpStatusCode": 429,
-            "QuotaExceededMessage": "Trop de requêtes. Veuillez réessayer dans quelques instants.",
+            "QuotaExceededMessage": "Trop de requï¿½tes. Veuillez rï¿½essayer dans quelques instants.",
             "DisableRateLimitHeaders": false
         },
         "QoSOptions": {
@@ -128,6 +128,90 @@
                 "AuthenticationProviderKey": "Bearer",
                 "AllowedScopes": []
             }
+        },
+
+        // =============================================================
+        // CATEGORIES & MENUS (Listings service - port 5001)
+        // =============================================================
+        {
+            "UpstreamPathTemplate": "/api/categories",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/categories",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/categories/{id}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/categories/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/categories/by-menu/{menuId}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/categories/by-menu/{menuId}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/categories/for-deposit/{menuId}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/categories/for-deposit/{menuId}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/categories/tree/{menuId}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/categories/tree/{menuId}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/categories",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/categories",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/categories/{id}",
+            "UpstreamHttpMethod": [ "PUT", "DELETE" ],
+            "DownstreamPathTemplate": "/api/categories/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/menus",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/menus",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "menus" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/menus",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/menus",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/menus/{id}",
+            "UpstreamHttpMethod": [ "PUT", "DELETE" ],
+            "DownstreamPathTemplate": "/api/menus/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
         },
 
         // =============================================================
@@ -439,7 +523,7 @@
         },
 
         // =============================================================
-        // SWAGGER DES MICROSERVICES (proxy pour l'UI agrégée)
+        // SWAGGER DES MICROSERVICES (proxy pour l'UI agrï¿½gï¿½e)
         // =============================================================
         {
             "UpstreamPathTemplate": "/listings/swagger/{everything}",

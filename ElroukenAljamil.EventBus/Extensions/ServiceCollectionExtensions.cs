@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ElroukenAljamil.BuildingBlocks.EventBus.Configuration;
+using ElroukenAljamil.BuildingBlocks.EventBus.MassTransit;
+using ElroukenAljamil.BuildingBlocks.Events.Abstractions;
 
 namespace ElroukenAljamil.BuildingBlocks.EventBus.Extensions
 {
@@ -55,6 +57,9 @@ namespace ElroukenAljamil.BuildingBlocks.EventBus.Extensions
                     rabbitConfig.ConfigureEndpoints(context);
                 });
             });
+
+            // Enregistrement de IEventBus -> MassTransitEventBus
+            services.AddScoped<IEventBus, MassTransitEventBus>();
 
             return services;
         }

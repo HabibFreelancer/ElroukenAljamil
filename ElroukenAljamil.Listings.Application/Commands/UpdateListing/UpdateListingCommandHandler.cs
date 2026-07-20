@@ -4,6 +4,7 @@ using ElroukenAljamil.BuildingBlocks.Events.Abstractions;
 using ElroukenAljamil.BuildingBlocks.Security.Services;
 using ElroukenAljamil.Listings.Application.Interfaces;
 using ElroukenAljamil.Listings.Domain.ValueObjects;
+using CategoryVO = ElroukenAljamil.Listings.Domain.ValueObjects.Category;
 using MediatR;
 
 namespace ElroukenAljamil.Listings.Application.Commands.UpdateListing
@@ -34,7 +35,7 @@ namespace ElroukenAljamil.Listings.Application.Commands.UpdateListing
                 return Result.Failure("Vous n'êtes pas autorisé à modifier cette annonce.");
 
             var newPrice = new Money(request.Price, request.Currency);
-            var newCategory = new Category(request.Category);
+            var newCategory = new CategoryVO(request.Category);
             var newLocation = new Location(request.City, request.Latitude, request.Longitude);
 
             listing.Update(

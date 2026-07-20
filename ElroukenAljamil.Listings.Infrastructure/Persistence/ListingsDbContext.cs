@@ -2,6 +2,7 @@
 using ElroukenAljamil.Listings.Domain.Entities;
 using ElroukenAljamil.Listings.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 
 namespace ElroukenAljamil.Listings.Infrastructure.Persistence
@@ -9,6 +10,8 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
     public class ListingsDbContext : DbContext
     {
         public DbSet<Listing> Listings => Set<Listing>();
+        public DbSet<ListingMenu> Menus => Set<ListingMenu>();
+        public DbSet<ListingCategory> Categories => Set<ListingCategory>();
 
         public ListingsDbContext(DbContextOptions<ListingsDbContext> options)
             : base(options) { }
@@ -16,8 +19,9 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            // Applique cette configuration spécifique
             modelBuilder.ApplyConfiguration(new ListingConfiguration());
+            modelBuilder.ApplyConfiguration(new MenuConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         }
 
         /// <summary>

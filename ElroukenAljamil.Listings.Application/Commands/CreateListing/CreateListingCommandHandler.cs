@@ -7,6 +7,7 @@ using ElroukenAljamil.BuildingBlocks.Security.Services;
 using ElroukenAljamil.Listings.Application.Interfaces;
 using ElroukenAljamil.Listings.Domain.Entities;
 using ElroukenAljamil.Listings.Domain.ValueObjects;
+using CategoryVO = ElroukenAljamil.Listings.Domain.ValueObjects.Category;
 using MediatR;
 
 
@@ -33,7 +34,7 @@ namespace ElroukenAljamil.Listings.Application.Commands.CreateListing
             if (_currentUser.UserId == Guid.Empty)
                 return Result<Guid>.Failure("Utilisateur non authentifié.");
 
-            var category = new Category(request.Category);
+            var category = new CategoryVO(request.Category);
             var location = new Location(request.City, request.Latitude, request.Longitude);
             var price = new Money(request.Price, request.Currency);
 

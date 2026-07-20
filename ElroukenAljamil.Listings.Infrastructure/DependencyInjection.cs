@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ElroukenAljamil.Listings.Application.Interfaces;
+using ElroukenAljamil.Listings.Domain.Interfaces;
 
 
 
@@ -17,7 +18,7 @@ namespace ElroukenAljamil.Listings.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // PostgreSQL via EF Core
+            // SQL Server via EF Core
             services.AddDbContext<ListingsDbContext>(options =>
           options.UseSqlServer(
               configuration.GetConnectionString("ListingsDb"),
@@ -25,6 +26,8 @@ namespace ElroukenAljamil.Listings.Infrastructure
 
             // Repositories
             services.AddScoped<IListingRepository, ListingRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IMenuRepository, MenuRepository>();
 
             // Event publishing
             services.AddScoped<ListingIntegrationEventPublisher>();
