@@ -13,6 +13,9 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
         public DbSet<ListingMenu> Menus => Set<ListingMenu>();
         public DbSet<ListingCategory> Categories => Set<ListingCategory>();
         public DbSet<ListingAdType> AdTypes => Set<ListingAdType>();
+        public DbSet<DepositWorkflow> DepositWorkflows => Set<DepositWorkflow>();
+        public DbSet<WorkflowStep> WorkflowSteps => Set<WorkflowStep>();
+        public DbSet<StepField> StepFields => Set<StepField>();
 
         public ListingsDbContext(DbContextOptions<ListingsDbContext> options)
             : base(options) { }
@@ -24,6 +27,9 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new MenuConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new AdTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new DepositWorkflowConfiguration());
+            modelBuilder.ApplyConfiguration(new WorkflowStepConfiguration());
+            modelBuilder.ApplyConfiguration(new StepFieldConfiguration());
         }
 
         /// <summary>

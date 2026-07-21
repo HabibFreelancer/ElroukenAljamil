@@ -215,6 +215,90 @@
         },
 
         // =============================================================
+        // WORKFLOW (Listings service - port 5001)
+        // =============================================================
+        {
+            "UpstreamPathTemplate": "/api/workflow",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/workflow",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 60, "Region": "workflow" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow/{categoryId}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/workflow/{categoryId}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 60, "Region": "workflow" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow/{workflowId}/steps",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/workflow/{workflowId}/steps",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 60, "Region": "workflow" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow/steps/{stepId}/fields",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/workflow/steps/{stepId}/fields",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 60, "Region": "workflow" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/workflow",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow/{id}",
+            "UpstreamHttpMethod": [ "PUT", "DELETE" ],
+            "DownstreamPathTemplate": "/api/workflow/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow/{workflowId}/steps",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/workflow/{workflowId}/steps",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow/steps/{stepId}",
+            "UpstreamHttpMethod": [ "PUT", "DELETE" ],
+            "DownstreamPathTemplate": "/api/workflow/steps/{stepId}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow/steps/{stepId}/fields",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/workflow/steps/{stepId}/fields",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/workflow/fields/{fieldId}",
+            "UpstreamHttpMethod": [ "PUT", "DELETE" ],
+            "DownstreamPathTemplate": "/api/workflow/fields/{fieldId}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+
+        // =============================================================
         // AD TYPES (Listings service - port 5001)
         // =============================================================
         {

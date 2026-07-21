@@ -29,6 +29,9 @@ namespace ElroukenAljamil.Listings.Infrastructure
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IMenuRepository, MenuRepository>();
             services.AddScoped<IAdTypeRepository, AdTypeRepository>();
+            services.AddScoped<IDepositWorkflowRepository, DepositWorkflowRepository>();
+            services.AddScoped<IWorkflowStepRepository, WorkflowStepRepository>();
+            services.AddScoped<IStepFieldRepository, StepFieldRepository>();
 
             // Event publishing
             services.AddScoped<ListingIntegrationEventPublisher>();
