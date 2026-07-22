@@ -9,13 +9,15 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
 {
     public class ListingsDbContext : DbContext
     {
-        public DbSet<Listing> Listings => Set<Listing>();
         public DbSet<ListingMenu> Menus => Set<ListingMenu>();
         public DbSet<ListingCategory> Categories => Set<ListingCategory>();
         public DbSet<ListingAdType> AdTypes => Set<ListingAdType>();
         public DbSet<DepositWorkflow> DepositWorkflows => Set<DepositWorkflow>();
         public DbSet<WorkflowStep> WorkflowSteps => Set<WorkflowStep>();
         public DbSet<StepField> StepFields => Set<StepField>();
+        public DbSet<Annonce> Annonces => Set<Annonce>();
+        public DbSet<AnnonceFavorite> AnnonceFavorites => Set<AnnonceFavorite>();
+        public DbSet<AnnonceView> AnnonceViews => Set<AnnonceView>();
 
         public ListingsDbContext(DbContextOptions<ListingsDbContext> options)
             : base(options) { }
@@ -23,13 +25,15 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ApplyConfiguration(new ListingConfiguration());
             modelBuilder.ApplyConfiguration(new MenuConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new AdTypeConfiguration());
             modelBuilder.ApplyConfiguration(new DepositWorkflowConfiguration());
             modelBuilder.ApplyConfiguration(new WorkflowStepConfiguration());
             modelBuilder.ApplyConfiguration(new StepFieldConfiguration());
+            modelBuilder.ApplyConfiguration(new AnnonceConfiguration());
+            modelBuilder.ApplyConfiguration(new AnnonceFavoriteConfiguration());
+            modelBuilder.ApplyConfiguration(new AnnonceViewConfiguration());
         }
 
         /// <summary>

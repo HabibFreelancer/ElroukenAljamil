@@ -1,0 +1,3 @@
+/**********************************************Compte administratuer ******************/
+
+mot de passe compte admin : Admin@1234

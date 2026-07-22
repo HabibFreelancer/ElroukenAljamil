@@ -2,7 +2,6 @@
 using ElroukenAljamil.BuildingBlocks.EventBus.Events;
 using ElroukenAljamil.BuildingBlocks.EventBus.Events.Listings;
 using ElroukenAljamil.BuildingBlocks.Events.Abstractions;
-using ElroukenAljamil.Listings.Domain.Entities;
 
 
 namespace ElroukenAljamil.Listings.Infrastructure.EventPublishing
@@ -20,22 +19,18 @@ namespace ElroukenAljamil.Listings.Infrastructure.EventPublishing
             _eventBus = eventBus;
         }
 
-        public async Task PublishListingCreatedAsync(Listing listing, CancellationToken ct = default)
+        public async Task PublishListingCreatedAsync(Guid listingId, string title, string description, Guid sellerId, string city, double? latitude, double? longitude, List<string> imageUrls, CancellationToken ct = default)
         {
             var integrationEvent = new ListingCreatedIntegrationEvent
             {
-                ListingId = listing.Id,
-                Title = listing.Title,
-                Description = listing.Description,
-                //   Price = listing.Price,
-                // Currency = listing.Currency,
-                //  CategoryId = listing.CategoryId,
-                SellerId = listing.SellerId,
-                City = listing.Location.City,
-                Latitude = listing.Location.Latitude,
-                Longitude = listing.Location.Longitude,
-                ImageUrls = listing.ImageUrls,
-                //  CreatedAt = listing.CreatedAt
+                ListingId = listingId,
+                Title = title,
+                Description = description,
+                SellerId = sellerId,
+                City = city,
+                Latitude = latitude,
+                Longitude = longitude,
+                ImageUrls = imageUrls,
             };
 
             await _eventBus.PublishAsync(integrationEvent, ct);

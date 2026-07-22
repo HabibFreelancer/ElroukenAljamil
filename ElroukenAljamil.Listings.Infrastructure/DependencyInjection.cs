@@ -5,7 +5,6 @@ using ElroukenAljamil.Listings.Infrastructure.EventPublishing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ElroukenAljamil.Listings.Application.Interfaces;
 using ElroukenAljamil.Listings.Domain.Interfaces;
 
 
@@ -25,13 +24,13 @@ namespace ElroukenAljamil.Listings.Infrastructure
               b => b.MigrationsAssembly(typeof(ListingsDbContext).Assembly.FullName)));
 
             // Repositories
-            services.AddScoped<IListingRepository, ListingRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IMenuRepository, MenuRepository>();
             services.AddScoped<IAdTypeRepository, AdTypeRepository>();
             services.AddScoped<IDepositWorkflowRepository, DepositWorkflowRepository>();
             services.AddScoped<IWorkflowStepRepository, WorkflowStepRepository>();
             services.AddScoped<IStepFieldRepository, StepFieldRepository>();
+            services.AddScoped<IAnnonceRepository, AnnonceRepository>();
 
             // Event publishing
             services.AddScoped<ListingIntegrationEventPublisher>();
