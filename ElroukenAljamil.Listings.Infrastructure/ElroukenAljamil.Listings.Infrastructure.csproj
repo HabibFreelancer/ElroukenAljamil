@@ -15,10 +15,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Services\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\ElroukenAljamil.Common\ElroukenAljamil.Common.csproj" />
 		<ProjectReference Include="..\ElroukenAljamil.EventBus\ElroukenAljamil.EventBus.csproj" />
 		<ProjectReference Include="..\ElroukenAljamil.Listings.Application\ElroukenAljamil.Listings.Application.csproj" />

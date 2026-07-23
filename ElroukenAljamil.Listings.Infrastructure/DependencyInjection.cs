@@ -1,7 +1,9 @@
 ﻿using ElroukenAljamil.BuildingBlocks.EventBus.Extensions;
+using ElroukenAljamil.Listings.Application.Interfaces;
 using ElroukenAljamil.Listings.Infrastructure.Persistence;
 using ElroukenAljamil.Listings.Infrastructure.Repositories;
 using ElroukenAljamil.Listings.Infrastructure.EventPublishing;
+using ElroukenAljamil.Listings.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +33,10 @@ namespace ElroukenAljamil.Listings.Infrastructure
             services.AddScoped<IWorkflowStepRepository, WorkflowStepRepository>();
             services.AddScoped<IStepFieldRepository, StepFieldRepository>();
             services.AddScoped<IAnnonceRepository, AnnonceRepository>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IVehicleService, VehicleService>();
+            services.AddScoped<IAiDescriptionService, AiDescriptionService>();
+            services.AddHttpClient("vehicle");
 
             // Event publishing
             services.AddScoped<ListingIntegrationEventPublisher>();

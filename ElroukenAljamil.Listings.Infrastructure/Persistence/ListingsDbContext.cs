@@ -18,6 +18,7 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
         public DbSet<Annonce> Annonces => Set<Annonce>();
         public DbSet<AnnonceFavorite> AnnonceFavorites => Set<AnnonceFavorite>();
         public DbSet<AnnonceView> AnnonceViews => Set<AnnonceView>();
+        public DbSet<Feedback> Feedbacks => Set<Feedback>();
 
         public ListingsDbContext(DbContextOptions<ListingsDbContext> options)
             : base(options) { }
@@ -34,6 +35,7 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new AnnonceConfiguration());
             modelBuilder.ApplyConfiguration(new AnnonceFavoriteConfiguration());
             modelBuilder.ApplyConfiguration(new AnnonceViewConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedbackConfiguration());
         }
 
         /// <summary>

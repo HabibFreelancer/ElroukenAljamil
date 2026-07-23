@@ -335,6 +335,56 @@
         },
 
         // =============================================================
+        // FEEDBACK (Listings service - port 5001)
+        // =============================================================
+        {
+            "UpstreamPathTemplate": "/api/feedback",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/feedback",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "RateLimitOptions": {
+                "EnableRateLimiting": true,
+                "Period": "1m",
+                "PeriodTimespan": 60,
+                "Limit": 20
+            }
+        },
+        {
+            "UpstreamPathTemplate": "/api/feedback",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/feedback",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/feedback/stats",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/feedback/stats",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 60, "Region": "feedback-stats" }
+        },
+
+        // =============================================================
+        // VEHICLE LOOKUP (Listings service - port 5001)
+        // =============================================================
+        {
+            "UpstreamPathTemplate": "/api/vehicle/lookup/{immatriculation}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/vehicle/lookup/{immatriculation}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "RateLimitOptions": {
+                "EnableRateLimiting": true,
+                "Period": "1m",
+                "PeriodTimespan": 60,
+                "Limit": 30
+            }
+        },
+
+        // =============================================================
         // IDENTITY SERVICE (port 5002)
         // =============================================================
         {
