@@ -1,0 +1,73 @@
+<div class="management-page">
+  <div class="page-header">
+    <h1>Gestion des Types d'annonce</h1>
+    <button class="btn-add" (click)="showForm = !showForm">
+      <i class="fa-solid fa-plus"></i> Ajouter un type
+    </button>
+  </div>
+
+  <div class="form-card" *ngIf="showForm">
+    <h3>{{ editing ? 'Modifier' : 'Nouveau' }} type d'annonce</h3>
+    <div class="form-row">
+      <select [(ngModel)]="current.categoryId">
+        <option [value]="0">-- Catégorie --</option>
+        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }} ({{ getMenuName(cat.menuId) }})</option>
+      </select>
+      <input [(ngModel)]="current.label" placeholder="Label (ex: Offre, Demande)" />
+      <input [(ngModel)]="current.description" placeholder="Description" />
+      <input [(ngModel)]="current.displayOrder" type="number" placeholder="Ordre" />
+    </div>
+    <div class="form-row" style="margin-top:10px">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="current.isDefault" /> Par défaut
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="current.isActive" /> Actif
+      </label>
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" (click)="save()">{{ editing ? 'Modifier' : 'Créer' }}</button>
+      <button class="btn-cancel" (click)="cancel()">Annuler</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <input type="text" [(ngModel)]="searchText" placeholder="Rechercher..." class="search-input" />
+      <button class="btn-filter" (click)="applyFilter()"><i class="fa-solid fa-filter"></i> Filtrer</button>
+      <button class="btn-refresh" (click)="load()"><i class="fa-solid fa-rotate-right"></i> Rafraîchir</button>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Catégorie</th>
+        <th>Menu</th>
+        <th>Label</th>
+        <th>Description</th>
+        <th>Défaut</th>
+        <th>Ordre</th>
+        <th>Actif</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of filtered">
+        <td>{{ item.id }}</td>
+        <td>{{ item.category?.name || getCategoryName(item.categoryId) }}</td>
+        <td>{{ getMenuNameFromCategory(item.categoryId) }}</td>
+        <td>{{ item.label }}</td>
+        <td>{{ item.description }}</td>
+        <td>{{ item.isDefault ? '✓' : '' }}</td>
+        <td>{{ item.displayOrder }}</td>
+        <td>{{ item.isActive ? 'Oui' : 'Non' }}</td>
+        <td class="actions">
+          <button class="btn-edit" (click)="edit(item)"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-delete" (click)="delete(item.id)"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

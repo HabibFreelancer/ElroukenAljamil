@@ -1,0 +1,1016 @@
+<div class="deposer-wrapper">
+  <!-- Header simplifié -->
+  <div class="deposer-header-wrapper">
+    <div class="deposer-header">
+      <a routerLink="/" class="logo">ElroukenAljamil</a>
+      <span class="header-title">Déposer une annonce</span>
+      <a class="quit-btn" (click)="onQuitClick($event)" style="cursor:pointer;">Quitter</a>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="getProgressPercent()"></div>
+    </div>
+  </div>
+
+  <div class="deposer-content">
+    <div class="deposer-main">
+    <!-- Étape 1 : Titre + Suggestion catégories -->
+    <div class="form-card" *ngIf="currentStep === 1">
+      <h2>Commençons par l'essentiel !</h2>
+      <p class="subtitle">* champs obligatoires</p>
+
+      <div class="input-group">
+        <label for="title">Quel est le titre de l'annonce ? *</label>
+        <input type="text" id="title" [(ngModel)]="annonce.title" maxlength="200" placeholder="Ex: Smartphone reconditionné" (input)="onTitleChange()" />
+        <div class="char-count">{{ annonce.title.length }}/200</div>
+      </div>
+
+      <!-- Section suggestion catégories -->
+      <div class="category-suggestion" *ngIf="suggestedCategories.length > 0 && !showCategoryBrowser">
+        <hr class="separator" />
+        <h3>Choisissez une catégorie suggérée</h3>
+
+        <label class="category-option" *ngFor="let cat of suggestedCategories"
+               [class.selected]="selectedCategoryId === cat.categoryId"
+               (click)="selectSuggestedCategory(cat)">
+          <input type="radio" name="category" [checked]="selectedCategoryId === cat.categoryId" />
+          <i [class]="cat.menuIcon"></i>
+          <span><b>{{ cat.menuName }}</b> > {{ cat.categoryName }}</span>
+        </label>
+
+        <p class="other-category">Ou choisissez une autre catégorie *</p>
+        <button class="btn-browse-category" (click)="openCategoryBrowser()">
+          <i class="fa-solid fa-list"></i> Parcourir les catégories
+        </button>
+      </div>
+
+      <!-- Navigateur de catégories -->
+      <div class="category-browser" *ngIf="showCategoryBrowser">
+        <hr class="separator" />
+        <h3>Choisissez une catégorie *</h3>
+        <div class="category-container">
+          <div class="main-categories">
+            <div class="category-item" *ngFor="let menu of menus"
+                 [class.active]="selectedMenuId === menu.id"
+                 (click)="selectMenu(menu)">
+              <i [class]="menu.icon"></i>
+              {{ menu.name }}
+              <span class="arrow">></span>
+            </div>
+          </div>
+          <div class="sub-categories" *ngIf="browserCategories.length > 0">
+            <p *ngFor="let cat of browserCategories"
+               [class.selected]="selectedCategoryId === cat.id"
+               (click)="selectBrowserCategory(cat)">
+              {{ cat.name }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Catégorie sélectionnée -->
+      <div class="selected-category" *ngIf="annonce.category && !showCategoryBrowser">
+        <hr class="separator" />
+        <div class="selected-category-card">
+          <i class="fa-solid fa-check-circle"></i>
+          <span>Catégorie : <b>{{ annonce.category }}</b></span>
+          <button class="btn-change" (click)="openCategoryBrowser()">Modifier</button>
+        </div>
+      </div>
+
+      <!-- Section Type d'annonce -->
+      <div class="ad-type-section" *ngIf="showAdType && !showCategoryBrowser">
+        <label class="section-title">Type d'annonce *</label>
+        <div class="radio-group">
+          <label class="radio-option" *ngFor="let adType of adTypes"
+                 [class.selected]="annonce.adType === adType.label">
+            <input type="radio" name="ad-type" [value]="adType.label" [(ngModel)]="annonce.adType" />
+            <div>
+              <span class="radio-label">{{ adType.label }}</span>
+              <div class="radio-description">{{ adType.description }}</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <p class="footer-note">En déposant une annonce, vous acceptez nos conditions générales d'utilisation.</p>
+
+      <p class="error-text" *ngIf="categoryError" style="margin-top: 15px;">
+        <i class="fa-solid fa-circle-exclamation"></i> Veuillez choisir une catégorie pour continuer.
+      </p>
+    </div>
+
+    <!-- Dynamic Workflow Steps (when workflow loaded from API) -->
+    <ng-container *ngIf="workflow && workflowSteps.length > 0">
+      <ng-container *ngFor="let step of workflowSteps; let i = index">
+        <!-- Photos step (special handling) -->
+        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey === 'photos'">
+          <h2 style="margin-bottom: 10px;">{{ step.title }}</h2>
+          <p class="drag-hint" *ngIf="isVehiculeCategory">Faites glisser vos photos pour changer leur ordre</p>
+          <p class="sub-title" style="margin-bottom: 20px; display: block;">{{ step.subtitle || 'Vos photos' }}</p>
+
+          <div class="photo-grid" [class.draggable-grid]="isVehiculeCategory">
+            <div *ngFor="let slot of [0,1,2,3,4]" class="photo-slot-item"
+                 [attr.draggable]="isVehiculeCategory && photos[slot] ? true : null"
+                 (dragstart)="onDragStart($event, slot)"
+                 (dragover)="onDragOver($event)"
+                 (drop)="onDrop($event, slot)">
+              <div class="box-filled" *ngIf="photos[slot]">
+                <span class="cover-badge" *ngIf="slot === 0">Photo de couverture</span>
+                <img [src]="photos[slot]" alt="Photo" />
+                <span class="photo-number">{{ slot + 1 }}</span>
+                <span class="edit-btn" (click)="openEditor(slot)"><i class="fa-solid fa-pencil"></i></span>
+                <span class="close-btn" (click)="removePhoto(slot)"><i class="fa-solid fa-xmark"></i></span>
+                <span class="drag-icon" *ngIf="isVehiculeCategory"><i class="fa-solid fa-grip-vertical"></i></span>
+              </div>
+              <div class="box-empty" *ngIf="!photos[slot]" (click)="selectSlot(slot)">
+                <span class="cover-label" *ngIf="slot === 0">Photo de couverture</span>
+                <i class="fa-solid fa-camera"></i>
+                <span>Photo n° {{ slot + 1 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <input #fileInput type="file" accept="image/*" hidden (change)="onSlotPhotoSelected($event)" />
+
+          <p class="photo-limit" *ngIf="allSlotsFilled">
+            <i class="fa-solid fa-circle-check"></i> Vous avez atteint le maximum de 5 photos.
+          </p>
+
+          <p class="error-text" *ngIf="photosError" style="margin-top: 12px;">
+            <i class="fa-solid fa-circle-exclamation"></i> Veuillez ajouter au moins une photo pour continuer.
+          </p>
+
+          <div class="info-link">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>En savoir plus</span>
+          </div>
+        </div>
+
+        <!-- Details step for Immobilier: property type icons + "Les critères indispensables" -->
+        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey === 'details' && isImmobilierCategory()">
+          <h2 class="step-title">{{ step.title }}</h2>
+          <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
+
+          <!-- Property type icon selector — driven by field options from API -->
+          <div class="field-group spaced">
+            <label>Choisissez votre type de bien <span>*</span></label>
+            <ng-container *ngFor="let field of step.fields">
+              <ng-container *ngIf="field.fieldKey === 'propertyType'">
+                <div class="property-type-grid" [class.grid-3]="field.options.length <= 3">
+                  <ng-container *ngFor="let opt of field.options">
+                    <div class="property-type-card"
+                         [class.selected]="formData['propertyType'] === opt.value"
+                         (click)="selectPropertyType(opt.value)">
+                      <i [class]="getPropertyTypeIcon(opt.value)"></i>
+                      <span>{{ opt.label }}</span>
+                    </div>
+                  </ng-container>
+                </div>
+              </ng-container>
+            </ng-container>
+            <p class="error-text" *ngIf="fieldErrors['propertyType']">Veuillez sélectionner un type de bien.</p>
+          </div>
+
+          <!-- Fields section: shown after a property type is selected -->
+          <div class="criteres-section" *ngIf="formData['propertyType']">
+            <h3 class="criteres-title">Les critères indispensables</h3>
+
+            <ng-container *ngFor="let field of step.fields">
+              <ng-container *ngIf="field.fieldKey !== 'propertyType' && isFieldVisible(field)">
+
+                <!-- Section title divider (e.g. "Les atouts qui font la différence") -->
+                <div class="criteres-section-divider" *ngIf="field.fieldType === 'section_title'">
+                  <h3 class="criteres-title">{{ field.label }}</h3>
+                </div>
+
+                <!-- Number input (with or without suffix) -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'number'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div *ngIf="field.suffix" class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
+                    <input type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey)" min="0" />
+                    <div class="suffix">{{ field.suffix }}</div>
+                  </div>
+                  <input *ngIf="!field.suffix" type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)" min="0" />
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                  <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+                </div>
+
+                <!-- Year input (AAAA — 4 digits) -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'year'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="year-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                    <input type="text"
+                           [(ngModel)]="formData[field.fieldKey]"
+                           placeholder="AAAA"
+                           maxlength="4"
+                           inputmode="numeric"
+                           pattern="[0-9]{4}"
+                           (input)="onYearInput(field.fieldKey); clearFieldError(field.fieldKey)" />
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                  <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+                </div>
+
+                <!-- Select (single, searchable) -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'select'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="searchable-select">
+                    <input type="text" class="select-search" placeholder="Rechercher..." [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" />
+                    <div class="selected-value" *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]" (click)="openSelectDropdown(field.fieldKey)">
+                      {{ getSelectedLabel(field) }}
+                      <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
+                    </div>
+                    <div class="select-dropdown" *ngIf="fieldDropdownOpen[field.fieldKey]">
+                      <div class="select-option" *ngFor="let opt of getFilteredOptions(field)" (click)="selectOption(field.fieldKey, opt.value); clearFieldError(field.fieldKey)">
+                        {{ opt.label }}
+                      </div>
+                      <div class="select-empty" *ngIf="getFilteredOptions(field).length === 0">Aucun résultat</div>
+                    </div>
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                </div>
+
+                <!-- Multiselect (checkbox pills) -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'multiselect'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="multiselect-group">
+                    <label class="multiselect-option" *ngFor="let opt of field.options">
+                      <input type="checkbox" [checked]="isMultiselectChecked(field.fieldKey, opt.value)" (change)="toggleMultiselect(field.fieldKey, opt.value)" />
+                      <span>{{ opt.label }}</span>
+                    </label>
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                </div>
+
+                <!-- Date month (MM/AAAA) -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'date_month'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="date-month-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                    <i class="fa-regular fa-calendar"></i>
+                    <input type="text" [(ngModel)]="formData[field.fieldKey]" placeholder="MM / AAAA" maxlength="7" (input)="onDateMonthInput(field.fieldKey); clearFieldError(field.fieldKey)" />
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                  <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+                </div>
+
+                <!-- Radio group (e.g. "Ce bien est : Non meublé / Meublé") -->
+                <div class="field-group spaced" *ngIf="field.fieldType === 'radio'">
+                  <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+                  <div class="radio-card-group">
+                    <label class="radio-card" *ngFor="let opt of field.options"
+                           [class.selected]="formData[field.fieldKey] === opt.value"
+                           (click)="formData[field.fieldKey] = opt.value; clearFieldError(field.fieldKey)">
+                      <input type="radio" [name]="field.fieldKey" [value]="opt.value"
+                             [(ngModel)]="formData[field.fieldKey]" />
+                      <span>{{ opt.label }}</span>
+                    </label>
+                  </div>
+                  <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+                </div>
+
+                <!-- Toggle -->
+                <div class="toggle-group" *ngIf="field.fieldType === 'toggle'">
+                  <div class="toggle" [class.active]="formData[field.fieldKey] === 'true' || formData[field.fieldKey] === true" (click)="formData[field.fieldKey] = formData[field.fieldKey] === 'true' || formData[field.fieldKey] === true ? 'false' : 'true'">
+                    <div class="toggle-knob"></div>
+                  </div>
+                  <span>{{ field.label }}</span>
+                </div>
+
+              </ng-container>
+            </ng-container>
+          </div>
+
+          <!-- Hint when nothing selected yet -->
+          <p class="property-type-hint" *ngIf="!formData['propertyType']">
+            <i class="fa-solid fa-circle-info"></i>
+            Sélectionnez un type de bien pour voir les critères correspondants.
+          </p>
+        </div>
+
+        <!-- Price step for Location immobilier: loyer + dépôt de garantie -->
+        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey === 'price' && isLocationCategory()">
+          <h2 class="step-title">{{ step.title }}</h2>
+          <p class="step-subtitle location-price-intro">
+            Vous le savez, le prix est important. Soyez juste, mais ayez en tête une marge de négociation si besoin.
+          </p>
+
+          <ng-container *ngFor="let field of step.fields">
+            <!-- Loyer mensuel -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'number'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey)" min="0" />
+                <div class="suffix">{{ field.suffix || 'TND' }}</div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <!-- Legal indication displayed as helper text -->
+              <p class="deposit-legal-hint" *ngIf="field.fieldKey === 'deposit' && field.helperText">
+                <i class="fa-solid fa-circle-info"></i>
+                {{ field.helperText }}
+              </p>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Generic dynamic step (not title, not photos, not immobilier details, not location price) -->
+        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey !== 'title' && step.stepKey !== 'photos' && !(step.stepKey === 'details' && isImmobilierCategory()) && !(step.stepKey === 'price' && isLocationCategory())">
+          <h2 class="step-title">{{ step.title }}</h2>
+          <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
+
+          <ng-container *ngFor="let field of step.fields">
+           <ng-container *ngIf="isFieldVisible(field)">
+            <!-- Text input -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'text'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div *ngIf="field.suffix" class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 500" (input)="clearFieldError(field.fieldKey)" />
+                <div class="suffix">{{ field.suffix }}</div>
+              </div>
+              <input *ngIf="!field.suffix" type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 500" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)" />
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Immatriculation (text with validate button) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'immatriculation'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="immat-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="onImmatInput(field.fieldKey); clearFieldError(field.fieldKey); immatError = ''" class="immat-field" />
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="error-text" *ngIf="immatError">{{ immatError }}</p>
+              <p class="helper-text" *ngIf="field.helperText && !immatError">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Date month (MM/AAAA) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'date_month'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="date-month-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                <i class="fa-regular fa-calendar"></i>
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" placeholder="MM / AAAA" maxlength="7" (input)="onDateMonthInput(field.fieldKey); clearFieldError(field.fieldKey)" />
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Dependent select (model depends on brand) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'dependent_select'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="searchable-select" [class.disabled]="getDependentOptions(field).length === 0">
+                <input type="text" class="select-search" [placeholder]="'Rechercher...'" [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" [disabled]="getDependentOptions(field).length === 0" />
+                <div class="selected-value" *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]" (click)="openSelectDropdown(field.fieldKey)">
+                  {{ getSelectedDependentLabel(field) }}
+                  <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
+                </div>
+                <div class="select-dropdown" *ngIf="fieldDropdownOpen[field.fieldKey]">
+                  <div class="select-option" *ngFor="let opt of getFilteredDependentOptions(field)" (click)="selectOption(field.fieldKey, opt.value); clearFieldError(field.fieldKey)">
+                    {{ opt.label }}
+                  </div>
+                  <div class="select-empty" *ngIf="getFilteredDependentOptions(field).length === 0">Aucun résultat</div>
+                </div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+            </div>
+
+            <!-- Number input -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'number'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div *ngIf="field.suffix" class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey)" />
+                <div class="suffix">{{ field.suffix }}</div>
+              </div>
+              <input *ngIf="!field.suffix" type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)" />
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Price with gauge and similar ads -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'price_gauge'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="input-with-suffix" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="number" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="clearFieldError(field.fieldKey); updatePriceGauge()" />
+                <div class="suffix">{{ field.suffix || 'TND' }}</div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+
+              <!-- Price gauge -->
+              <div class="price-gauge" *ngIf="priceEstimate && !isMotoCategory()">
+                <div class="gauge-bar">
+                  <div class="gauge-segment" style="background:#27ae60;"></div>
+                  <div class="gauge-segment" style="background:#2ecc71;"></div>
+                  <div class="gauge-segment" style="background:#f1c40f;"></div>
+                  <div class="gauge-segment" style="background:#e67e22;"></div>
+                  <div class="gauge-segment" style="background:#c0392b;"></div>
+                  <div class="gauge-indicator" [style.left.%]="priceGaugePosition"></div>
+                </div>
+                <div class="gauge-range-labels">
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#27ae60;">Très bonne affaire</span>
+                    <span class="range-values">{{ priceRanges[0]?.min | number:'1.0-0' }} - {{ priceRanges[0]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#2ecc71;">Bonne affaire</span>
+                    <span class="range-values">{{ priceRanges[1]?.min | number:'1.0-0' }} - {{ priceRanges[1]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#f1c40f;">Prix équitable</span>
+                    <span class="range-values">{{ priceRanges[2]?.min | number:'1.0-0' }} - {{ priceRanges[2]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#e67e22;">Légèrement supérieur</span>
+                    <span class="range-values">{{ priceRanges[3]?.min | number:'1.0-0' }} - {{ priceRanges[3]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                  <div class="gauge-range-item">
+                    <span class="range-title" style="color:#c0392b;">Au-dessus du marché</span>
+                    <span class="range-values">{{ priceRanges[4]?.min | number:'1.0-0' }} - {{ priceRanges[4]?.max | number:'1.0-0' }} TND</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Similar ads -->
+              <div class="similar-ads" *ngIf="priceEstimate && priceEstimate.similarAds.length > 0">
+                <label>Annonces similaires : {{ formData['brand'] }} {{ formData['model'] }}</label>
+                <div class="ads-grid">
+                  <div class="ad-card" *ngFor="let ad of priceEstimate.similarAds">
+                    <img [src]="ad.image" alt="Photo" class="ad-card-img" />
+                    <div class="ad-card-price">{{ ad.price | number:'1.0-0' }} TND</div>
+                    <div class="ad-card-info">{{ ad.mileage ? ad.mileage + ' km' : '' }}</div>
+                    <div class="ad-card-title">{{ ad.title }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Text with character counter -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'text_counter'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="text-counter-wrapper" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 200" (input)="clearFieldError(field.fieldKey)" (focus)="prefillTitleField(field.fieldKey)" />
+              </div>
+              <div class="char-count">{{ (formData[field.fieldKey] || '').length }}/{{ field.maxLength || 200 }}</div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+            </div>
+
+            <!-- Textarea with character counter + AI generate button -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'textarea_counter'">
+              <button class="btn-ai-generate" type="button" *ngIf="field.helperText === 'ai_enabled' && !formData[field.fieldKey]" (click)="generateDescription(field.fieldKey)" [disabled]="aiGenerating">
+                <i class="fa-solid" [class.fa-wand-magic-sparkles]="!aiGenerating" [class.fa-spinner]="aiGenerating" [class.fa-spin]="aiGenerating"></i>
+                {{ aiGenerating ? 'Génération en cours...' : 'Générer une description' }}
+              </button>
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <textarea [(ngModel)]="formData[field.fieldKey]" rows="10" class="textarea-counter" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 4000" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)"></textarea>
+              <div class="char-count">{{ (formData[field.fieldKey] || '').length }}/{{ field.maxLength || 4000 }}</div>
+              <p class="ai-disclaimer" *ngIf="formData[field.fieldKey] && field.helperText === 'ai_enabled'">
+                <i class="fa-solid fa-robot"></i>
+                Cette description est générée automatiquement par une Intelligence Artificielle. Elle peut contenir des erreurs ou des biais. Il vous appartient de la vérifier, compléter et corriger avant publication.
+              </p>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+            </div>
+
+            <!-- Select -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'select'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="searchable-select">
+                <input type="text" class="select-search" [placeholder]="'Rechercher...'" [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" />
+                <div class="selected-value" *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]" (click)="openSelectDropdown(field.fieldKey)">
+                  {{ getSelectedLabel(field) }}
+                  <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
+                </div>
+                <div class="select-dropdown" *ngIf="fieldDropdownOpen[field.fieldKey]">
+                  <div class="select-option" *ngFor="let opt of getFilteredOptions(field)" (click)="selectOption(field.fieldKey, opt.value); clearFieldError(field.fieldKey)">
+                    {{ opt.label }}
+                  </div>
+                  <div class="select-empty" *ngIf="getFilteredOptions(field).length === 0">Aucun résultat</div>
+                </div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+            </div>
+
+            <!-- Textarea -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'textarea'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <textarea [(ngModel)]="formData[field.fieldKey]" rows="8" style="width: 100%; height: 214px; padding: 14px; line-height: 1.8;" [placeholder]="field.placeholder" [maxlength]="field.maxLength || 4000" [class.input-error]="fieldErrors[field.fieldKey]" (input)="clearFieldError(field.fieldKey)"></textarea>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Radio -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'radio'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="work-type-radios">
+                <label class="radio-inline" *ngFor="let opt of field.options">
+                  <input type="radio" [name]="field.fieldKey" [value]="opt.value" [(ngModel)]="formData[field.fieldKey]" /> {{ opt.label }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Pills (multi-choice buttons like Énergie) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'pills'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="pill-group">
+                <div class="pill" *ngFor="let opt of field.options"
+                     [class.active]="formData[field.fieldKey] === opt.value"
+                     (click)="formData[field.fieldKey] = opt.value; clearFieldError(field.fieldKey)">
+                  {{ opt.label }}
+                </div>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+            </div>
+
+            <!-- Multiselect (checkbox list) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'multiselect'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="multiselect-group">
+                <label class="multiselect-option" *ngFor="let opt of field.options">
+                  <input type="checkbox" [checked]="isMultiselectChecked(field.fieldKey, opt.value)" (change)="toggleMultiselect(field.fieldKey, opt.value)" />
+                  <span>{{ opt.label }}</span>
+                </label>
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+            </div>
+
+            <!-- Toggle -->
+            <div class="toggle-group" *ngIf="field.fieldType === 'toggle'">
+              <div class="toggle" [class.active]="formData[field.fieldKey] === 'true' || formData[field.fieldKey] === true" (click)="formData[field.fieldKey] = formData[field.fieldKey] === 'true' || formData[field.fieldKey] === true ? 'false' : 'true'">
+                <div class="toggle-knob"></div>
+              </div>
+              <span>{{ field.label }}</span>
+            </div>
+
+            <!-- Address (with Nominatim) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'address'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="address-input">
+                <i class="fa-solid fa-location-crosshairs"></i>
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" [placeholder]="field.placeholder" (input)="onAddressInput(field.fieldKey)" />
+                <i class="fa-solid fa-xmark clear-icon" *ngIf="formData[field.fieldKey]" (click)="formData[field.fieldKey] = ''; addressResults = []; clearMap()"></i>
+              </div>
+              <div class="address-results" *ngIf="addressResults.length > 0">
+                <div class="address-result-item" *ngFor="let result of addressResults" (click)="selectAddressDynamic(result, field.fieldKey)">
+                  <i class="fa-solid fa-map-pin"></i>
+                  {{ result.display_name }}
+                </div>
+              </div>
+              <div class="map-container" id="map"></div>
+              <p class="helper-text" *ngIf="field.helperText" style="margin-top: 12px;">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Email -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'email'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <input type="text" [(ngModel)]="formData[field.fieldKey]" readonly class="input-readonly" />
+            </div>
+
+            <!-- Phone -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'phone'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="phone-input-wrapper" [class.input-error]="fieldErrors[field.fieldKey]" [class.focused]="phoneFieldFocused">
+                <div class="phone-country">
+                  <span class="phone-flag">🇹🇳</span>
+                  <span class="phone-code">+216</span>
+                </div>
+                <div class="phone-divider"></div>
+                <input
+                  type="tel"
+                  class="phone-number-input"
+                  [(ngModel)]="formData[field.fieldKey]"
+                  placeholder="XX XXX XXX"
+                  maxlength="11"
+                  inputmode="numeric"
+                  (focus)="phoneFieldFocused = true"
+                  (blur)="phoneFieldFocused = false"
+                  (input)="onPhoneInput(field.fieldKey); clearFieldError(field.fieldKey)"
+                />
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text">Ex : 20 123 456</p>
+            </div>
+           </ng-container>
+          </ng-container>
+
+          <!-- Legal text on contact step -->
+          <p class="legal-text" *ngIf="step.stepKey === 'contact'">En validant la diffusion de mon annonce, j'accepte les conditions générales d'utilisation et les règles de diffusion du site ElroukenAljamil et j'autorise ElroukenAljamil à diffuser mon annonce.</p>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <!-- Photo editor modal (shared) -->
+    <div class="photo-editor-modal" *ngIf="showEditor">
+      <div class="editor-overlay" (click)="closeEditor()"></div>
+      <div class="editor-content">
+        <h3>Éditer la photo</h3>
+        <div class="editor-preview"
+             (mousedown)="onCropMouseDown($event)"
+             (mousemove)="onCropMouseMove($event)"
+             (mouseup)="onCropMouseUp($event)"
+             (mouseleave)="onCropMouseUp($event)">
+          <img #cropImage [src]="photos[editingSlot]" [style.transform]="'rotate(' + editorRotation + 'deg)'" />
+          <div class="crop-selection" *ngIf="isCropping" [ngStyle]="cropStyle"></div>
+        </div>
+        <div class="editor-actions">
+          <button (click)="rotatePhoto(-90)"><i class="fa-solid fa-rotate-left"></i> Gauche</button>
+          <button (click)="rotatePhoto(90)"><i class="fa-solid fa-rotate-right"></i> Droite</button>
+          <button [class.active]="isCropping" (click)="cropPhoto()"><i class="fa-solid fa-crop"></i> Recadrer</button>
+          <button class="btn-save-edit" (click)="saveEdit()"><i class="fa-solid fa-check"></i> Valider</button>
+          <button (click)="closeEditor()"><i class="fa-solid fa-xmark"></i> Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legacy static steps only shown when NO workflow is loaded -->
+    <ng-container *ngIf="!workflow">
+    <!-- Étape 2 : Description & Prix -->
+    <div class="form-card" *ngIf="currentStep === 2">
+      <h2>Décrivez votre annonce</h2>
+      <p class="subtitle">Plus votre annonce est détaillée, plus elle attire d'acheteurs</p>
+
+      <div class="input-group">
+        <label for="description">Description *</label>
+        <textarea id="description" [(ngModel)]="annonce.description" rows="6" maxlength="4000" placeholder="Décrivez votre article : état, dimensions, raison de la vente..."></textarea>
+        <div class="char-count">{{ annonce.description.length }}/4000</div>
+      </div>
+
+      <div class="form-row">
+        <div class="input-group">
+          <label for="price">Prix (TND) *</label>
+          <input type="number" id="price" [(ngModel)]="annonce.price" placeholder="0" />
+        </div>
+        <div class="input-group">
+          <label for="condition">État *</label>
+          <select id="condition" [(ngModel)]="annonce.condition">
+            <option value="">Sélectionnez</option>
+            <option value="Neuf">Neuf avec étiquette</option>
+            <option value="Très bon état">Très bon état</option>
+            <option value="Bon état">Bon état</option>
+            <option value="État correct">État correct</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="location">Localisation *</label>
+        <input type="text" id="location" [(ngModel)]="annonce.location" placeholder="Ex: Tunis, Sousse..." />
+      </div>
+    </div>
+
+    <!-- Étape 3 : Photos -->
+    <div class="form-card" *ngIf="currentStep === 3">
+      <h2 style="margin-bottom: 10px;">Ajoutez des photos</h2>
+      <p class="drag-hint" *ngIf="isVehiculeCategory">Faites glisser vos photos pour changer leur ordre</p>
+      <p class="sub-title" style="margin-bottom: 20px; display: block;">Vos photos</p>
+
+      <div class="photo-grid" [class.draggable-grid]="isVehiculeCategory">
+        <div *ngFor="let slot of [0,1,2,3,4]" class="photo-slot-item"
+             [attr.draggable]="isVehiculeCategory && photos[slot] ? true : null"
+             (dragstart)="onDragStart($event, slot)"
+             (dragover)="onDragOver($event)"
+             (drop)="onDrop($event, slot)">
+          <div class="box-filled" *ngIf="photos[slot]">
+            <span class="cover-badge" *ngIf="slot === 0">Photo de couverture</span>
+            <img [src]="photos[slot]" alt="Photo" />
+            <span class="photo-number">{{ slot + 1 }}</span>
+            <span class="edit-btn" (click)="openEditor(slot)"><i class="fa-solid fa-pencil"></i></span>
+            <span class="close-btn" (click)="removePhoto(slot)"><i class="fa-solid fa-xmark"></i></span>
+            <span class="drag-icon" *ngIf="isVehiculeCategory"><i class="fa-solid fa-grip-vertical"></i></span>
+          </div>
+          <div class="box-empty" *ngIf="!photos[slot]" (click)="selectSlot(slot)">
+            <span class="cover-label" *ngIf="slot === 0">Photo de couverture</span>
+            <i class="fa-solid fa-camera"></i>
+            <span>Photo n° {{ slot + 1 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <input #fileInput type="file" accept="image/*" hidden (change)="onSlotPhotoSelected($event)" />
+
+      <p class="photo-limit" *ngIf="allSlotsFilled">
+        <i class="fa-solid fa-circle-check"></i> Vous avez atteint le maximum de 5 photos.
+      </p>
+
+      <div class="info-link">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>En savoir plus</span>
+      </div>
+    </div>
+
+    <!-- Étape 4 : Récapitulatif -->
+    <div class="form-card" *ngIf="currentStep === 4">
+
+      <!-- Formulaire spécifique Emploi -->
+      <div *ngIf="isEmploiCategory()">
+        <h2 class="step-title">Dites-nous en plus</h2>
+        <p class="step-subtitle">Ces informations permettront aux candidats de mieux comprendre votre offre.</p>
+
+        <div class="field-group spaced">
+          <label>Type de contrat</label>
+          <select [(ngModel)]="emploiForm.contract">
+            <option value="">Choisissez</option>
+            <option value="cdi">CDI</option>
+            <option value="cdd">CDD</option>
+            <option value="interim">Intérim</option>
+            <option value="alternance">Apprentissage / Alternance</option>
+            <option value="stage">Stage</option>
+            <option value="freelance">Indépendant / Franchise</option>
+            <option value="benevolat">Bénévolat</option>
+          </select>
+        </div>
+
+        <div class="field-group spaced">
+          <label>Secteur d'activité</label>
+          <select [(ngModel)]="emploiForm.industry">
+            <option value="">Choisissez</option>
+            <option value="it">Informatique</option>
+            <option value="sales">Commerce / Vente</option>
+            <option value="construction">BTP / Construction</option>
+            <option value="medical">Santé / Médical</option>
+            <option value="logistics">Transport / Logistique</option>
+          </select>
+        </div>
+
+        <div class="field-group spaced">
+          <label>Métier</label>
+          <select [(ngModel)]="emploiForm.job">
+            <option value="">Choisissez</option>
+            <option value="it_digital">Informatique / Digital</option>
+            <option value="commerce">Commerce / Vente / Marketing</option>
+            <option value="sante">Santé / Services à la personne</option>
+            <option value="btp">BTP / Construction / Immobilier</option>
+            <option value="hotellerie">Hôtellerie / Restauration / Tourisme</option>
+            <option value="transport">Transport / Logistique</option>
+            <option value="admin">Administration / RH / Juridique</option>
+            <option value="enseignement">Enseignement / Formation</option>
+            <option value="artisanat">Artisanat / Industrie</option>
+            <option value="finance">Banque / Finance / Comptabilité</option>
+            <option value="agriculture">Agriculture / Environnement</option>
+          </select>
+        </div>
+
+        <div class="field-group spaced">
+          <label>Expérience</label>
+          <select [(ngModel)]="emploiForm.experience">
+            <option value="">Choisissez</option>
+            <option value="junior">Junior (0 à 2 ans)</option>
+            <option value="confirme">Confirmé (2 à 5 ans)</option>
+            <option value="senior">Sénior (5 à 10 ans)</option>
+            <option value="expert">Expert / Lead (+ de 10 ans)</option>
+          </select>
+        </div>
+
+        <div class="field-group spaced">
+          <label>Niveau d'études</label>
+          <select [(ngModel)]="emploiForm.education">
+            <option value="">Choisissez</option>
+            <option value="no_degree">Sans diplôme</option>
+            <option value="cap_bep">CAP, BEP</option>
+            <option value="bac">Bac, Bac pro, BP</option>
+            <option value="bac_2">Bac +2</option>
+            <option value="bac_3">Bac +3</option>
+            <option value="bac_5">Bac +5 et plus</option>
+          </select>
+        </div>
+
+        <div class="field-group spaced">
+          <label>Travail à</label>
+          <div class="work-type-radios">
+            <label class="radio-inline">
+              <input type="radio" name="workType" value="temps_plein" [(ngModel)]="emploiForm.workType" /> Temps plein
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="workType" value="temps_partiel" [(ngModel)]="emploiForm.workType" /> Temps partiel
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="workType" value="both" [(ngModel)]="emploiForm.workType" /> Temps plein ou temps partiel
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Récapitulatif standard (non-emploi) -->
+      <div *ngIf="!isEmploiCategory()">
+        <h2>Vérifiez votre annonce</h2>
+        <p class="subtitle">Voici un résumé avant publication</p>
+
+        <div class="recap">
+          <div class="recap-item">
+            <span class="label">Catégorie</span>
+            <span class="value">{{ annonce.category }}</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">Titre</span>
+            <span class="value">{{ annonce.title }}</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">Description</span>
+            <span class="value description">{{ annonce.description }}</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">Prix</span>
+            <span class="value">{{ annonce.price }} TND</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">État</span>
+            <span class="value">{{ annonce.condition }}</span>
+          </div>
+          <div class="recap-item">
+            <span class="label">Localisation</span>
+            <span class="value">{{ annonce.location }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Étape 5 : Rémunération (Emploi uniquement) -->
+    <div class="form-card" *ngIf="currentStep === 5">
+      <h2 class="step-title">Quel est le niveau de rémunération ?</h2>
+      <p class="step-subtitle">Indiquez le salaire proposé pour ce poste.</p>
+
+      <div class="field-group spaced">
+        <label>Salaire horaire *</label>
+        <div class="input-with-suffix">
+          <input type="number" [(ngModel)]="emploiForm.salary" placeholder="0" />
+          <div class="suffix">TND</div>
+        </div>
+        <p class="helper-text">Précisez le montant brut horaire.</p>
+      </div>
+    </div>
+
+    <!-- Étape 6 : Décrivez votre recherche (Emploi uniquement) -->
+    <div class="form-card" *ngIf="currentStep === 6">
+      <h2 class="step-title">Décrivez votre recherche !</h2>
+      <p class="step-subtitle">Donnez envie aux recruteurs de vous contacter.</p>
+
+      <div class="field-group spaced">
+        <label>Poste recherché *</label>
+        <div class="input-with-suffix" [class.input-error]="posteError">
+          <input type="text" [(ngModel)]="emploiForm.poste" placeholder="Ex: Développeur web" required (input)="posteError = false" />
+          <div class="suffix">H/F</div>
+        </div>
+        <p class="error-text" *ngIf="posteError">Ce champ est obligatoire.</p>
+        <p class="helper-text">Vous n'avez pas besoin de mentionner « Recherche » ou « Poste de » ici.</p>
+      </div>
+
+      <div class="field-group spaced">
+        <label>Description de vos expériences *</label>
+        <textarea [(ngModel)]="emploiForm.experienceDesc" rows="8" style="width: 770px; height: 214px; max-width: 100%;" placeholder="Décrivez vos compétences et expériences..." required (input)="experienceDescError = false" [class.input-error]="experienceDescError"></textarea>
+        <p class="error-text" *ngIf="experienceDescError">Ce champ est obligatoire.</p>
+        <p class="helper-text">La loi interdit toute mention discriminatoire. Seul le travail déclaré est autorisé.</p>
+      </div>
+
+      <div class="toggle-group">
+        <div class="toggle" [class.active]="emploiForm.profilVisible" (click)="emploiForm.profilVisible = !emploiForm.profilVisible">
+          <div class="toggle-knob"></div>
+        </div>
+        <span>J'autorise la création de mon profil candidat et sa visibilité auprès des recruteurs.</span>
+      </div>
+    </div>
+
+    <!-- Étape 7 : Localisation (Emploi uniquement) -->
+    <div class="form-card" *ngIf="currentStep === 7">
+      <h2 class="step-title">Où vous situez-vous ?</h2>
+      <p class="step-subtitle">Indiquez votre localisation pour être trouvé plus facilement.</p>
+
+      <div class="field-group spaced">
+        <label>Adresse *</label>
+        <div class="address-input">
+          <i class="fa-solid fa-location-crosshairs"></i>
+          <input type="text" [(ngModel)]="emploiForm.address" placeholder="Tapez votre adresse..." (input)="searchAddress()" />
+          <i class="fa-solid fa-xmark clear-icon" *ngIf="emploiForm.address" (click)="emploiForm.address = ''; addressResults = []; clearMap()" ></i>
+        </div>
+        <div class="address-results" *ngIf="addressResults.length > 0">
+          <div class="address-result-item" *ngFor="let result of addressResults" (click)="selectAddress(result)">
+            <i class="fa-solid fa-map-pin"></i>
+            {{ result.display_name }}
+          </div>
+        </div>
+      </div>
+
+      <div class="map-container" id="map"></div>
+
+      <p class="helper-text" style="margin-top: 12px;">Complétez votre adresse et les personnes utilisant la recherche autour de soi trouveront plus facilement votre annonce.</p>
+    </div>
+
+    <!-- Étape 8 : Vos coordonnées (Emploi uniquement) -->
+    <div class="form-card" *ngIf="currentStep === 8">
+      <h2 class="step-title">Vos coordonnées</h2>
+      <p class="step-subtitle">Vérifiez vos informations de contact avant publication.</p>
+
+      <div class="field-group spaced">
+        <label>Email *</label>
+        <input type="text" [(ngModel)]="contactForm.email" readonly class="input-readonly" />
+      </div>
+
+      <div class="field-group spaced">
+        <label>Téléphone *</label>
+        <div class="phone-input-wrapper" [class.focused]="phoneFieldFocused">
+          <div class="phone-country">
+            <span class="phone-flag">🇹🇳</span>
+            <span class="phone-code">+216</span>
+          </div>
+          <div class="phone-divider"></div>
+          <input
+            type="tel"
+            class="phone-number-input"
+            [(ngModel)]="contactForm.phone"
+            placeholder="XX XXX XXX"
+            maxlength="11"
+            inputmode="numeric"
+            (focus)="phoneFieldFocused = true"
+            (blur)="phoneFieldFocused = false"
+            (input)="onPhoneInputLegacy()"
+          />
+        </div>
+        <p class="helper-text">Ex : 20 123 456</p>
+      </div>
+
+      <div class="toggle-group">
+        <div class="toggle" [class.active]="contactForm.hidePhone" (click)="contactForm.hidePhone = !contactForm.hidePhone">
+          <div class="toggle-knob"></div>
+        </div>
+        <span>Masquer le numéro</span>
+      </div>
+
+      <p class="legal-text">En validant la diffusion de mon annonce, j'accepte les conditions générales d'utilisation et les règles de diffusion du site ElroukenAljamil et j'autorise ElroukenAljamil à diffuser mon annonce.</p>
+    </div>
+    </ng-container>
+
+    <!-- Page de succès après dépôt -->
+    <div class="form-card success-card" *ngIf="submitted">
+      <div class="success-content">
+        <div class="success-icon">🎉</div>
+        <h2>Nous avons bien reçu votre annonce !</h2>
+        <p class="success-message">Une fois contrôlée et validée, vous recevrez une notification et pourrez la retrouver dans la section « Annonces » de votre compte.</p>
+        <div class="success-actions">
+          <a routerLink="/" class="btn-home">Voir mes annonces</a>
+          <button class="btn-new" (click)="resetForm()">Déposer une nouvelle annonce</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions" *ngIf="!submitted">
+      <button class="btn-back" *ngIf="currentStep > 1" (click)="prevStep()">
+        <i class="fa-solid fa-arrow-left"></i> Retour
+      </button>
+      <button class="btn-continue" *ngIf="!isLastStep()" (click)="nextStep()">
+        Continuer <i class="fa-solid fa-arrow-right"></i>
+      </button>
+      <button class="btn-publish" *ngIf="isLastStep()" (click)="submit()" [disabled]="submitting">
+        <i class="fa-solid" [class.fa-paper-plane]="!submitting" [class.fa-spinner]="submitting" [class.fa-spin]="submitting"></i>
+        {{ submitting ? 'Envoi en cours...' : 'Déposer votre annonce' }}
+      </button>
+    </div>
+    </div>
+
+    <div class="side-info">
+      <p class="tip-icon">💡</p>
+      <p class="tip-title">Votre annonce sera trouvée plus facilement !</p>
+      <p class="tip-text">Vous aurez 50% de chances en plus d'être contacté si votre annonce est dans la bonne catégorie.</p>
+    </div>
+  </div>
+
+  <!-- Feedback modal -->
+  <div class="quit-modal-overlay" *ngIf="showFeedbackModal">
+    <div class="quit-modal" (click)="$event.stopPropagation()">
+      <div class="feedback-header">
+        <span class="close-btn-x" (click)="closeFeedback()">✕</span>
+      </div>
+      <div class="feedback-logo">ElroukenAljamil</div>
+      <p class="feedback-subtitle">Parlez-nous de votre expérience</p>
+      <!-- Step 1: Rating -->
+      <div *ngIf="feedbackStep === 1">
+        <h3 class="feedback-title">À quel point a-t-il été facile de créer votre annonce ?</h3>
+        <div class="feedback-options">
+          <div class="feedback-option" [class.selected]="feedbackRating === 'tres_facile'" (click)="selectFeedback('tres_facile')">Très facile</div>
+          <div class="feedback-option" [class.selected]="feedbackRating === 'facile'" (click)="selectFeedback('facile')">Facile</div>
+          <div class="feedback-option" [class.selected]="feedbackRating === 'neutre'" (click)="selectFeedback('neutre')">Neutre</div>
+          <div class="feedback-option" [class.selected]="feedbackRating === 'difficile'" (click)="selectFeedback('difficile')">Difficile</div>
+          <div class="feedback-option" [class.selected]="feedbackRating === 'tres_difficile'" (click)="selectFeedback('tres_difficile')">Très difficile</div>
+        </div>
+        <button class="btn-feedback-next" (click)="nextFeedback()" [disabled]="!feedbackRating">Suiv.</button>
+      </div>
+      <!-- Step 2: Thank you -->
+      <div *ngIf="feedbackStep === 2" class="feedback-thanks">
+        <h3 class="feedback-title">Merci pour votre réponse 😊</h3>
+        <p>Vous pouvez maintenant fermer cette fenêtre.</p>
+        <div class="feedback-btn-group">
+          <button class="btn-feedback-action" (click)="prevFeedback()">Préc.</button>
+          <button class="btn-feedback-action" (click)="finishFeedback()">Terminé</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quit confirmation modal -->
+  <div class="quit-modal-overlay" *ngIf="showQuitModal" (click)="showQuitModal = false">
+    <div class="quit-modal" (click)="$event.stopPropagation()">
+      <h3>Vous voulez interrompre votre dépôt ?</h3>
+      <p>Aucun problème, vous pourrez le reprendre depuis vos annonces pour le terminer plus tard.</p>
+      <div class="quit-modal-actions">
+        <button class="btn-save-draft" (click)="saveDraft()" [disabled]="savingDraft">
+          <i class="fa-solid" [class.fa-floppy-disk]="!savingDraft" [class.fa-spinner]="savingDraft" [class.fa-spin]="savingDraft"></i>
+          {{ savingDraft ? 'Enregistrement...' : 'Enregistrer le brouillon' }}
+        </button>
+        <button class="btn-quit-no-save" (click)="quitWithoutSaving()">Quitter sans enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>

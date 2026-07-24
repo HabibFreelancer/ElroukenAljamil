@@ -1,0 +1,41 @@
+<app-navbar *ngIf="showMainLayout"></app-navbar>
+
+<div class="page-layout" *ngIf="showMainLayout">
+  <aside class="sidebar sidebar-left">
+    <div class="sidebar-ad">
+      <span class="ad-label">Publicité</span>
+      <div class="ad-space">
+        <div class="ad-card-promo">
+          <div class="ad-promo-img">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+          <h4>ElroukenAljamil App</h4>
+          <p>Téléchargez notre app et vendez en un clic !</p>
+          <a href="#" class="ad-promo-btn">Télécharger</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <aside class="sidebar sidebar-right">
+    <div class="sidebar-ad">
+      <span class="ad-label">Publicité</span>
+      <div class="ad-space">
+        <div class="ad-card-promo">
+          <div class="ad-promo-img">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h4>Paiement sécurisé</h4>
+          <p>Achetez et vendez en toute sécurité avec notre protection acheteur.</p>
+          <a href="#" class="ad-promo-btn">En savoir plus</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<router-outlet *ngIf="!showMainLayout"></router-outlet>

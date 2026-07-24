@@ -1,0 +1,82 @@
+<div class="header-wrapper">
+  <header class="main-header container">
+    <div class="logo"><a routerLink="/">ElroukenAljamil</a></div>
+    <button class="btn-post" routerLink="/deposer"><i class="fa-solid fa-plus"></i> Déposer une annonce</button>
+    <div class="search-container">
+      <input type="text" placeholder="Rechercher sur ElroukenAljamil">
+    </div>
+    <nav class="user-nav">
+      <a routerLink="/recherches" class="nav-item"><i class="fa-regular fa-bell"></i><span>Mes recherches</span></a>
+      <a routerLink="/favoris" class="nav-item"><i class="fa-regular fa-heart"></i><span>Favoris</span></a>
+      <a routerLink="/messages" class="nav-item"><i class="fa-regular fa-envelope"></i><span>Messages</span></a>
+      <a routerLink="/login" class="nav-item"><i class="fa-regular fa-user"></i><span>Se connecter</span></a>
+    </nav>
+  </header>
+
+  <nav class="category-nav-wrapper" (mouseleave)="activePanel = null">
+    <div class="container">
+      <ul class="cat-list">
+        <li class="cat-item" *ngFor="let menu of menus" (mouseenter)="activePanel = menu.slug">
+          {{ menu.name }}
+          <div class="dropdown-panel" *ngIf="activePanel === menu.slug && menuCategories[menu.slug]?.length">
+            <div class="panel-inner container">
+              <div class="panel-sidebar">
+                <h4><i [class]="menu.icon"></i> {{ menu.name }}</h4>
+
+                <!-- Action cards statiques par menu -->
+                <ng-container [ngSwitch]="menu.slug">
+                  <ng-container *ngSwitchCase="'immobilier'">
+                    <div class="action-card"><i class="fa-solid fa-calculator"></i><span>Estimer votre bien</span></div>
+                    <div class="action-card"><i class="fa-solid fa-map-location-dot"></i><span>Rechercher par carte</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'vehicules'">
+                    <div class="action-card"><i class="fa-solid fa-gauge-high"></i><span>Estimer votre véhicule</span></div>
+                    <div class="action-card"><i class="fa-solid fa-shield-halved"></i><span>Garantie véhicule</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'vacances'">
+                    <div class="action-card"><i class="fa-solid fa-sun"></i><span>Guide des destinations</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'emploi'">
+                    <div class="action-card"><i class="fa-solid fa-file-lines"></i><span>Créer votre CV</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'mode'">
+                    <div class="action-card"><i class="fa-solid fa-tag"></i><span>Bons plans mode</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'maison-jardin'">
+                    <div class="action-card"><i class="fa-solid fa-paint-roller"></i><span>Idées déco</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'famille'">
+                    <div class="action-card"><i class="fa-solid fa-hand-holding-heart"></i><span>Conseils parents</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'electronique'">
+                    <div class="action-card"><i class="fa-solid fa-recycle"></i><span>Reconditionné certifié</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'loisirs'">
+                    <div class="action-card"><i class="fa-solid fa-ticket"></i><span>Évènements près de chez vous</span></div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'autre'">
+                    <div class="action-card"><i class="fa-solid fa-handshake"></i><span>Services entre particuliers</span></div>
+                  </ng-container>
+                </ng-container>
+              </div>
+              <div class="panel-columns">
+                <div class="panel-column" *ngFor="let column of menuColumns[menu.slug]">
+                  <ng-container *ngFor="let cat of column">
+                    <a *ngIf="cat.isLink" class="sec-title" [routerLink]="'/' + menu.slug + '/' + cat.slug">{{ cat.name }}</a>
+                    <span *ngIf="!cat.isLink" class="sec-title">{{ cat.name }}</span>
+                    <ul *ngIf="cat.subCategories?.length">
+                      <li *ngFor="let sub of cat.subCategories">
+                        <a [routerLink]="'/' + menu.slug + '/' + sub.slug">{{ sub.name }}</a>
+                      </li>
+                    </ul>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="cat-item special"><a routerLink="/bons-plans">Bons plans !</a></li>
+      </ul>
+    </div>
+  </nav>
+</div>

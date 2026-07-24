@@ -1,0 +1,81 @@
+<div class="detail-container" *ngIf="annonce">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a routerLink="/">Accueil</a> <span>&gt;</span>
+    <span>{{ annonce.category }}</span> <span>&gt;</span>
+    <span>{{ annonce.title }}</span>
+  </div>
+
+  <div class="detail-layout">
+    <!-- Left: main content -->
+    <div class="detail-main">
+      <!-- Image placeholder -->
+      <div class="detail-image">
+        <img [src]="'https://placehold.co/700x400/f0f0f0/666?text=' + getEncodedTitle()" alt="Photo" />
+      </div>
+
+      <!-- Title + Price -->
+      <div class="detail-header">
+        <h1>{{ annonce.title }}</h1>
+        <div class="price">{{ annonce.price }} TND</div>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="stats-bar">
+        <span>👁 {{ annonce.views }} consultations</span>
+        <span>♥ {{ annonce.favorites }} favoris</span>
+        <span>📍 {{ annonce.location }}</span>
+      </div>
+
+      <!-- Description -->
+      <div class="detail-section" *ngIf="annonce.description">
+        <h3>Description</h3>
+        <p class="description-text">{{ annonce.description }}</p>
+      </div>
+
+      <!-- Details -->
+      <div class="detail-section">
+        <h3>Caractéristiques</h3>
+        <div class="detail-grid">
+          <div class="detail-item" *ngIf="annonce.category"><span>Catégorie</span><strong>{{ annonce.category }}</strong></div>
+          <div class="detail-item" *ngIf="annonce.condition"><span>État</span><strong>{{ annonce.condition }}</strong></div>
+          <div class="detail-item" *ngIf="annonce.adType"><span>Type</span><strong>{{ annonce.adType }}</strong></div>
+          <div class="detail-item" *ngIf="annonce.location"><span>Localisation</span><strong>{{ annonce.location }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: sidebar -->
+    <div class="detail-sidebar">
+      <!-- Seller info -->
+      <div class="seller-card">
+        <div class="seller-avatar">{{ annonce.email?.charAt(0).toUpperCase() }}</div>
+        <div class="seller-info">
+          <div class="seller-email">{{ annonce.email }}</div>
+          <div class="seller-phone" *ngIf="!annonce.hidePhone">📞 {{ annonce.phone }}</div>
+          <div class="seller-phone" *ngIf="annonce.hidePhone">📞 Numéro masqué</div>
+        </div>
+      </div>
+
+      <!-- Favorite button -->
+      <button class="btn-favorite" [class.favorited]="isFavorited" (click)="toggleFavorite()">
+        <span *ngIf="!isFavorited">♡ Ajouter aux favoris</span>
+        <span *ngIf="isFavorited">♥ Retiré des favoris</span>
+      </button>
+
+      <!-- Message form -->
+      <div class="message-card">
+        <h4>Contacter le vendeur</h4>
+        <textarea [(ngModel)]="messageText" rows="4" placeholder="Bonjour, est-ce encore disponible ?"></textarea>
+        <button class="btn-send" (click)="sendMessage()" [disabled]="!messageText.trim()">
+          Envoyer un message
+        </button>
+        <p class="msg-success" *ngIf="messageSent">✓ Message envoyé avec succès !</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading" *ngIf="!annonce">
+  <p>Chargement...</p>
+</div>

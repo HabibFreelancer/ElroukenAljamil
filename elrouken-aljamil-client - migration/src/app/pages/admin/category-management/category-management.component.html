@@ -1,0 +1,93 @@
+<div class="management-page">
+  <div class="page-header">
+    <h1>Gestion des Catégories</h1>
+    <button class="btn-add" (click)="showForm = !showForm">
+      <i class="fa-solid fa-plus"></i> Ajouter une catégorie
+    </button>
+  </div>
+
+  <div class="form-card" *ngIf="showForm">
+    <h3>{{ editingCategory ? 'Modifier' : 'Nouvelle' }} catégorie</h3>
+    <div class="form-row">
+      <select [(ngModel)]="currentCategory.menuId">
+        <option [value]="0">-- Sélectionner un menu --</option>
+        <option *ngFor="let menu of menus" [value]="menu.id">{{ menu.name }}</option>
+      </select>
+      <input [(ngModel)]="currentCategory.name" placeholder="Nom" />
+      <input [(ngModel)]="currentCategory.slug" placeholder="Slug" />
+      <input [(ngModel)]="currentCategory.displayOrder" type="number" placeholder="Ordre" />
+    </div>
+    <div class="form-row" style="margin-top:10px">
+      <select [(ngModel)]="currentCategory.parentCategoryId">
+        <option [ngValue]="null">-- Pas de parent (racine) --</option>
+        <option *ngFor="let cat of parentCategories" [value]="cat.id">{{ cat.name }}</option>
+      </select>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="currentCategory.isLink" /> Est un lien
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="currentCategory.showInDeposit" /> Visible dans dépôt
+      </label>
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" (click)="save()">{{ editingCategory ? 'Modifier' : 'Créer' }}</button>
+      <button class="btn-cancel" (click)="cancel()">Annuler</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <input type="text" [(ngModel)]="searchText" placeholder="Rechercher..." class="search-input" />
+      <button class="btn-filter" (click)="applyFilter()"><i class="fa-solid fa-filter"></i> Filtrer</button>
+      <select [(ngModel)]="filterMenuId" (change)="applyFilter()" class="menu-filter">
+        <option [value]="0">Tous les menus</option>
+        <option *ngFor="let menu of menus" [value]="menu.id">{{ menu.name }}</option>
+      </select>
+      <button class="btn-refresh" (click)="loadCategories()"><i class="fa-solid fa-rotate-right"></i> Rafraîchir</button>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn-export" (click)="exportExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Menu</th>
+        <th>Parent</th>
+        <th>Nom</th>
+        <th>Slug</th>
+        <th>Lien</th>
+        <th>Dépôt</th>
+        <th>Ordre</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cat of paginatedCategories">
+        <td>{{ cat.id }}</td>
+        <td>{{ getMenuName(cat.menuId) }}</td>
+        <td>{{ cat.parentCategoryId ? getParentName(cat.parentCategoryId) : '-' }}</td>
+        <td>{{ cat.name }}</td>
+        <td>{{ cat.slug }}</td>
+        <td>{{ cat.isLink ? 'Oui' : 'Non' }}</td>
+        <td>{{ cat.showInDeposit ? '✓' : '' }}</td>
+        <td>{{ cat.displayOrder }}</td>
+        <td class="actions">
+          <button class="btn-edit" (click)="edit(cat)"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-delete" (click)="delete(cat.id)"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <span class="page-info">{{ filteredCategories.length }} résultat(s) - Page {{ currentPage }} / {{ totalPages }}</span>
+    <div class="page-buttons">
+      <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">← Précédent</button>
+      <button *ngFor="let p of pages" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+      <button [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Suivant →</button>
+    </div>
+  </div>
+</div>

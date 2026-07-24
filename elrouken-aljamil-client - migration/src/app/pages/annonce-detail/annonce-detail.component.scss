@@ -1,0 +1,107 @@
+.detail-container {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 0 20px;
+  font-family: sans-serif;
+
+  .breadcrumb {
+    font-size: 13px; color: #888; margin-bottom: 20px;
+    a { color: #003366; text-decoration: none; &:hover { text-decoration: underline; } }
+    span { margin: 0 5px; }
+  }
+}
+
+.detail-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.detail-main {
+  flex: 2;
+
+  .detail-image {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    img { width: 100%; height: auto; display: block; }
+  }
+
+  .detail-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    h1 { font-size: 22px; color: #333; margin: 0; }
+    .price { font-size: 24px; font-weight: 800; color: #ff6e14; }
+  }
+
+  .stats-bar {
+    display: flex; gap: 20px; font-size: 13px; color: #666; margin-bottom: 25px;
+    padding-bottom: 15px; border-bottom: 1px solid #eee;
+  }
+
+  .detail-section {
+    margin-bottom: 25px;
+    h3 { font-size: 16px; color: #333; margin-bottom: 12px; }
+    .description-text { font-size: 14px; line-height: 1.8; color: #444; white-space: pre-wrap; }
+  }
+
+  .detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    .detail-item {
+      padding: 12px; border: 1px solid #eee; border-radius: 6px; background: #fafafa;
+      span { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
+      strong { font-size: 14px; color: #333; }
+    }
+  }
+}
+
+.detail-sidebar {
+  flex: 1;
+  position: sticky;
+  top: 20px;
+
+  .seller-card {
+    display: flex; align-items: center; gap: 12px; padding: 16px;
+    border: 1px solid #eee; border-radius: 10px; margin-bottom: 15px; background: #fff;
+
+    .seller-avatar {
+      width: 45px; height: 45px; border-radius: 50%; background: #ff6e14; color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;
+    }
+
+    .seller-info {
+      .seller-email { font-size: 14px; font-weight: 600; color: #333; }
+      .seller-phone { font-size: 13px; color: #666; margin-top: 4px; }
+    }
+  }
+
+  .btn-favorite {
+    width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 8px; background: #fff;
+    font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 15px; transition: all 0.2s;
+    &:hover { border-color: #ff6e14; }
+    &.favorited { border-color: #ff6e14; background: #fff8f5; color: #ff6e14; }
+  }
+
+  .message-card {
+    padding: 20px; border: 1px solid #eee; border-radius: 10px; background: #fff;
+    h4 { font-size: 15px; margin-bottom: 12px; color: #333; }
+    textarea {
+      width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px;
+      font-size: 14px; font-family: inherit; resize: vertical; outline: none;
+      &:focus { border-color: #ff6e14; }
+    }
+    .btn-send {
+      width: 100%; padding: 14px; background: #ff6e14; color: #fff; border: none;
+      border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 12px;
+      &:hover { background: #e65c00; }
+      &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+    .msg-success { font-size: 13px; color: #2e7d32; margin-top: 10px; font-weight: 500; }
+  }
+}
+
+.loading { text-align: center; padding: 60px; color: #888; }
+
+@media (max-width: 768px) {
+  .detail-layout { flex-direction: column; }
+  .detail-sidebar { position: static; }
+}
