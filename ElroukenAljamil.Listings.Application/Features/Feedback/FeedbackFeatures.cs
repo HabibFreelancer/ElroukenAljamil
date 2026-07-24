@@ -98,8 +98,7 @@ public class CreateFeedbackCommandHandler : IRequestHandler<CreateFeedbackComman
             UserId    = req.UserId ?? string.Empty,
             UserEmail = req.UserEmail ?? string.Empty,
             Rating    = req.Rating,
-            Category  = req.Category ?? string.Empty,
-            CreatedAt = DateTime.UtcNow
+            Category  = req.Category ?? string.Empty
         };
         return await _repo.AddAsync(feedback, ct);
     }

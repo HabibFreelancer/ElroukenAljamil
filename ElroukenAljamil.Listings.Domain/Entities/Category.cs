@@ -1,53 +1,56 @@
-namespace ElroukenAljamil.Listings.Domain.Entities
+using ElroukenAljamil.BuildingBlocks.Common.Domain;
+
+namespace ElroukenAljamil.Listings.Domain.Entities;
+
+public class ListingCategory : AggregateRoot
 {
-    public class ListingCategory
+    public new int Id { get; private set; }
+    public int MenuId { get; private set; }
+    public int? ParentCategoryId { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string Slug { get; private set; } = string.Empty;
+    public bool IsLink { get; private set; } = true;
+    public bool ShowInDeposit { get; private set; } = true;
+    public int DisplayOrder { get; private set; }
+    public bool IsActive { get; private set; } = true;
+
+    public ListingMenu Menu { get; private set; } = null!;
+    public ListingCategory? ParentCategory { get; private set; }
+    public ICollection<ListingCategory> SubCategories { get; private set; } = new List<ListingCategory>();
+
+    private ListingCategory() { }
+
+    public static ListingCategory Create(int menuId, string name, string slug,
+        int displayOrder, int? parentCategoryId = null, bool showInDeposit = true, bool isLink = true)
     {
-        public int Id { get; private set; }
-        public int MenuId { get; private set; }
-        public int? ParentCategoryId { get; private set; }
-        public string Name { get; private set; } = string.Empty;
-        public string Slug { get; private set; } = string.Empty;
-        public bool IsLink { get; private set; } = true;
-        public bool ShowInDeposit { get; private set; } = true;
-        public int DisplayOrder { get; private set; }
-        public bool IsActive { get; private set; } = true;
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Le nom est obligatoire.", nameof(name));
+        if (string.IsNullOrWhiteSpace(slug)) throw new ArgumentException("Le slug est obligatoire.", nameof(slug));
 
-        public ListingMenu Menu { get; private set; } = null!;
-        public ListingCategory? ParentCategory { get; private set; }
-        public ICollection<ListingCategory> SubCategories { get; private set; } = new List<ListingCategory>();
-
-        private ListingCategory() { }
-
-        public static ListingCategory Create(int menuId, string name, string slug,
-            int displayOrder, int? parentCategoryId = null, bool showInDeposit = true, bool isLink = true)
+        return new ListingCategory
         {
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Le nom est obligatoire.", nameof(name));
-            if (string.IsNullOrWhiteSpace(slug)) throw new ArgumentException("Le slug est obligatoire.", nameof(slug));
+            MenuId = menuId,
+            Name = name.Trim(),
+            Slug = slug.Trim().ToLowerInvariant(),
+            DisplayOrder = displayOrder,
+            ParentCategoryId = parentCategoryId,
+            ShowInDeposit = showInDeposit,
+            IsLink = isLink,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
 
-            return new ListingCategory
-            {
-                MenuId = menuId,
-                Name = name.Trim(),
-                Slug = slug.Trim().ToLowerInvariant(),
-                DisplayOrder = displayOrder,
-                ParentCategoryId = parentCategoryId,
-                ShowInDeposit = showInDeposit,
-                IsLink = isLink,
-                IsActive = true
-            };
-        }
-
-        public void Update(string name, string slug, int displayOrder,
-            int? parentCategoryId, bool showInDeposit, bool isLink, bool isActive)
-        {
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Le nom est obligatoire.", nameof(name));
-            Name = name.Trim();
-            Slug = slug.Trim().ToLowerInvariant();
-            DisplayOrder = displayOrder;
-            ParentCategoryId = parentCategoryId;
-            ShowInDeposit = showInDeposit;
-            IsLink = isLink;
-            IsActive = isActive;
-        }
+    public void Update(string name, string slug, int displayOrder,
+        int? parentCategoryId, bool showInDeposit, bool isLink, bool isActive)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Le nom est obligatoire.", nameof(name));
+        Name = name.Trim();
+        Slug = slug.Trim().ToLowerInvariant();
+        DisplayOrder = displayOrder;
+        ParentCategoryId = parentCategoryId;
+        ShowInDeposit = showInDeposit;
+        IsLink = isLink;
+        IsActive = isActive;
+        UpdatedAt = DateTime.UtcNow;
     }
 }

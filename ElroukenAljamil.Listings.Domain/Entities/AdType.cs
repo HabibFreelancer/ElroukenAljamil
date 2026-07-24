@@ -1,45 +1,48 @@
-namespace ElroukenAljamil.Listings.Domain.Entities
+using ElroukenAljamil.BuildingBlocks.Common.Domain;
+
+namespace ElroukenAljamil.Listings.Domain.Entities;
+
+public class ListingAdType : AggregateRoot
 {
-    public class ListingAdType
+    public new int Id { get; private set; }
+    public int CategoryId { get; private set; }
+    public string Label { get; private set; } = string.Empty;
+    public string Description { get; private set; } = string.Empty;
+    public bool IsDefault { get; private set; }
+    public int DisplayOrder { get; private set; }
+    public bool IsActive { get; private set; } = true;
+
+    public ListingCategory? Category { get; private set; }
+
+    private ListingAdType() { }
+
+    public static ListingAdType Create(int categoryId, string label, string description,
+        int displayOrder, bool isDefault = false)
     {
-        public int Id { get; private set; }
-        public int CategoryId { get; private set; }
-        public string Label { get; private set; } = string.Empty;
-        public string Description { get; private set; } = string.Empty;
-        public bool IsDefault { get; private set; }
-        public int DisplayOrder { get; private set; }
-        public bool IsActive { get; private set; } = true;
+        if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Le libellé est obligatoire.", nameof(label));
 
-        public ListingCategory? Category { get; private set; }
-
-        private ListingAdType() { }
-
-        public static ListingAdType Create(int categoryId, string label, string description,
-            int displayOrder, bool isDefault = false)
+        return new ListingAdType
         {
-            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Le libellé est obligatoire.", nameof(label));
+            CategoryId = categoryId,
+            Label = label.Trim(),
+            Description = description.Trim(),
+            DisplayOrder = displayOrder,
+            IsDefault = isDefault,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+    }
 
-            return new ListingAdType
-            {
-                CategoryId = categoryId,
-                Label = label.Trim(),
-                Description = description.Trim(),
-                DisplayOrder = displayOrder,
-                IsDefault = isDefault,
-                IsActive = true
-            };
-        }
-
-        public void Update(int categoryId, string label, string description,
-            int displayOrder, bool isDefault, bool isActive)
-        {
-            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Le libellé est obligatoire.", nameof(label));
-            CategoryId = categoryId;
-            Label = label.Trim();
-            Description = description.Trim();
-            DisplayOrder = displayOrder;
-            IsDefault = isDefault;
-            IsActive = isActive;
-        }
+    public void Update(int categoryId, string label, string description,
+        int displayOrder, bool isDefault, bool isActive)
+    {
+        if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Le libellé est obligatoire.", nameof(label));
+        CategoryId = categoryId;
+        Label = label.Trim();
+        Description = description.Trim();
+        DisplayOrder = displayOrder;
+        IsDefault = isDefault;
+        IsActive = isActive;
+        UpdatedAt = DateTime.UtcNow;
     }
 }

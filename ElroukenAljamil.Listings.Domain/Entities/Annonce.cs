@@ -1,8 +1,10 @@
+using ElroukenAljamil.BuildingBlocks.Common.Domain;
+
 namespace ElroukenAljamil.Listings.Domain.Entities;
 
-public class Annonce
+public class Annonce : AggregateRoot
 {
-    public int Id { get; set; }
+    public new int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Price { get; set; }
@@ -17,8 +19,6 @@ public class Annonce
     public string Status { get; set; } = "published"; // draft, published, paused
     public int? CurrentStep { get; set; }
     public string UserId { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
 
     public ListingCategory? Category { get; set; }
     public ICollection<AnnonceFavorite> Favorites { get; set; } = new List<AnnonceFavorite>();
