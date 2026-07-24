@@ -15,7 +15,7 @@ namespace ElroukenAljamil.Listings.Application.Commands.CreateCategory
         public async Task<CategoryDto> Handle(CreateCategoryCommand request, CancellationToken ct)
         {
             var r = request.Request;
-            var category = ListingCategory.Create(r.MenuId, r.Name, r.Slug, r.DisplayOrder, r.ParentCategoryId, r.ShowInDeposit, r.IsLink);
+            var category = AnnonceCategory.Create(r.MenuId, r.Name, r.Slug, r.DisplayOrder, r.ParentCategoryId, r.ShowInDeposit, r.IsLink);
             await _repository.AddAsync(category, ct);
 
             return new CategoryDto

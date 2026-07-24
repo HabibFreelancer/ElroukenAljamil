@@ -20,7 +20,7 @@ public class Annonce : AggregateRoot
     public int? CurrentStep { get; set; }
     public string UserId { get; set; } = string.Empty;
 
-    public ListingCategory? Category { get; set; }
+    public AnnonceCategory? Category { get; set; }
     public ICollection<AnnonceFavorite> Favorites { get; set; } = new List<AnnonceFavorite>();
     public ICollection<AnnonceView> Views { get; set; } = new List<AnnonceView>();
 }

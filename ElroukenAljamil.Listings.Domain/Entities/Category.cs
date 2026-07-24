@@ -2,7 +2,7 @@ using ElroukenAljamil.BuildingBlocks.Common.Domain;
 
 namespace ElroukenAljamil.Listings.Domain.Entities;
 
-public class ListingCategory : AggregateRoot
+public class AnnonceCategory : AggregateRoot
 {
     public new int Id { get; private set; }
     public int MenuId { get; private set; }
@@ -14,19 +14,19 @@ public class ListingCategory : AggregateRoot
     public int DisplayOrder { get; private set; }
     public bool IsActive { get; private set; } = true;
 
-    public ListingMenu Menu { get; private set; } = null!;
-    public ListingCategory? ParentCategory { get; private set; }
-    public ICollection<ListingCategory> SubCategories { get; private set; } = new List<ListingCategory>();
+    public AnnonceMenu Menu { get; private set; } = null!;
+    public AnnonceCategory? ParentCategory { get; private set; }
+    public ICollection<AnnonceCategory> SubCategories { get; private set; } = new List<AnnonceCategory>();
 
-    private ListingCategory() { }
+    private AnnonceCategory() { }
 
-    public static ListingCategory Create(int menuId, string name, string slug,
+    public static AnnonceCategory Create(int menuId, string name, string slug,
         int displayOrder, int? parentCategoryId = null, bool showInDeposit = true, bool isLink = true)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Le nom est obligatoire.", nameof(name));
         if (string.IsNullOrWhiteSpace(slug)) throw new ArgumentException("Le slug est obligatoire.", nameof(slug));
 
-        return new ListingCategory
+        return new AnnonceCategory
         {
             MenuId = menuId,
             Name = name.Trim(),

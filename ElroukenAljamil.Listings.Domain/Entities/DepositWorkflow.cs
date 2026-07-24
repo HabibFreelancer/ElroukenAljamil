@@ -10,7 +10,7 @@ public class DepositWorkflow : AggregateRoot
     public string Description { get; private set; } = string.Empty;
     public bool IsActive { get; private set; } = true;
 
-    public ListingCategory? Category { get; private set; }
+    public AnnonceCategory? Category { get; private set; }
     public ICollection<WorkflowStep> Steps { get; private set; } = new List<WorkflowStep>();
 
     private DepositWorkflow() { }

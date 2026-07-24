@@ -18,7 +18,7 @@ namespace ElroukenAljamil.Listings.Application.Queries.GetCategoryTree
             return roots.Select(MapWithChildren).ToList();
         }
 
-        private static CategoryDto MapWithChildren(ListingCategory c) => new()
+        private static CategoryDto MapWithChildren(AnnonceCategory c) => new()
         {
             Id = c.Id,
             MenuId = c.MenuId,

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ElroukenAljamil.Listings.Infrastructure.Persistence.Configurations
 {
-    public class MenuConfiguration : IEntityTypeConfiguration<ListingMenu>
+    public class MenuConfiguration : IEntityTypeConfiguration<AnnonceMenu>
     {
-        public void Configure(EntityTypeBuilder<ListingMenu> builder)
+        public void Configure(EntityTypeBuilder<AnnonceMenu> builder)
         {
             builder.ToTable("Menus");
             builder.HasKey(e => e.Id);

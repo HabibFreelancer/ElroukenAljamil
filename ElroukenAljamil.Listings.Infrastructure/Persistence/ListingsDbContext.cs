@@ -9,9 +9,9 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
 {
     public class ListingsDbContext : DbContext
     {
-        public DbSet<ListingMenu> Menus => Set<ListingMenu>();
-        public DbSet<ListingCategory> Categories => Set<ListingCategory>();
-        public DbSet<ListingAdType> AdTypes => Set<ListingAdType>();
+        public DbSet<AnnonceMenu> Menus => Set<AnnonceMenu>();
+        public DbSet<AnnonceCategory> Categories => Set<AnnonceCategory>();
+        public DbSet<AnnonceAdType> AdTypes => Set<AnnonceAdType>();
         public DbSet<DepositWorkflow> DepositWorkflows => Set<DepositWorkflow>();
         public DbSet<WorkflowStep> WorkflowSteps => Set<WorkflowStep>();
         public DbSet<StepField> StepFields => Set<StepField>();

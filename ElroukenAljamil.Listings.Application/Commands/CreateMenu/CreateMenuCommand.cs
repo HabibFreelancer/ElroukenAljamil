@@ -15,7 +15,7 @@ namespace ElroukenAljamil.Listings.Application.Commands.CreateMenu
         public async Task<MenuDto> Handle(CreateMenuCommand request, CancellationToken ct)
         {
             var r = request.Request;
-            var menu = ListingMenu.Create(r.Name, r.Slug, r.DisplayOrder, r.Icon);
+            var menu = AnnonceMenu.Create(r.Name, r.Slug, r.DisplayOrder, r.Icon);
             await _repository.AddAsync(menu, ct);
 
             return new MenuDto

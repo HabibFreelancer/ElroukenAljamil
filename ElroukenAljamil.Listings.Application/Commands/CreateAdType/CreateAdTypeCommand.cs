@@ -15,7 +15,7 @@ namespace ElroukenAljamil.Listings.Application.Commands.CreateAdType
         public async Task<AdTypeDto> Handle(CreateAdTypeCommand request, CancellationToken ct)
         {
             var r = request.Request;
-            var adType = ListingAdType.Create(r.CategoryId, r.Label, r.Description, r.DisplayOrder, r.IsDefault);
+            var adType = AnnonceAdType.Create(r.CategoryId, r.Label, r.Description, r.DisplayOrder, r.IsDefault);
             await _repository.AddAsync(adType, ct);
 
             return new AdTypeDto

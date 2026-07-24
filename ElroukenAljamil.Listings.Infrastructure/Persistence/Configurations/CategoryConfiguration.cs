@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ElroukenAljamil.Listings.Infrastructure.Persistence.Configurations
 {
-    public class CategoryConfiguration : IEntityTypeConfiguration<ListingCategory>
+    public class CategoryConfiguration : IEntityTypeConfiguration<AnnonceCategory>
     {
-        public void Configure(EntityTypeBuilder<ListingCategory> builder)
+        public void Configure(EntityTypeBuilder<AnnonceCategory> builder)
         {
             builder.ToTable("Categories");
             builder.HasKey(e => e.Id);

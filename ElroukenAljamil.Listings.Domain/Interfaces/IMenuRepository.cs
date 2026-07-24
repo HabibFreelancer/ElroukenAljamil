@@ -4,10 +4,10 @@ namespace ElroukenAljamil.Listings.Domain.Interfaces
 {
     public interface IMenuRepository
     {
-        Task<IReadOnlyList<ListingMenu>> GetAllAsync(CancellationToken ct = default);
-        Task<ListingMenu?> GetByIdAsync(int id, CancellationToken ct = default);
-        Task<ListingMenu> AddAsync(ListingMenu menu, CancellationToken ct = default);
-        Task UpdateAsync(ListingMenu menu, CancellationToken ct = default);
-        Task DeleteAsync(ListingMenu menu, CancellationToken ct = default);
+        Task<IReadOnlyList<AnnonceMenu>> GetAllAsync(CancellationToken ct = default);
+        Task<AnnonceMenu?> GetByIdAsync(int id, CancellationToken ct = default);
+        Task<AnnonceMenu> AddAsync(AnnonceMenu menu, CancellationToken ct = default);
+        Task UpdateAsync(AnnonceMenu menu, CancellationToken ct = default);
+        Task DeleteAsync(AnnonceMenu menu, CancellationToken ct = default);
     }
 }

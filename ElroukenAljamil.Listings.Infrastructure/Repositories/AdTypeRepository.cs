@@ -10,32 +10,32 @@ namespace ElroukenAljamil.Listings.Infrastructure.Repositories
         private readonly ListingsDbContext _context;
         public AdTypeRepository(ListingsDbContext context) => _context = context;
 
-        public Task<List<ListingAdType>> GetAllAsync(CancellationToken ct = default) =>
+        public Task<List<AnnonceAdType>> GetAllAsync(CancellationToken ct = default) =>
             _context.AdTypes
                 .Include(a => a.Category)
                 .OrderBy(a => a.CategoryId).ThenBy(a => a.DisplayOrder)
                 .ToListAsync(ct);
 
-        public Task<ListingAdType?> GetByIdAsync(int id, CancellationToken ct = default) =>
+        public Task<AnnonceAdType?> GetByIdAsync(int id, CancellationToken ct = default) =>
             _context.AdTypes.Include(a => a.Category).FirstOrDefaultAsync(a => a.Id == id, ct);
 
-        public Task<List<ListingAdType>> GetByCategoryIdAsync(int categoryId, CancellationToken ct = default) =>
+        public Task<List<AnnonceAdType>> GetByCategoryIdAsync(int categoryId, CancellationToken ct = default) =>
             _context.AdTypes.Where(a => a.CategoryId == categoryId)
                 .OrderBy(a => a.DisplayOrder).ToListAsync(ct);
 
-        public async Task AddAsync(ListingAdType adType, CancellationToken ct = default)
+        public async Task AddAsync(AnnonceAdType adType, CancellationToken ct = default)
         {
             await _context.AdTypes.AddAsync(adType, ct);
             await _context.SaveChangesAsync(ct);
         }
 
-        public async Task UpdateAsync(ListingAdType adType, CancellationToken ct = default)
+        public async Task UpdateAsync(AnnonceAdType adType, CancellationToken ct = default)
         {
             _context.AdTypes.Update(adType);
             await _context.SaveChangesAsync(ct);
         }
 
-        public async Task DeleteAsync(ListingAdType adType, CancellationToken ct = default)
+        public async Task DeleteAsync(AnnonceAdType adType, CancellationToken ct = default)
         {
             _context.AdTypes.Remove(adType);
             await _context.SaveChangesAsync(ct);

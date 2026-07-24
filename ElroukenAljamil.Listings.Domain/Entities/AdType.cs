@@ -2,7 +2,7 @@ using ElroukenAljamil.BuildingBlocks.Common.Domain;
 
 namespace ElroukenAljamil.Listings.Domain.Entities;
 
-public class ListingAdType : AggregateRoot
+public class AnnonceAdType : AggregateRoot
 {
     public new int Id { get; private set; }
     public int CategoryId { get; private set; }
@@ -12,16 +12,16 @@ public class ListingAdType : AggregateRoot
     public int DisplayOrder { get; private set; }
     public bool IsActive { get; private set; } = true;
 
-    public ListingCategory? Category { get; private set; }
+    public AnnonceCategory? Category { get; private set; }
 
-    private ListingAdType() { }
+    private AnnonceAdType() { }
 
-    public static ListingAdType Create(int categoryId, string label, string description,
+    public static AnnonceAdType Create(int categoryId, string label, string description,
         int displayOrder, bool isDefault = false)
     {
         if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Le libellé est obligatoire.", nameof(label));
 
-        return new ListingAdType
+        return new AnnonceAdType
         {
             CategoryId = categoryId,
             Label = label.Trim(),

@@ -11,29 +11,29 @@ namespace ElroukenAljamil.Listings.Infrastructure.Repositories
 
         public MenuRepository(ListingsDbContext context) => _context = context;
 
-        public async Task<IReadOnlyList<ListingMenu>> GetAllAsync(CancellationToken ct = default) =>
+        public async Task<IReadOnlyList<AnnonceMenu>> GetAllAsync(CancellationToken ct = default) =>
             await _context.Menus
                 .Where(m => m.IsActive)
                 .OrderBy(m => m.DisplayOrder)
                 .ToListAsync(ct);
 
-        public async Task<ListingMenu?> GetByIdAsync(int id, CancellationToken ct = default) =>
+        public async Task<AnnonceMenu?> GetByIdAsync(int id, CancellationToken ct = default) =>
             await _context.Menus.FirstOrDefaultAsync(m => m.Id == id, ct);
 
-        public async Task<ListingMenu> AddAsync(ListingMenu menu, CancellationToken ct = default)
+        public async Task<AnnonceMenu> AddAsync(AnnonceMenu menu, CancellationToken ct = default)
         {
             await _context.Menus.AddAsync(menu, ct);
             await _context.SaveChangesAsync(ct);
             return menu;
         }
 
-        public async Task UpdateAsync(ListingMenu menu, CancellationToken ct = default)
+        public async Task UpdateAsync(AnnonceMenu menu, CancellationToken ct = default)
         {
             _context.Menus.Update(menu);
             await _context.SaveChangesAsync(ct);
         }
 
-        public async Task DeleteAsync(ListingMenu menu, CancellationToken ct = default)
+        public async Task DeleteAsync(AnnonceMenu menu, CancellationToken ct = default)
         {
             _context.Menus.Remove(menu);
             await _context.SaveChangesAsync(ct);

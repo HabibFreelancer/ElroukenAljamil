@@ -2,7 +2,7 @@ using ElroukenAljamil.BuildingBlocks.Common.Domain;
 
 namespace ElroukenAljamil.Listings.Domain.Entities;
 
-public class ListingMenu : AggregateRoot
+public class AnnonceMenu : AggregateRoot
 {
     public new int Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
@@ -11,16 +11,16 @@ public class ListingMenu : AggregateRoot
     public int DisplayOrder { get; private set; }
     public bool IsActive { get; private set; } = true;
 
-    public ICollection<ListingCategory> Categories { get; private set; } = new List<ListingCategory>();
+    public ICollection<AnnonceCategory> Categories { get; private set; } = new List<AnnonceCategory>();
 
-    private ListingMenu() { }
+    private AnnonceMenu() { }
 
-    public static ListingMenu Create(string name, string slug, int displayOrder, string? icon = null)
+    public static AnnonceMenu Create(string name, string slug, int displayOrder, string? icon = null)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Le nom est obligatoire.", nameof(name));
         if (string.IsNullOrWhiteSpace(slug)) throw new ArgumentException("Le slug est obligatoire.", nameof(slug));
 
-        return new ListingMenu
+        return new AnnonceMenu
         {
             Name = name.Trim(),
             Slug = slug.Trim().ToLowerInvariant(),
