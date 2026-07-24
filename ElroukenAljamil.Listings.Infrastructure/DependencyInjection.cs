@@ -36,6 +36,7 @@ namespace ElroukenAljamil.Listings.Infrastructure
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IVehicleService, VehicleService>();
             services.AddScoped<IAiDescriptionService, AiDescriptionService>();
+            services.AddScoped<IHuggingFaceService, HuggingFaceService>();
             services.AddHttpClient("vehicle");
 
             // Event publishing

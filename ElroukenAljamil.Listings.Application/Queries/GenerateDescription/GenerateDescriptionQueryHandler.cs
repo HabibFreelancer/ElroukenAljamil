@@ -15,7 +15,7 @@ public class GenerateDescriptionQueryHandler : IRequestHandler<GenerateDescripti
 
     public async Task<Result<string>> Handle(GenerateDescriptionQuery request, CancellationToken ct)
     {
-        var description = await _aiService.GenerateAsync(request.Context, ct);
+        var description = await _aiService.GenerateDescriptionAsync(request.Context);
         return Result<string>.Success(description);
     }
 }

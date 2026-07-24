@@ -4,5 +4,5 @@ namespace ElroukenAljamil.Listings.Application.Interfaces;
 
 public interface IAiDescriptionService
 {
-    Task<string> GenerateAsync(JsonElement context, CancellationToken ct = default);
+    Task<string> GenerateDescriptionAsync(JsonElement context, CancellationToken ct = default);
 }
