@@ -26,7 +26,7 @@ export class AnnonceService {
   constructor(private http: HttpClient) {}
 
   suggestCategories(query: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.api}/annonces/suggest-categories?query=${encodeURIComponent(query)}`);
+    return this.http.get<any[]>(`${this.api}/listings/suggest-categories?query=${encodeURIComponent(query)}`);
   }
 
   getMenus(): Observable<any[]> {
@@ -38,7 +38,7 @@ export class AnnonceService {
   }
 
   getAdTypes(categoryId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.api}/annonces/ad-types/${categoryId}`);
+    return this.http.get<any[]>(`${this.api}/listings/adtypes/${categoryId}`);
   }
 
   lookupVehicle(immat: string): Observable<any> {
@@ -50,43 +50,46 @@ export class AnnonceService {
   }
 
   getPriceEstimate(categoryId: number, brand: string, model: string): Observable<any> {
-    return this.http.post<any>(`${this.api}/annonces/price-estimate`, { categoryId, brand, model });
+    return this.http.post<any>(`${this.api}/listings/price-estimate`, { categoryId, brand, model });
   }
 
   saveDraft(payload: AnnoncePayload): Observable<any> {
-    return this.http.post<any>(`${this.api}/annonces/draft`, payload);
+    return this.http.post<any>(`${this.api}/listings/draft`, payload);
   }
 
   submit(payload: AnnoncePayload): Observable<{ id: number }> {
-    return this.http.post<{ id: number }>(`${this.api}/annonces`, payload);
+    return this.http.post<{ id: number }>(`${this.api}/listings`, payload);
   }
 
   submitFeedback(annonceId: number, rating: string, category: string): Observable<void> {
     return this.http.post<void>(`${this.api}/feedback`, { annonceId, rating, category });
   }
 
-  getMyAnnonces(email: string, sortBy: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.api}/annonces/my?email=${encodeURIComponent(email)}&sortBy=${sortBy}`);
+  getMyAnnonces(search: string, sortBy: string, status?: string): Observable<any[]> {
+    let url = `${this.api}/listings/mine?sortBy=${sortBy}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (status) url += `&status=${encodeURIComponent(status)}`;
+    return this.http.get<any[]>(url);
   }
 
   pauseAnnonce(id: number): Observable<any> {
-    return this.http.put<any>(`${this.api}/annonces/${id}/pause`, {});
+    return this.http.put<any>(`${this.api}/listings/${id}/pause`, {});
   }
 
   deleteAnnonce(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.api}/annonces/${id}`);
+    return this.http.delete<void>(`${this.api}/listings/${id}`);
   }
 
   getAnnonce(id: number): Observable<any> {
-    return this.http.get<any>(`${this.api}/annonces/${id}`);
+    return this.http.get<any>(`${this.api}/listings/${id}`);
   }
 
   trackView(id: number, userId: string): Observable<any> {
-    return this.http.post(`${this.api}/annonces/${id}/view`, { userId });
+    return this.http.post(`${this.api}/listings/${id}/view`, { userId });
   }
 
-  toggleFavorite(id: number, userId: string): Observable<{ favorited: boolean }> {
-    return this.http.post<{ favorited: boolean }>(`${this.api}/annonces/${id}/favorite`, { userId });
+  toggleFavorite(id: number): Observable<{ favorited: boolean }> {
+    return this.http.post<{ favorited: boolean }>(`${this.api}/listings/${id}/favorite`, {});
   }
 
   sendMessage(id: number, senderId: string, senderEmail: string, content: string): Observable<any> {

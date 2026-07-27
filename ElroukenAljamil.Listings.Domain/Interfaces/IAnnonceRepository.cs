@@ -12,4 +12,9 @@ public interface IAnnonceRepository
     Task DeleteAsync(int id);
     Task<IEnumerable<int>> GetCategoryIdsByKeywordAsync(string keyword);
     Task<IEnumerable<Annonce>> GetByCategoryForEstimateAsync(int categoryId, int take);
+    Task TrackViewAsync(int annonceId, string userId, CancellationToken ct);
+    Task<bool> ToggleFavoriteAsync(int annonceId, string userId, CancellationToken ct);
+    Task<string?> PauseAnnonceAsync(int id, CancellationToken ct);
+    Task<bool> DeleteAnnonceAsync(int id, CancellationToken ct);
+    Task<(Annonce? Annonce, int Views, int Favorites)> GetListingByIdAsync(int id, CancellationToken ct);
 }

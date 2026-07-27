@@ -23,6 +23,28 @@ namespace ElroukenAljamil.Listings.Infrastructure.Repositories
             _context.AdTypes.Where(a => a.CategoryId == categoryId)
                 .OrderBy(a => a.DisplayOrder).ToListAsync(ct);
 
+        public async Task<List<AnnonceAdType>> GetByCategoryWithFallbackAsync(int categoryId, CancellationToken ct = default)
+        {
+            var adTypes = await _context.AdTypes
+                .Where(a => a.CategoryId == categoryId && a.IsActive)
+                .OrderBy(a => a.DisplayOrder)
+                .ToListAsync(ct);
+
+            if (adTypes.Count > 0) return adTypes;
+
+            var parentId = await _context.Categories
+                .Where(c => c.Id == categoryId)
+                .Select(c => c.ParentCategoryId)
+                .FirstOrDefaultAsync(ct);
+
+            if (parentId == null) return adTypes;
+
+            return await _context.AdTypes
+                .Where(a => a.CategoryId == parentId && a.IsActive)
+                .OrderBy(a => a.DisplayOrder)
+                .ToListAsync(ct);
+        }
+
         public async Task AddAsync(AnnonceAdType adType, CancellationToken ct = default)
         {
             await _context.AdTypes.AddAsync(adType, ct);

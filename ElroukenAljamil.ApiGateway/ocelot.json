@@ -19,6 +19,65 @@
         // LISTINGS SERVICE (port 5001)
         // =============================================================
         {
+            "UpstreamPathTemplate": "/api/listings/suggest-categories",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/listings/suggest-categories",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ]
+        },
+        {
+            "UpstreamPathTemplate": "/api/listings/draft",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/listings/draft",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/listings/price-estimate",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/listings/price-estimate",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "RateLimitOptions": {
+                "EnableRateLimiting": true,
+                "Period": "1m",
+                "PeriodTimespan": 60,
+                "Limit": 30
+            }
+        },
+        {
+            "UpstreamPathTemplate": "/api/listings/adtypes/{categoryId}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/listings/adtypes/{categoryId}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "FileCacheOptions": { "TtlSeconds": 120, "Region": "adtypes-category" }
+        },
+        {
+            "UpstreamPathTemplate": "/api/listings/{id}/pause",
+            "UpstreamHttpMethod": [ "PUT" ],
+            "DownstreamPathTemplate": "/api/listings/{id}/pause",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/listings/{id}/favorite",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/listings/{id}/favorite",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
+            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+        },
+        {
+            "UpstreamPathTemplate": "/api/listings/{id}/view",
+            "UpstreamHttpMethod": [ "POST" ],
+            "DownstreamPathTemplate": "/api/listings/{id}/view",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ]
+        },
+        {
             "UpstreamPathTemplate": "/api/listings",
             "UpstreamHttpMethod": [ "GET" ],
             "DownstreamPathTemplate": "/api/listings",

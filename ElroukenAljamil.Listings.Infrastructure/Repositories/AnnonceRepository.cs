@@ -78,4 +78,66 @@ public class AnnonceRepository : IAnnonceRepository
             .OrderByDescending(a => a.CreatedAt)
             .Take(take)
             .ToListAsync();
+
+    public async Task TrackViewAsync(int annonceId, string userId, CancellationToken ct)
+    {
+        _context.AnnonceViews.Add(new AnnonceView
+        {
+            AnnonceId = annonceId,
+            UserId    = userId,
+            ViewedAt  = DateTime.UtcNow
+        });
+        await _context.SaveChangesAsync(ct);
+    }
+
+    public async Task<bool> ToggleFavoriteAsync(int annonceId, string userId, CancellationToken ct)
+    {
+        var existing = await _context.AnnonceFavorites
+            .FirstOrDefaultAsync(f => f.AnnonceId == annonceId && f.UserId == userId, ct);
+
+        if (existing != null)
+        {
+            _context.AnnonceFavorites.Remove(existing);
+            await _context.SaveChangesAsync(ct);
+            return false;
+        }
+
+        _context.AnnonceFavorites.Add(new AnnonceFavorite { AnnonceId = annonceId, UserId = userId });
+        await _context.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<string?> PauseAnnonceAsync(int id, CancellationToken ct)
+    {
+        var annonce = await _context.Annonces.FindAsync([id], ct);
+        if (annonce == null) return null;
+
+        annonce.Status = annonce.Status == "paused" ? "published" : "paused";
+        await _context.SaveChangesAsync(ct);
+        return annonce.Status;
+    }
+
+    public async Task<bool> DeleteAnnonceAsync(int id, CancellationToken ct)
+    {
+        var annonce = await _context.Annonces.FindAsync([id], ct);
+        if (annonce == null) return false;
+
+        _context.Annonces.Remove(annonce);
+        await _context.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<(Annonce? Annonce, int Views, int Favorites)> GetListingByIdAsync(int id, CancellationToken ct)
+    {
+        var annonce = await _context.Annonces
+            .Include(a => a.Category).ThenInclude(c => c!.Menu)
+            .FirstOrDefaultAsync(a => a.Id == id, ct);
+
+        if (annonce == null) return (null, 0, 0);
+
+        var views     = await _context.AnnonceViews.CountAsync(v => v.AnnonceId == id, ct);
+        var favorites = await _context.AnnonceFavorites.CountAsync(f => f.AnnonceId == id, ct);
+
+        return (annonce, views, favorites);
+    }
 }

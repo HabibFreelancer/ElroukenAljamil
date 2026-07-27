@@ -38,8 +38,7 @@ export class AnnonceDetailComponent implements OnInit {
 
   toggleFavorite() {
     if (!this.annonce) return;
-    const userId = this.authService.getUser()?.userId || 'anonymous';
-    this.annonceService.toggleFavorite(this.annonce.id, userId).subscribe(res => {
+    this.annonceService.toggleFavorite(this.annonce.id).subscribe(res => {
       this.isFavorited = res.favorited;
       if (res.favorited) this.annonce.favorites++;
       else this.annonce.favorites--;

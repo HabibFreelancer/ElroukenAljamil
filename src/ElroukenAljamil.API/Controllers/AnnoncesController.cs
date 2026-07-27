@@ -226,34 +226,7 @@ public class AnnoncesController : ControllerBase
         return Ok(new { favorited = true });
     }
 
-    [HttpPost("{id}/message")]
-    public async Task<ActionResult> SendMessage(int id, [FromBody] SendMessageRequest req)
-    {
-        var annonce = await _context.Annonces.FindAsync(id);
-        if (annonce == null) return NotFound();
-
-        var message = new Message
-        {
-            AnnonceId = id,
-            SenderId = req.SenderId ?? "anonymous",
-            SenderEmail = req.SenderEmail ?? "",
-            ReceiverId = annonce.Email,
-            Content = req.Content ?? ""
-        };
-        _context.Messages.Add(message);
-        await _context.SaveChangesAsync();
-        return Ok(new { id = message.Id });
-    }
-
-    [HttpGet("{id}/messages")]
-    public async Task<ActionResult> GetMessages(int id)
-    {
-        var messages = await _context.Messages
-            .Where(m => m.AnnonceId == id)
-            .OrderByDescending(m => m.CreatedAt)
-            .ToListAsync();
-        return Ok(messages);
-    }
+  
 
     [HttpPut("{id}/pause")]
     public async Task<ActionResult> PauseAnnonce(int id)
@@ -464,7 +437,34 @@ public class AnnoncesController : ControllerBase
             similarAds
         });
     }
+    [HttpPost("{id}/message")]
+    public async Task<ActionResult> SendMessage(int id, [FromBody] SendMessageRequest req)
+    {
+        var annonce = await _context.Annonces.FindAsync(id);
+        if (annonce == null) return NotFound();
 
+        var message = new Message
+        {
+            AnnonceId = id,
+            SenderId = req.SenderId ?? "anonymous",
+            SenderEmail = req.SenderEmail ?? "",
+            ReceiverId = annonce.Email,
+            Content = req.Content ?? ""
+        };
+        _context.Messages.Add(message);
+        await _context.SaveChangesAsync();
+        return Ok(new { id = message.Id });
+    }
+
+    [HttpGet("{id}/messages")]
+    public async Task<ActionResult> GetMessages(int id)
+    {
+        var messages = await _context.Messages
+            .Where(m => m.AnnonceId == id)
+            .OrderByDescending(m => m.CreatedAt)
+            .ToListAsync();
+        return Ok(messages);
+    }
     private string ExtractMileage(string extraData)
     {
         if (string.IsNullOrEmpty(extraData)) return "";

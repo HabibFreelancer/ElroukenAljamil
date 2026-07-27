@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
 import { AnnonceService } from '../../services/annonce.service';
 
 @Component({
@@ -26,7 +25,7 @@ export class MyAnnoncesComponent implements OnInit {
   showCategoryFilter = false;
   selectedCategory = '';
   categories: any[] = [];
-  constructor(private annonceService: AnnonceService, private authService: AuthService) {}
+  constructor(private annonceService: AnnonceService) {}
 
   ngOnInit() {
     this.load();
@@ -44,9 +43,8 @@ export class MyAnnoncesComponent implements OnInit {
   }
 
   load() {
-    const email = this.authService.getEmail();
     const sort = this.sortBy === 'price_asc' ? 'price_asc' : this.sortBy === 'price_desc' ? 'price_desc' : 'date';
-    this.annonceService.getMyAnnonces(email, sort).subscribe(data => {
+    this.annonceService.getMyAnnonces(this.searchText.trim() || '', sort, this.activeTab !== 'all' ? this.activeTab : undefined).subscribe(data => {
       this.annonces = data;
       this.publishedCount = data.filter(a => a.status === 'published').length;
       this.expiredCount = data.filter(a => a.status === 'expired').length;
@@ -59,17 +57,10 @@ export class MyAnnoncesComponent implements OnInit {
 
   onSortChange() { this.load(); }
 
-  search() { this.applyFilter(); }
+  search() { this.load(); }
 
   applyFilter() {
     let list = this.annonces;
-    if (this.activeTab === 'published') list = list.filter(a => a.status === 'published' || a.status === 'paused');
-    else if (this.activeTab === 'expired') list = list.filter(a => a.status === 'expired');
-
-    if (this.searchText.trim()) {
-      const s = this.searchText.toLowerCase();
-      list = list.filter(a => a.title.toLowerCase().includes(s) || a.category?.toLowerCase().includes(s));
-    }
 
     if (this.selectedCategory) {
       list = list.filter(a => a.category?.toLowerCase() === this.selectedCategory.toLowerCase());
