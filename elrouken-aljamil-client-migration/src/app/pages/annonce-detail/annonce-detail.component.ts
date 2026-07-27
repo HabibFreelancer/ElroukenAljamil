@@ -4,6 +4,7 @@ import { NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { AnnonceService } from '../../services/annonce.service';
+import { MessagingService } from '../../services/messaging.service';
 
 @Component({
   selector: 'app-annonce-detail',
@@ -17,7 +18,12 @@ export class AnnonceDetailComponent implements OnInit {
   isFavorited = false;
   messageText = '';
   messageSent = false;
-  constructor(private annonceService: AnnonceService, private route: ActivatedRoute, private authService: AuthService) {}
+  constructor(
+    private annonceService: AnnonceService,
+    private route: ActivatedRoute,
+    private authService: AuthService,
+    private messagingService: MessagingService
+  ) {}
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -47,13 +53,13 @@ export class AnnonceDetailComponent implements OnInit {
 
   sendMessage() {
     if (!this.messageText.trim() || !this.annonce) return;
-    const user = this.authService.getUser();
-    this.annonceService.sendMessage(
-      this.annonce.id,
-      user?.userId || 'anonymous',
-      user?.email || '',
-      this.messageText
-    ).subscribe(() => {
+    this.messagingService.startConversation({
+      sellerId:     this.annonce.userId || '',
+      sellerName:   this.annonce.email  || 'Vendeur',
+      listingId:    this.annonce.id.toString(),
+      listingTitle: this.annonce.title  || '',
+      message:      this.messageText
+    }).subscribe(() => {
       this.messageSent = true;
       this.messageText = '';
     });

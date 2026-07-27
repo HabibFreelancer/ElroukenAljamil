@@ -92,8 +92,4 @@ export class AnnonceService {
     return this.http.post<{ favorited: boolean }>(`${this.api}/listings/${id}/favorite`, {});
   }
 
-  sendMessage(id: number, senderId: string, senderEmail: string, content: string): Observable<any> {
-    return this.http.post(`${this.api}/annonces/${id}/message`, { senderId, senderEmail, content });
-  }
-
 }
