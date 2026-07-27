@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using ElroukenAljamil.ApiGateway.Middleware;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -114,6 +115,10 @@ var app = builder.Build();
 
 // --- CORS (doit être avant tout le reste) ---
 app.UseCors("MarketplaceCors");
+
+// --- Dev : injecte automatiquement un token admin si absent ---
+if (app.Environment.IsDevelopment())
+    app.UseMiddleware<DevAdminTokenMiddleware>();
 
 // --- Swagger agrégé (disponible uniquement en développement) ---
 if (app.Environment.IsDevelopment())

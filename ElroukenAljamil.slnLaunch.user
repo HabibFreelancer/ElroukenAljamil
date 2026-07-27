@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "Nouveau profil",
+    "Projects": [
+      {
+        "Path": "ElroukenAljamil.ApiGateway\\ElroukenAljamil.ApiGateway.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ElroukenAljamil.Listings.API\\ElroukenAljamil.Listings.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ElroukenAljamil.Identity.API\\ElroukenAljamil.Identity.API.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

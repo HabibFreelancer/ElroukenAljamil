@@ -43,19 +43,30 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
         /// </summary>
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            // Récupérer les domain events avant sauvegarde
+            var now = DateTime.UtcNow;
+
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                    entry.Entity.SetCreatedAudit(now);
+                else if (entry.State == EntityState.Modified)
+                    entry.Entity.SetUpdatedAudit(now);
+            }
+
+            foreach (var entry in ChangeTracker.Entries<AggregateRoot>())
+            {
+                if (entry.State == EntityState.Modified)
+                    entry.Entity.IncrementVersionAudit();
+            }
+
             var domainEvents = ChangeTracker.Entries<AggregateRoot>()
                 .SelectMany(e => e.Entity.DomainEvents)
                 .ToList();
 
-            // Sauvegarder en base
             var result = await base.SaveChangesAsync(cancellationToken);
 
-            // Nettoyer les events après persistance
             foreach (var entry in ChangeTracker.Entries<AggregateRoot>())
-            {
                 entry.Entity.ClearDomainEvents();
-            }
 
             return result;
         }

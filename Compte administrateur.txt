@@ -1,3 +1,5 @@
-/**********************************************Compte administratuer ******************/
+/**********************************************Compte administrateur ******************/
+
+Email : admin@elrouken.com
 
 mot de passe compte admin : Admin@1234

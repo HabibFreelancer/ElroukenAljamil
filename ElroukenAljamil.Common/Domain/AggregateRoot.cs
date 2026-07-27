@@ -18,5 +18,10 @@ namespace ElroukenAljamil.BuildingBlocks.Common.Domain
             Version++;
             SetUpdated();
         }
+
+        public void IncrementVersionAudit()
+        {
+            Version++;
+        }
     }
 }

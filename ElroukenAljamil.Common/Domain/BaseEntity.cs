@@ -32,5 +32,17 @@ namespace ElroukenAljamil.BuildingBlocks.Common.Domain
             UpdatedAt = DateTime.UtcNow;
             UpdatedBy = updatedBy;
         }
+
+        public void SetCreatedAudit(DateTime createdAt, string? createdBy = null)
+        {
+            CreatedAt = createdAt;
+            CreatedBy = createdBy;
+        }
+
+        public void SetUpdatedAudit(DateTime updatedAt, string? updatedBy = null)
+        {
+            UpdatedAt = updatedAt;
+            UpdatedBy = updatedBy;
+        }
     }
 }

@@ -1,4 +1,6 @@
 using ElroukenAljamil.BuildingBlocks.Security.Extensions;
+using ElroukenAljamil.Identity.Application.Interfaces;
+using ElroukenAljamil.Identity.Infrastructure.Seed;
 using ElroukenAljamil.BuildingBlocks.Security;
 using ElroukenAljamil.Identity.Application;
 using ElroukenAljamil.Identity.Infrastructure;
@@ -43,6 +45,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ElroukenAljamil.Identity.Infrastructure.Persistence.IdentityDbContext>();
     await db.Database.MigrateAsync();
+    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    await AdminSeeder.SeedAsync(db, hasher);
 }
 
 // --- Middleware Pipeline ---
