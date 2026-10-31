@@ -31,7 +31,6 @@ namespace ElroukenAljamil.Media.Application.Commands.AssignMedia
             if (request.MediaIds.Count > MaxImagesPerListing)
                 return Result.Failure($"Maximum {MaxImagesPerListing} images par annonce.");
 
-            // Vérifier le nombre total d'images déjà assignées
             var existingCount = await _repository.GetCountByListingAsync(request.ListingId, ct);
             if (existingCount + request.MediaIds.Count > MaxImagesPerListing)
                 return Result.Failure($"L'annonce aurait plus de {MaxImagesPerListing} images au total.");

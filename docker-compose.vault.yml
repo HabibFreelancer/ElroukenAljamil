@@ -1,0 +1,89 @@
+# =============================================================
+# HashiCorp Vault — Staging / Production
+# Usage : docker compose -f docker-compose.yml -f docker-compose.vault.yml up -d
+# =============================================================
+
+services:
+
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: elrouken-vault
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_ADDR=http://0.0.0.0:8200
+      - VAULT_API_ADDR=http://0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/data
+      - ./vault/config:/vault/config:ro
+    command: vault server -config=/vault/config/vault.hcl
+    networks:
+      - elrouken-network
+    healthcheck:
+      test: ["CMD-SHELL", "vault status -address=http://localhost:8200 | grep -q 'Initialized.*true'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # Microservices — ajout VAULT_ADDR et VAULT_TOKEN en Staging/Production
+  identity-api:
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+    depends_on:
+      vault:
+        condition: service_healthy
+
+  listings-api:
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+    depends_on:
+      vault:
+        condition: service_healthy
+
+  messaging-api:
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+    depends_on:
+      vault:
+        condition: service_healthy
+
+  media-api:
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+    depends_on:
+      vault:
+        condition: service_healthy
+
+  search-api:
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+    depends_on:
+      vault:
+        condition: service_healthy
+
+  notification-api:
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+    depends_on:
+      vault:
+        condition: service_healthy
+
+  api-gateway:
+    environment:
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_TOKEN=${VAULT_TOKEN}
+    depends_on:
+      vault:
+        condition: service_healthy
+
+volumes:
+  vault-data:

@@ -21,17 +21,26 @@ namespace ElroukenAljamil.Search.Infrastructure.Elasticsearch
 
         public async Task IndexAsync(SearchableListingDocument document, CancellationToken ct = default)
         {
-            var response = await _elasticClient.IndexDocumentAsync(document, ct);
-
-            if (!response.IsValid)
+            try
             {
-                _logger.LogError("Échec de l'indexation du document {Id}: {Error}",
-                    document.Id, response.OriginalException?.Message);
-                throw new InvalidOperationException(
-                    $"Impossible d'indexer le document {document.Id}: {response.ServerError?.Error?.Reason}");
-            }
+                var response = await _elasticClient.IndexDocumentAsync(document, ct);
 
-            _logger.LogDebug("Document {Id} indexé avec succès.", document.Id);
+                if (!response.IsValid)
+                {
+                    _logger.LogError("Échec de l'indexation du document {Id}: {Error}",
+                        document.Id, response.OriginalException?.Message);
+                    throw new InvalidOperationException(
+                        $"Impossible d'indexer le document {document.Id}: {response.ServerError?.Error?.Reason}");
+                }
+
+                _logger.LogDebug("Document {Id} indexé avec succès.", document.Id);
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+            {
+                // Timeout Elasticsearch — on relance pour que MassTransit retry
+                _logger.LogWarning("Timeout Elasticsearch lors de l'indexation du document {Id} — retry en cours.", document.Id);
+                throw new InvalidOperationException($"Timeout Elasticsearch pour le document {document.Id}.");
+            }
         }
 
         public async Task UpdateAsync(SearchableListingDocument document, CancellationToken ct = default)

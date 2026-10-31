@@ -86,7 +86,7 @@ RabbitMQ Management UI :
 → http://localhost:15672 (login: marketplace / marketplace)
 
 MinIO Console :
-→ http://localhost:9001 (login: minioadmin / minioadmin)
+→ http://localhost:9001 (login: minio_dev_access / minio_dev_secret_2024)
 
 Flux de test de bout en bout
 1. POST /api/auth/register   → créer un compte
@@ -96,4 +96,6 @@ Flux de test de bout en bout
    → Search.API consomme l'event → indexe dans Elasticsearch
 4. GET  /api/search?q=voiture → rechercher dans Elasticsearch
 5. GET  /api/search/suggest?q=voi → autocomplétion
+
+
 

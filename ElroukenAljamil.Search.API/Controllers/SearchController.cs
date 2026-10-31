@@ -5,6 +5,7 @@ using ElroukenAljamil.Search.Application.Queries.Suggest;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Search.API.Controllers
 {
@@ -14,10 +15,12 @@ namespace ElroukenAljamil.Search.API.Controllers
     public class SearchController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<SearchController> _logger;
 
-        public SearchController(IMediator mediator)
+        public SearchController(IMediator mediator, ILogger<SearchController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         /// <summary>
@@ -64,8 +67,14 @@ namespace ElroukenAljamil.Search.API.Controllers
             var result = await _mediator.Send(searchQuery, ct);
 
             if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Recherche échouée — query={Query} category={Category} : {Error}",
+                    query, category, result.Error);
                 return BadRequest(new { error = result.Error });
+            }
 
+            _logger.LogDebug("Recherche exécutée — query={Query} page={Page} — {Total} résultat(s)",
+                query, page, result.Value?.TotalCount);
             return Ok(result.Value);
         }
 
@@ -89,7 +98,10 @@ namespace ElroukenAljamil.Search.API.Controllers
             var result = await _mediator.Send(suggestQuery, ct);
 
             if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Suggest échoué — query={Query} : {Error}", query, result.Error);
                 return BadRequest(new { error = result.Error });
+            }
 
             return Ok(result.Value);
         }
@@ -114,7 +126,11 @@ namespace ElroukenAljamil.Search.API.Controllers
             var result = await _mediator.Send(facetsQuery, ct);
 
             if (!result.IsSuccess)
+            {
+                _logger.LogWarning("GetFacets échoué — query={Query} category={Category} : {Error}",
+                    query, category, result.Error);
                 return BadRequest(new { error = result.Error });
+            }
 
             return Ok(result.Value);
         }

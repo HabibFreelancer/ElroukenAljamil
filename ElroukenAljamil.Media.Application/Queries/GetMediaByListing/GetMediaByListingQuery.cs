@@ -4,5 +4,5 @@ using MediatR;
 
 namespace ElroukenAljamil.Media.Application.Queries.GetMediaByListing
 {
-    public record GetMediaByListingQuery(Guid ListingId) : IRequest<Result<List<MediaFileDto>>>;
+    public record GetMediaByListingQuery(int ListingId) : IRequest<Result<List<MediaFileDto>>>;
 }

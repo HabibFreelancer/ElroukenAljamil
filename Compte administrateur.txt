@@ -1,5 +1,8 @@
 /**********************************************Compte administrateur ******************/
 
-Email : admin@elrouken.com
+Email : admin@elrouken.local
 
 mot de passe compte admin : Admin@1234
+
+
+ 

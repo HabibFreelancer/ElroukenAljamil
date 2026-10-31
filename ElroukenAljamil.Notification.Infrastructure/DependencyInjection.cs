@@ -1,4 +1,5 @@
 using ElroukenAljamil.BuildingBlocks.EventBus.Extensions;
+using ElroukenAljamil.Notification.Application.EventConsumers;
 using ElroukenAljamil.Notification.Application.Interfaces;
 using ElroukenAljamil.Notification.Domain.Interfaces;
 using ElroukenAljamil.Notification.Infrastructure.Hubs;
@@ -63,8 +64,12 @@ namespace ElroukenAljamil.Notification.Infrastructure
             // SignalR avec Redis backplane
             services.AddSignalR().AddStackExchangeRedis(redisConn);
 
-            // MassTransit + RabbitMQ
-            services.AddEventBus(configuration);
+            // MassTransit + RabbitMQ avec consumers Bug Tracker
+            services.AddEventBus(configuration, consumers =>
+            {
+                consumers.AddConsumer<BugReportCreatedConsumer>();
+                consumers.AddConsumer<BugStatusChangedConsumer>();
+            });
 
             return services;
         }

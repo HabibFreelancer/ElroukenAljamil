@@ -21,5 +21,10 @@
 		<PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="8.0.*" />
 		<!-- CORS -->
 		<PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.*" />
+		<!-- NLog -->
+		<PackageReference Include="NLog.Web.AspNetCore" Version="5.3.*" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ElroukenAljamil.Security\ElroukenAljamil.Security.csproj" />
 	</ItemGroup>
 </Project>

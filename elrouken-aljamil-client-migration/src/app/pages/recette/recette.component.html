@@ -1,0 +1,425 @@
+<div class="recette-page">
+
+  <!-- ── LISTE ─────────────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="view === 'list'">
+
+    <div class="page-header">
+      <div>
+        <h1><i class="fa-solid fa-bug"></i> Suivi des anomalies</h1>
+        <p class="subtitle">Phase de recette — {{ total }} ticket(s)</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-ghost btn-icon" (click)="openPreferences()" title="Préférences de notification">
+          <i class="fa-solid fa-bell"></i>
+        </button>
+        <button class="btn-primary" (click)="openCreate()">
+          <i class="fa-solid fa-plus"></i> Nouveau ticket
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats (admin) -->
+    <div class="stats-grid" *ngIf="isAdmin && stats">
+      <div class="stat-card stat-total">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card stat-new">
+        <div class="stat-value">{{ stats.new }}</div>
+        <div class="stat-label">Nouveaux</div>
+      </div>
+      <div class="stat-card stat-progress">
+        <div class="stat-value">{{ stats.inProgress }}</div>
+        <div class="stat-label">En cours</div>
+      </div>
+      <div class="stat-card stat-test">
+        <div class="stat-value">{{ stats.fixedAndToTest }}</div>
+        <div class="stat-label">À tester</div>
+      </div>
+      <div class="stat-card stat-resolved">
+        <div class="stat-value">{{ stats.resolved }}</div>
+        <div class="stat-label">Résolus</div>
+      </div>
+      <div class="stat-card stat-ko">
+        <div class="stat-value">{{ stats.kO }}</div>
+        <div class="stat-label">KO</div>
+      </div>
+      <div class="stat-card stat-blocking">
+        <div class="stat-value">{{ stats.blocking }}</div>
+        <div class="stat-label">Bloquants</div>
+      </div>
+      <div class="stat-card stat-major">
+        <div class="stat-value">{{ stats.major }}</div>
+        <div class="stat-label">Majeurs</div>
+      </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="filters-bar">
+      <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option value="">Tous les statuts</option>
+        <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+      </select>
+      <select [(ngModel)]="filterSeverity" (change)="applyFilters()">
+        <option value="">Toutes sévérités</option>
+        <option *ngFor="let s of severities" [value]="s.value">{{ s.label }}</option>
+      </select>
+      <select [(ngModel)]="filterCategory" (change)="applyFilters()">
+        <option value="">Toutes catégories</option>
+        <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+      </select>
+      <button class="btn-ghost" (click)="resetFilters()">Réinitialiser</button>
+    </div>
+
+    <!-- Tableau -->
+    <div class="table-wrapper">
+      <div class="loading-overlay" *ngIf="loading">Chargement…</div>
+      <table class="data-table" *ngIf="!loading">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Titre</th>
+            <th>Sévérité</th>
+            <th>Statut</th>
+            <th>Catégorie</th>
+            <th>Module</th>
+            <th>Rapporté par</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of bugs" (click)="openDetail(b.id)" class="clickable-row">
+            <td class="id-cell">#{{ b.id }}</td>
+            <td class="title-cell">{{ b.title }}</td>
+            <td><span class="badge" [ngClass]="severityClass(b.severity)">{{ b.severityLabel }}</span></td>
+            <td><span class="badge" [ngClass]="statusClass(b.status)">{{ b.statusLabel }}</span></td>
+            <td>{{ b.category }}</td>
+            <td>{{ b.module || '—' }}</td>
+            <td>{{ b.reportedByUserName }}</td>
+            <td>{{ b.createdAt | date:'dd/MM/yy HH:mm' }}</td>
+          </tr>
+          <tr *ngIf="bugs.length === 0">
+            <td colspan="8" class="empty">Aucune anomalie trouvée</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="prevPage()" [disabled]="page === 1">‹ Précédent</button>
+      <span>Page {{ page }} / {{ totalPages }}</span>
+      <button (click)="nextPage()" [disabled]="page === totalPages">Suivant ›</button>
+    </div>
+
+  </ng-container>
+
+  <!-- ── CRÉATION ───────────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="view === 'create'">
+
+    <div class="page-header">
+      <div>
+        <button class="btn-back" (click)="backToList()">← Retour</button>
+        <h1>Nouveau ticket d'anomalie</h1>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-error" *ngIf="formError">{{ formError }}</div>
+
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Titre <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="form.title" placeholder="Résumé court du problème" />
+        </div>
+
+        <div class="form-group">
+          <label>Sévérité <span class="required">*</span></label>
+          <select [(ngModel)]="form.severity">
+            <option *ngFor="let s of severities" [value]="s.value">{{ s.label }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Catégorie <span class="required">*</span></label>
+          <select [(ngModel)]="form.category">
+            <option value="">-- Choisir --</option>
+            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Sous-catégorie</label>
+          <input type="text" [(ngModel)]="form.subCategory" placeholder="Ex: Formulaire de dépôt" />
+        </div>
+
+        <div class="form-group">
+          <label>Module</label>
+          <select [(ngModel)]="form.module">
+            <option value="">-- Choisir --</option>
+            <option *ngFor="let m of modules" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Environnement</label>
+          <input type="text" [(ngModel)]="form.environment" placeholder="Ex: Chrome 125 / Windows 11" />
+        </div>
+
+        <div class="form-group">
+          <label>Navigateur / OS</label>
+          <input type="text" [(ngModel)]="form.browserInfo" placeholder="Ex: Firefox 126 / macOS" />
+        </div>
+
+        <div class="form-group full">
+          <label>Description <span class="required">*</span></label>
+          <textarea [(ngModel)]="form.description" rows="4" placeholder="Décrivez le problème en détail"></textarea>
+        </div>
+
+        <div class="form-group full">
+          <label>Étapes pour reproduire</label>
+          <textarea [(ngModel)]="form.stepsToReproduce" rows="3" placeholder="1. Aller sur...&#10;2. Cliquer sur...&#10;3. Observer..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Comportement attendu</label>
+          <textarea [(ngModel)]="form.expectedBehavior" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Comportement observé</label>
+          <textarea [(ngModel)]="form.actualBehavior" rows="2"></textarea>
+        </div>
+
+        <div class="form-group full">
+          <label>URL capture d'écran</label>
+          <input type="text" [(ngModel)]="form.screenshotUrl" placeholder="https://..." />
+        </div>
+
+        <!-- Pièces jointes -->
+        <div class="form-group full">
+          <label>Pièces jointes</label>
+          <div class="drop-zone"
+            [class.drag-over]="isDragOver"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave()"
+            (drop)="onFileDrop($event)">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Glissez vos fichiers ici ou <label class="browse-link" for="file-input">parcourir</label></p>
+            <p class="drop-hint">Images, PDF, Word, Excel, PowerPoint, TXT — max 20 Mo</p>
+            <input id="file-input" type="file" multiple (change)="onFileSelected($event)"
+              accept=".jpg,.jpeg,.png,.gif,.webp,.avif,.bmp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.log"
+              style="display:none" />
+          </div>
+          <div class="attachment-error" *ngIf="attachmentError">{{ attachmentError }}</div>
+          <div class="pending-files" *ngIf="pendingFiles.length > 0">
+            <div class="pending-file" *ngFor="let f of pendingFiles; let i = index">
+              <i class="fa-solid" [ngClass]="fileIcon(f.name)"></i>
+              <span class="file-name">{{ f.name }}</span>
+              <span class="file-size">{{ formatFileSize(f.size) }}</span>
+              <button class="btn-remove" (click)="removePendingFile(i)" title="Retirer">×</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-ghost" (click)="backToList()">Annuler</button>
+        <button class="btn-primary" (click)="submitCreate()" [disabled]="submitting">
+          {{ submitting ? 'Envoi…' : 'Créer le ticket' }}
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ── DÉTAIL ─────────────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="view === 'detail' && selectedBug">
+
+    <div class="page-header">
+      <div>
+        <button class="btn-back" (click)="backToList()">← Retour</button>
+        <h1>#{{ selectedBug.id }} — {{ selectedBug.title }}</h1>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-lg" [ngClass]="severityClass(selectedBug.severity)">{{ selectedBug.severityLabel }}</span>
+        <span class="badge badge-lg" [ngClass]="statusClass(selectedBug.status)">{{ selectedBug.statusLabel }}</span>
+      </div>
+    </div>
+
+    <div class="detail-layout">
+
+      <!-- Colonne principale -->
+      <div class="detail-main">
+
+        <div class="detail-card">
+          <h3>Description</h3>
+          <p>{{ selectedBug.description }}</p>
+        </div>
+
+        <div class="detail-card" *ngIf="selectedBug.stepsToReproduce">
+          <h3>Étapes pour reproduire</h3>
+          <pre>{{ selectedBug.stepsToReproduce }}</pre>
+        </div>
+
+        <div class="detail-row-2" *ngIf="selectedBug.expectedBehavior || selectedBug.actualBehavior">
+          <div class="detail-card" *ngIf="selectedBug.expectedBehavior">
+            <h3>Comportement attendu</h3>
+            <p>{{ selectedBug.expectedBehavior }}</p>
+          </div>
+          <div class="detail-card" *ngIf="selectedBug.actualBehavior">
+            <h3>Comportement observé</h3>
+            <p>{{ selectedBug.actualBehavior }}</p>
+          </div>
+        </div>
+
+        <div class="detail-card" *ngIf="selectedBug.screenshotUrl">
+          <h3>Capture d'écran</h3>
+          <img [src]="selectedBug.screenshotUrl" alt="Capture" class="screenshot" />
+        </div>
+
+        <!-- Pièces jointes -->
+        <div class="detail-card attachments-card">
+          <div class="attachments-header">
+            <h3>Pièces jointes ({{ selectedBug.attachments.length }})</h3>
+            <label class="btn-ghost btn-sm btn-upload" title="Ajouter une pièce jointe">
+              <i class="fa-solid fa-paperclip"></i> Ajouter
+              <input type="file" multiple (change)="uploadAttachmentOnDetail($event)"
+                accept=".jpg,.jpeg,.png,.gif,.webp,.avif,.bmp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.log"
+                style="display:none" />
+            </label>
+          </div>
+          <div class="attachment-list" *ngIf="selectedBug.attachments.length > 0">
+            <div class="attachment-item" *ngFor="let a of selectedBug.attachments">
+              <i class="fa-solid" [ngClass]="fileIcon(a.fileName)"></i>
+              <a [href]="a.storageUrl" target="_blank" class="att-name">{{ a.fileName }}</a>
+              <span class="att-size">{{ formatFileSize(a.fileSize) }}</span>
+              <button class="btn-remove" (click)="deleteAttachment(a.id)" title="Supprimer">×</button>
+            </div>
+          </div>
+          <div class="comment-empty" *ngIf="selectedBug.attachments.length === 0">Aucune pièce jointe</div>
+          <div class="uploading-hint" *ngIf="uploadingAttachment">Upload en cours…</div>
+        </div>
+
+        <!-- Commentaires -->
+        <div class="detail-card comments-card">
+          <h3>Commentaires ({{ selectedBug.comments.length }})</h3>
+          <div class="comment" *ngFor="let c of selectedBug.comments">
+            <div class="comment-header">
+              <strong>{{ c.authorName }}</strong>
+              <span class="comment-date">{{ c.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <p>{{ c.content }}</p>
+          </div>
+          <div class="comment-empty" *ngIf="selectedBug.comments.length === 0">Aucun commentaire</div>
+          <div class="comment-form">
+            <div class="comment-textarea-wrapper">
+              <textarea [(ngModel)]="newComment" rows="2" placeholder="Ajouter un commentaire… (Ctrl+V pour coller une capture d'écran)" (paste)="onCommentPaste($event)"></textarea>
+              <div class="paste-hint" *ngIf="pastedImageUploading"><i class="fa-solid fa-spinner fa-spin"></i> Upload de la capture…</div>
+              <div class="paste-hint paste-success" *ngIf="pastedImageName"><i class="fa-solid fa-check"></i> {{ pastedImageName }} ajouté aux pièces jointes</div>
+            </div>
+            <button class="btn-primary btn-sm" (click)="submitComment()" [disabled]="submittingComment || !newComment.trim()">
+              {{ submittingComment ? 'Envoi…' : 'Commenter' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Colonne latérale -->
+      <div class="detail-sidebar">
+
+        <div class="sidebar-card">
+          <h4>Informations</h4>
+          <dl>
+            <dt>Catégorie</dt><dd>{{ selectedBug.category }}</dd>
+            <dt *ngIf="selectedBug.subCategory">Sous-catégorie</dt><dd *ngIf="selectedBug.subCategory">{{ selectedBug.subCategory }}</dd>
+            <dt *ngIf="selectedBug.module">Module</dt><dd *ngIf="selectedBug.module">{{ selectedBug.module }}</dd>
+            <dt *ngIf="selectedBug.environment">Environnement</dt><dd *ngIf="selectedBug.environment">{{ selectedBug.environment }}</dd>
+            <dt *ngIf="selectedBug.browserInfo">Navigateur</dt><dd *ngIf="selectedBug.browserInfo">{{ selectedBug.browserInfo }}</dd>
+            <dt>Rapporté par</dt><dd>{{ selectedBug.reportedByUserName }}</dd>
+            <dt>Créé le</dt><dd>{{ selectedBug.createdAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+            <dt *ngIf="selectedBug.closedAt">Fermé le</dt><dd *ngIf="selectedBug.closedAt">{{ selectedBug.closedAt | date:'dd/MM/yyyy' }}</dd>
+          </dl>
+        </div>
+
+        <!-- Actions Admin -->
+        <div class="sidebar-card" *ngIf="isAdmin">
+          <h4>Changer le statut</h4>
+          <div class="status-actions">
+            <button *ngFor="let s of statuses"
+              class="btn-status"
+              [ngClass]="{ active: selectedBug.status === s.value }"
+              (click)="changeStatus(s.value)">
+              {{ s.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Actions Testeur -->
+        <div class="sidebar-card" *ngIf="isTester && selectedBug.status === BugStatus.FixedAndToTest">
+          <h4>Résultat du test</h4>
+          <p class="test-hint">Ce ticket a été corrigé. Avez-vous pu vérifier le correctif ?</p>
+          <div class="test-actions">
+            <button class="btn-success" (click)="setTestResult(true)">✓ Résolu</button>
+            <button class="btn-danger"  (click)="setTestResult(false)">✗ KO — Toujours présent</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ── PRÉFÉRENCES ───────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="view === 'preferences'">
+
+    <div class="page-header">
+      <div>
+        <button class="btn-back" (click)="backToList()">← Retour</button>
+        <h1><i class="fa-solid fa-bell"></i> Préférences de notification</h1>
+        <p class="subtitle">Choisissez comment être notifié pour les anomalies</p>
+      </div>
+    </div>
+
+    <div class="form-card pref-card">
+      <div class="pref-success" *ngIf="prefSaved">✓ Préférences enregistrées</div>
+
+      <table class="pref-table">
+        <thead>
+          <tr>
+            <th>Événement</th>
+            <th>Email</th>
+            <th>In-App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of preferences">
+            <td class="pref-label">{{ prefLabel(p.notificationType) }}</td>
+            <td class="pref-toggle">
+              <label class="toggle">
+                <input type="checkbox" [(ngModel)]="p.emailEnabled" />
+                <span class="slider"></span>
+              </label>
+            </td>
+            <td class="pref-toggle">
+              <label class="toggle">
+                <input type="checkbox" [(ngModel)]="p.inAppEnabled" />
+                <span class="slider"></span>
+              </label>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="form-actions">
+        <button class="btn-ghost" (click)="backToList()">Annuler</button>
+        <button class="btn-primary" (click)="savePreferences()" [disabled]="prefSaving">
+          {{ prefSaving ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

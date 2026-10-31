@@ -19,6 +19,9 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
         public DbSet<AnnonceFavorite> AnnonceFavorites => Set<AnnonceFavorite>();
         public DbSet<AnnonceView> AnnonceViews => Set<AnnonceView>();
         public DbSet<Feedback> Feedbacks => Set<Feedback>();
+        public DbSet<BugReport> BugReports => Set<BugReport>();
+        public DbSet<BugComment> BugComments => Set<BugComment>();
+        public DbSet<BugAttachment> BugAttachments => Set<BugAttachment>();
 
         public ListingsDbContext(DbContextOptions<ListingsDbContext> options)
             : base(options) { }
@@ -36,6 +39,9 @@ namespace ElroukenAljamil.Listings.Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new AnnonceFavoriteConfiguration());
             modelBuilder.ApplyConfiguration(new AnnonceViewConfiguration());
             modelBuilder.ApplyConfiguration(new FeedbackConfiguration());
+            modelBuilder.ApplyConfiguration(new BugReportConfiguration());
+            modelBuilder.ApplyConfiguration(new BugCommentConfiguration());
+            modelBuilder.ApplyConfiguration(new BugAttachmentConfiguration());
         }
 
         /// <summary>

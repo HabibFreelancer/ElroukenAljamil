@@ -43,15 +43,19 @@ namespace ElroukenAljamil.Media.Application.Commands.UploadMedia
 
             var file = request.File;
 
+            // Lire le fichier en mémoire une seule fois
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream, ct);
+            memoryStream.Position = 0;
+
             // Valider que c'est réellement une image
-            using var validationStream = file.OpenReadStream();
-            var isValid = await _imageProcessingService.IsValidImageAsync(validationStream, ct);
+            var isValid = await _imageProcessingService.IsValidImageAsync(memoryStream, ct);
             if (!isValid)
                 return Result<UploadResultDto>.Failure("Le fichier n'est pas une image valide.");
 
             // Lire les dimensions
-            validationStream.Position = 0;
-            var dimensions = await _imageProcessingService.GetDimensionsAsync(validationStream, ct);
+            memoryStream.Position = 0;
+            var dimensions = await _imageProcessingService.GetDimensionsAsync(memoryStream, ct);
 
             // Générer un chemin de stockage unique
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -60,8 +64,8 @@ namespace ElroukenAljamil.Media.Application.Commands.UploadMedia
             // Upload vers MinIO
             await _storageService.EnsureBucketExistsAsync(BucketName, ct);
 
-            using var uploadStream = file.OpenReadStream();
-            await _storageService.UploadAsync(BucketName, storagePath, uploadStream, file.ContentType, ct);
+            memoryStream.Position = 0;
+            await _storageService.UploadAsync(BucketName, storagePath, memoryStream, file.ContentType, ct);
 
             // Créer l'entité domain
             var mediaFile = MediaFile.Create(

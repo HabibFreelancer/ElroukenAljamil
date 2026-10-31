@@ -108,6 +108,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9553598C-EDBD-4DC5-B94A-FCB64DA43F0B}"
 	ProjectSection(SolutionItems) = preProject
 		Compte administrateur.txt = Compte administrateur.txt
+		configuration de nlog par environnement.txt = configuration de nlog par environnement.txt
 		Description Api Getway.txt = Description Api Getway.txt
 		exemple structure micro service.txt = exemple structure micro service.txt
 		Guide d'exécution et de test en local.txt = Guide d'exécution et de test en local.txt
@@ -123,6 +124,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9553598C-E
 		Service Search - Commande docker.txt = Service Search - Commande docker.txt
 		Structure complète des fichiers Services Messaging .txt = Structure complète des fichiers Services Messaging .txt
 		SuggestQuery  and GetFacetsQuery  in ElasticSearch.txt = SuggestQuery  and GetFacetsQuery  in ElasticSearch.txt
+		Workflow complet Staging and Production for Vault.txt = Workflow complet Staging and Production for Vault.txt
+		étapes execution solution en local pour debuger et tester en local.txt = étapes execution solution en local pour debuger et tester en local.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElroukenAljamil.Search.Infrastructure", "ElroukenAljamil.Search.Infrastructure\ElroukenAljamil.Search.Infrastructure.csproj", "{16F256A2-7E1C-4A40-A850-5B6F7EDFE8D5}"

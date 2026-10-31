@@ -4,8 +4,9 @@ using System.Security.Cryptography;
 using System.Text;
 using ElroukenAljamil.Identity.Application.Interfaces;
 using ElroukenAljamil.Identity.Domain.Entities;
-using ElroukenAljamil.BuildingBlocks.Security.Configuration; // Importez votre config
-using Microsoft.Extensions.Options; // Importez Options
+using ElroukenAljamil.BuildingBlocks.Security.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ElroukenAljamil.Identity.Infrastructure.Services
@@ -13,10 +14,12 @@ namespace ElroukenAljamil.Identity.Infrastructure.Services
     public class TokenService : ITokenService
     {
         private readonly JwtSettings _jwtSettings;
+        private readonly ILogger<TokenService> _logger;
 
-        public TokenService(IOptions<JwtSettings> jwtSettings)
+        public TokenService(IOptions<JwtSettings> jwtSettings, ILogger<TokenService> logger)
         {
-            _jwtSettings = jwtSettings.Value; // On récupère l'instance typée
+            _jwtSettings = jwtSettings.Value;
+            _logger = logger;
         }
 
         public string GenerateAccessToken(ApplicationUser user)
@@ -78,13 +81,15 @@ namespace ElroukenAljamil.Identity.Infrastructure.Services
                 if (securityToken is not JwtSecurityToken jwtToken ||
                     !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 {
+                    _logger.LogWarning("Token expiré invalide — algorithme de signature incorrect");
                     return null;
                 }
 
                 return principal.FindFirstValue(ClaimTypes.NameIdentifier);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogWarning(ex, "Échec de la validation du token expiré");
                 return null;
             }
         }

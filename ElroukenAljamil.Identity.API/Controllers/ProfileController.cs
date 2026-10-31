@@ -1,10 +1,11 @@
-﻿using ElroukenAljamil.BuildingBlocks.Security;
+using ElroukenAljamil.BuildingBlocks.Security;
 using ElroukenAljamil.BuildingBlocks.Security.Services;
 using ElroukenAljamil.Identity.Application.DTOs;
 using ElroukenAljamil.Identity.Domain.Interfaces;
 using ElroukenAljamil.Identity.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Identity.API.Controllers
 {
@@ -15,11 +16,13 @@ namespace ElroukenAljamil.Identity.API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly ICurrentUserService _currentUser;
+        private readonly ILogger<ProfileController> _logger;
 
-        public ProfileController(IUserRepository userRepository, ICurrentUserService currentUser)
+        public ProfileController(IUserRepository userRepository, ICurrentUserService currentUser, ILogger<ProfileController> logger)
         {
             _userRepository = userRepository;
             _currentUser = currentUser;
+            _logger = logger;
         }
 
         /// <summary>
@@ -31,7 +34,10 @@ namespace ElroukenAljamil.Identity.API.Controllers
         {
             var user = await _userRepository.GetByIdAsync(_currentUser.UserId, ct);
             if (user is null)
+            {
+                _logger.LogWarning("GET profil — utilisateur {UserId} introuvable", _currentUser.UserId);
                 return NotFound(new { error = "Utilisateur introuvable." });
+            }
 
             var profile = new UserProfileDto
             {
@@ -61,7 +67,10 @@ namespace ElroukenAljamil.Identity.API.Controllers
         {
             var user = await _userRepository.GetByIdAsync(_currentUser.UserId, ct);
             if (user is null)
+            {
+                _logger.LogWarning("PUT profil — utilisateur {UserId} introuvable", _currentUser.UserId);
                 return NotFound(new { error = "Utilisateur introuvable." });
+            }
 
             Address? address = null;
             if (request.Address is not null)
@@ -77,6 +86,7 @@ namespace ElroukenAljamil.Identity.API.Controllers
             user.UpdateProfile(request.FirstName, request.LastName, request.PhoneNumber, address);
             await _userRepository.UpdateAsync(user, ct);
 
+            _logger.LogInformation("Profil mis à jour pour utilisateur {UserId}", _currentUser.UserId);
             return NoContent();
         }
     }

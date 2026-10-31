@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using ElroukenAljamil.Listings.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Listings.Infrastructure.Services
 {
@@ -14,17 +11,23 @@ namespace ElroukenAljamil.Listings.Infrastructure.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<HuggingFaceService> _logger;
 
-        public HuggingFaceService(HttpClient httpClient, IConfiguration configuration)
+        public HuggingFaceService(HttpClient httpClient, IConfiguration configuration, ILogger<HuggingFaceService> logger)
         {
             _httpClient = httpClient;
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task<string?> CallHuggingFaceAsync(string prompt, CancellationToken ct)
         {
             var hfToken = _configuration["HuggingFace:ApiToken"] ?? "";
-            if (string.IsNullOrEmpty(hfToken)) return null;
+            if (string.IsNullOrEmpty(hfToken))
+            {
+                _logger.LogWarning("HuggingFace:ApiToken non configuré — appel ignoré");
+                return null;
+            }
 
             var requestBody = new
             {
@@ -36,19 +39,26 @@ namespace ElroukenAljamil.Listings.Infrastructure.Services
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", hfToken);
 
             var modelUrl = _configuration["HuggingFace:ModelUrl"] ?? "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+            _logger.LogDebug("Appel HuggingFace — modèle {ModelUrl}", modelUrl);
 
-            // Passage du CancellationToken ici pour stopper l'appel HTTP si besoin
             var response = await _httpClient.PostAsync(modelUrl, content, ct);
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("HuggingFace API — réponse HTTP {StatusCode}", (int)response.StatusCode);
+                return null;
+            }
 
             var responseString = await response.Content.ReadAsStringAsync(ct);
             using var doc = JsonDocument.Parse(responseString);
 
             if (doc.RootElement.ValueKind == JsonValueKind.Array && doc.RootElement.GetArrayLength() > 0)
             {
-                return doc.RootElement[0].GetProperty("generated_text").GetString();
+                var text = doc.RootElement[0].GetProperty("generated_text").GetString();
+                _logger.LogDebug("HuggingFace — description générée ({Length} chars)", text?.Length ?? 0);
+                return text;
             }
 
+            _logger.LogWarning("HuggingFace — réponse inattendue, aucun texte généré");
             return null;
         }
     }

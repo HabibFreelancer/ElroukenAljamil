@@ -35,7 +35,7 @@ namespace ElroukenAljamil.Media.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
-        public async Task<IReadOnlyList<MediaFile>> GetByListingIdAsync(Guid listingId, CancellationToken ct = default)
+        public async Task<IReadOnlyList<MediaFile>> GetByListingIdAsync(int listingId, CancellationToken ct = default)
         {
             return await _context.MediaFiles
                 .Where(m => m.ListingId == listingId)
@@ -60,7 +60,7 @@ namespace ElroukenAljamil.Media.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
-        public async Task<int> GetCountByListingAsync(Guid listingId, CancellationToken ct = default)
+        public async Task<int> GetCountByListingAsync(int listingId, CancellationToken ct = default)
         {
             return await _context.MediaFiles
                 .CountAsync(m => m.ListingId == listingId, ct);
@@ -92,22 +92,26 @@ namespace ElroukenAljamil.Media.Infrastructure.Repositories
 
         Task<IReadOnlyList<MediaFile>> IRepository<MediaFile>.FindAsync(Expression<Func<MediaFile, bool>> predicate, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return _context.MediaFiles.Where(predicate).ToListAsync(ct).ContinueWith(t => (IReadOnlyList<MediaFile>)t.Result);
         }
 
-        Task<MediaFile> IRepository<MediaFile>.AddAsync(MediaFile entity, CancellationToken ct)
+        async Task<MediaFile> IRepository<MediaFile>.AddAsync(MediaFile entity, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            await _context.MediaFiles.AddAsync(entity, ct);
+            await _context.SaveChangesAsync(ct);
+            return entity;
         }
 
         Task<bool> IRepository<MediaFile>.ExistsAsync(Guid id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return _context.MediaFiles.AnyAsync(m => m.Id == id, ct);
         }
 
         Task<int> IRepository<MediaFile>.CountAsync(Expression<Func<MediaFile, bool>>? predicate, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return predicate is null
+                ? _context.MediaFiles.CountAsync(ct)
+                : _context.MediaFiles.CountAsync(predicate, ct);
         }
     }
 }

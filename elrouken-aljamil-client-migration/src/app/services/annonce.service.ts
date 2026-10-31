@@ -61,6 +61,16 @@ export class AnnonceService {
     return this.http.post<{ id: number }>(`${this.api}/listings`, payload);
   }
 
+  uploadMedia(file: File): Observable<{ mediaId: string; url: string; status: string }> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<{ mediaId: string; url: string; status: string }>(`${this.api}/media/upload`, form);
+  }
+
+  assignMedia(listingId: number, mediaIds: string[]): Observable<void> {
+    return this.http.post<void>(`${this.api}/media/assign`, { listingId, mediaIds });
+  }
+
   submitFeedback(annonceId: number, rating: string, category: string): Observable<void> {
     return this.http.post<void>(`${this.api}/feedback`, { annonceId, rating, category });
   }

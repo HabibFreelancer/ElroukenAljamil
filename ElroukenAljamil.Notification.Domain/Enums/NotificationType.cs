@@ -38,7 +38,11 @@ namespace ElroukenAljamil.Notification.Domain.Enums
 
         // --- Alertes de recherche ---
         SearchAlert = 40,         // Nouvelle annonce correspondant à une alerte sauvegardée
-        PriceDropAlert = 41       // Baisse de prix sur une annonce suivie
+        PriceDropAlert = 41,      // Baisse de prix sur une annonce suivie
+
+        // --- Recette / Bug tracker ---
+        BugReportCreated = 50,    // Nouveau ticket d'anomalie créé
+        BugStatusChanged = 51     // Statut d'un ticket modifié
     }
 
 }

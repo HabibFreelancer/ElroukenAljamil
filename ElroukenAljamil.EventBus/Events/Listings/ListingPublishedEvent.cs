@@ -40,7 +40,7 @@ namespace ElroukenAljamil.BuildingBlocks.EventBus.Events.Listings
 
     public record ListingDeactivatedEvent : IntegrationEvent
     {
-        public Guid ListingId { get; init; }
+        public int ListingId { get; init; }
         public Guid SellerId { get; init; }
         public string Reason { get; init; } = string.Empty;
         public DateTime DeactivatedAt { get; set; }

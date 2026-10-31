@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using ElroukenAljamil.Listings.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Listings.API.Controllers
 {
@@ -9,10 +10,12 @@ namespace ElroukenAljamil.Listings.API.Controllers
     public class AiController : ControllerBase
     {
         private readonly IAiDescriptionService _aiService;
+        private readonly ILogger<AiController> _logger;
 
-        public AiController(IAiDescriptionService aiService)
+        public AiController(IAiDescriptionService aiService, ILogger<AiController> logger)
         {
             _aiService = aiService;
+            _logger = logger;
         }
 
         [HttpPost("generate-description")]
@@ -20,11 +23,13 @@ namespace ElroukenAljamil.Listings.API.Controllers
         {
             if (context.ValueKind == JsonValueKind.Undefined || context.ValueKind == JsonValueKind.Null)
             {
+                _logger.LogWarning("Génération description IA — contexte JSON manquant");
                 return BadRequest(new { error = "Le contexte JSON est requis pour générer la description." });
             }
 
-            // Appel du service en propageant le CancellationToken de la requête HTTP
+            _logger.LogInformation("Génération description IA demandée");
             var description = await _aiService.GenerateDescriptionAsync(context, ct);
+            _logger.LogInformation("Description IA générée avec succès");
 
             return Ok(new { description });
         }

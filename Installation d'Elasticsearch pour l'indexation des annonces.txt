@@ -15,6 +15,7 @@ docker run -d \
 Après exécution :
 API REST : http://localhost:9200
 Vérification : curl http://localhost:9200 → retourne un JSON avec le nom du cluster
+
 Option 2 — Docker Compose (intégré à l'architecture marketplace)
 Ajoutez ceci à votre docker-compose.yml :
 services:

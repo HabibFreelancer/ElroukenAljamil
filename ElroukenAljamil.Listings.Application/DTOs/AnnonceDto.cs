@@ -54,6 +54,21 @@ public class CreateDraftRequest
     public Dictionary<string, object>? ExtraData { get; set; }
 }
 
+public class UpdateAnnonceRequest
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public int CategoryId { get; set; }
+    public string? AdType { get; set; }
+    public string? Condition { get; set; }
+    public string? Location { get; set; }
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public bool HidePhone { get; set; }
+    public Dictionary<string, object>? ExtraData { get; set; }
+}
+
 public class PriceEstimateRequest
 {
     public int CategoryId { get; set; }

@@ -47,8 +47,8 @@ namespace ElroukenAljamil.Media.Infrastructure.Persistence.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid?>("ListingId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("ListingId")
+                        .HasColumnType("int");
 
                     b.Property<string>("OriginalFileName")
                         .IsRequired()

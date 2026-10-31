@@ -11,7 +11,23 @@
         "Action": "Start"
       },
       {
+        "Path": "ElroukenAljamil.Media.API\\ElroukenAljamil.Media.API.csproj",
+        "Action": "Start"
+      },
+      {
         "Path": "ElroukenAljamil.Identity.API\\ElroukenAljamil.Identity.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ElroukenAljamil.Messaging.API\\ElroukenAljamil.Messaging.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ElroukenAljamil.Search.API\\ElroukenAljamil.Search.API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ElroukenAljamil.Notification.API\\ElroukenAljamil.Notification.API.csproj",
         "Action": "Start"
       }
     ]

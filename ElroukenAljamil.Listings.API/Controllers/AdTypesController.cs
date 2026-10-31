@@ -7,6 +7,7 @@ using ElroukenAljamil.Listings.Application.Queries.GetAdTypes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Listings.API.Controllers
 {
@@ -15,7 +16,13 @@ namespace ElroukenAljamil.Listings.API.Controllers
     public class AdTypesController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public AdTypesController(IMediator mediator) => _mediator = mediator;
+        private readonly ILogger<AdTypesController> _logger;
+
+        public AdTypesController(IMediator mediator, ILogger<AdTypesController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
 
         [HttpGet]
         public async Task<ActionResult<List<AdTypeDto>>> GetAll(CancellationToken ct) =>
@@ -33,6 +40,7 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<ActionResult<AdTypeDto>> Create([FromBody] CreateAdTypeRequest request, CancellationToken ct)
         {
             var result = await _mediator.Send(new CreateAdTypeCommand(request), ct);
+            _logger.LogInformation("AdType {AdTypeId} créé — {Label}", result.Id, result.Label);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
@@ -41,6 +49,8 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateAdTypeRequest request, CancellationToken ct)
         {
             var success = await _mediator.Send(new UpdateAdTypeCommand(id, request), ct);
+            if (!success) _logger.LogWarning("Mise à jour AdType {AdTypeId} — introuvable", id);
+            else _logger.LogInformation("AdType {AdTypeId} mis à jour", id);
             return success ? NoContent() : NotFound();
         }
 
@@ -49,6 +59,8 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> Delete(int id, CancellationToken ct)
         {
             var success = await _mediator.Send(new DeleteAdTypeCommand(id), ct);
+            if (!success) _logger.LogWarning("Suppression AdType {AdTypeId} — introuvable", id);
+            else _logger.LogInformation("AdType {AdTypeId} supprimé", id);
             return success ? NoContent() : NotFound();
         }
     }

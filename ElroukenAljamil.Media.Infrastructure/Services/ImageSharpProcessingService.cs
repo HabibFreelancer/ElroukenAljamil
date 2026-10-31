@@ -102,8 +102,9 @@ namespace ElroukenAljamil.Media.Infrastructure.Services
                 var imageInfo = await Image.IdentifyAsync(inputStream, ct);
                 return imageInfo is not null;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogDebug(ex, "Fichier non reconnu comme image valide");
                 return false;
             }
         }

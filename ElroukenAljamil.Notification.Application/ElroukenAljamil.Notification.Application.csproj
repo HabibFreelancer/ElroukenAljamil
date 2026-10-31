@@ -15,6 +15,7 @@
 
 	<ItemGroup>
     <ProjectReference Include="..\ElroukenAljamil.Notification.Domain\ElroukenAljamil.Notification.Domain.csproj" />
+    <ProjectReference Include="..\ElroukenAljamil.EventBus\ElroukenAljamil.EventBus.csproj" />
   </ItemGroup>
 
 </Project>

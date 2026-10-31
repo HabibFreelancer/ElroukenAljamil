@@ -7,6 +7,7 @@ import { debounceTime, Subject } from 'rxjs';
 import { WorkflowService, Workflow, WorkflowStep, StepField } from '../../services/workflow.service';
 import { AuthService } from '../../services/auth.service';
 import { AnnonceService } from '../../services/annonce.service';
+import { environment } from '../../../environments/environment';
 import * as L from 'leaflet';
 
 // Fix Leaflet default icon path issue with bundlers
@@ -140,6 +141,7 @@ export class DeposerAnnonceComponent implements OnInit {
           this.emploiForm = data.emploiForm || this.emploiForm;
           this.selectedCategoryId = data.selectedCategoryId || null;
           this.photos = data.photos || [];
+          this.mediaIds = data.mediaIds || [];
           this.contactForm = data.contactForm || this.contactForm;
           this.showAdType = data.showAdType || false;
           this.adTypes = data.adTypes || [];
@@ -181,8 +183,9 @@ export class DeposerAnnonceComponent implements OnInit {
     this.initGeolocation();
 
     // Pre-fill contact form with authenticated user data
-    this.contactForm.email = this.authService.getEmail();
-    this.contactForm.phone = this.authService.getPhone();
+    const contact = this.resolveContactInfo();
+    this.contactForm.email = contact.email;
+    this.contactForm.phone = contact.phone;
   }
 
   resetForm() {
@@ -194,6 +197,9 @@ export class DeposerAnnonceComponent implements OnInit {
     this.contactForm = { email: this.authService.getEmail(), phone: this.authService.getPhone(), hidePhone: false };
     this.selectedCategoryId = null;
     this.photos = [];
+    this.photoFiles = [];
+    this.mediaIds = [];
+    this.uploadErrors = {};
     this.showAdType = false;
     this.adTypes = [];
     this.suggestedCategories = [];
@@ -214,6 +220,7 @@ export class DeposerAnnonceComponent implements OnInit {
       emploiForm: this.emploiForm,
       selectedCategoryId: this.selectedCategoryId,
       photos: this.photos,
+      mediaIds: this.mediaIds,
       contactForm: this.contactForm,
       showAdType: this.showAdType,
       adTypes: this.adTypes,
@@ -289,7 +296,11 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   @ViewChild('cropImage') cropImageRef!: ElementRef<HTMLImageElement>;
-  photos: string[] = [];
+  photos: string[] = [];          // previews locaux (base64 ou URL MinIO)
+  photoFiles: (File | null)[] = []; // fichiers originaux pour upload
+  mediaIds: string[] = [];         // IDs retournés par le Media API
+  uploadingSlot: number | null = null;
+  uploadErrors: { [slot: number]: string } = {};
   maxPhotos = 5;
   activeSlot = 0;
   showEditor = false;
@@ -321,34 +332,69 @@ export class DeposerAnnonceComponent implements OnInit {
   }
 
   onSlotPhotoSelected(event: any) {
-    const file = event.target.files[0];
+    const file: File = event.target.files[0];
     if (!file) return;
+    const slot = this.activeSlot;
+
+    // Afficher preview local immédiatement
     const reader = new FileReader();
     reader.onload = (e: any) => {
-      while (this.photos.length <= this.activeSlot) {
-        this.photos.push('');
-      }
-      this.photos[this.activeSlot] = e.target.result;
+      while (this.photos.length <= slot) { this.photos.push(''); }
+      while (this.photoFiles.length <= slot) { this.photoFiles.push(null); }
+      this.photos[slot] = e.target.result;
+      this.photoFiles[slot] = file;
       this.photosError = false;
+      this.uploadErrors[slot] = '';
+      this.uploadToMediaService(file, slot);
     };
     reader.readAsDataURL(file);
     event.target.value = '';
   }
 
+  private uploadToMediaService(file: File, slot: number) {
+    this.uploadingSlot = slot;
+    this.annonceService.uploadMedia(file).subscribe({
+      next: (res) => {
+        while (this.mediaIds.length <= slot) { this.mediaIds.push(''); }
+        this.mediaIds[slot] = res.mediaId;
+        // Garder le preview base64 déjà affiché, ne pas remplacer par l'URL MinIO
+        this.uploadingSlot = null;
+      },
+      error: () => {
+        this.uploadErrors[slot] = 'Échec de l\'upload. Réessayez.';
+        this.uploadingSlot = null;
+      }
+    });
+  }
+
   onPhotosSelected(event: any) {
     const files: FileList = event.target.files;
     for (let i = 0; i < files.length && this.photos.length < this.maxPhotos; i++) {
+      const slot = this.photos.length;
+      const file = files[i];
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.photos.push(e.target.result);
+        this.photoFiles.push(file);
+        this.uploadToMediaService(file, slot);
       };
-      reader.readAsDataURL(files[i]);
+      reader.readAsDataURL(file);
     }
     event.target.value = '';
   }
 
   removePhoto(index: number) {
     this.photos.splice(index, 1);
+    this.photoFiles.splice(index, 1);
+    this.mediaIds.splice(index, 1);
+    // Réindexer les erreurs
+    const newErrors: { [slot: number]: string } = {};
+    Object.keys(this.uploadErrors).forEach(k => {
+      const n = parseInt(k);
+      if (n < index) newErrors[n] = this.uploadErrors[n];
+      else if (n > index) newErrors[n - 1] = this.uploadErrors[n];
+    });
+    this.uploadErrors = newErrors;
   }
 
   openEditor(slot: number) {
@@ -473,10 +519,10 @@ export class DeposerAnnonceComponent implements OnInit {
         this.formData['poste'] = this.annonce.title;
       }
       if (this.formData['email'] !== undefined) {
-        this.formData['email'] = this.authService.getEmail();
+        this.formData['email'] = this.resolveContactInfo().email;
       }
       if (this.formData['phone'] !== undefined) {
-        this.formData['phone'] = this.authService.getPhone();
+        this.formData['phone'] = this.resolveContactInfo().phone;
       }
     }
     this.saveState();
@@ -492,7 +538,9 @@ export class DeposerAnnonceComponent implements OnInit {
 
   getTotalSteps(): number {
     if (this.workflow && this.workflowSteps.length > 0) {
-      return this.workflowSteps.length;
+      // step 1 = titre, puis 1 step par step workflow (hors 'title')
+      const dynamicCount = this.workflowSteps.filter(s => s.stepKey !== 'title').length;
+      return 1 + dynamicCount;
     }
     return this.isEmploiCategory() ? 8 : 4;
   }
@@ -507,8 +555,8 @@ export class DeposerAnnonceComponent implements OnInit {
     }
     // Validate photos step (configurable per workflow)
     if (this.workflow && this.workflowSteps.length > 0) {
-      const stepIndex = this.currentStep - 1;
-      if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'photos' && this.workflowSteps[stepIndex].isRequired) {
+      const step = this.getWorkflowStep(this.currentStep);
+      if (step?.stepKey === 'photos' && step.isRequired) {
         if (this.photos.filter(p => p).length === 0) {
           this.photosError = true;
           return false;
@@ -1085,14 +1133,9 @@ export class DeposerAnnonceComponent implements OnInit {
 
     // Load price estimate when entering price step
     if (this.workflow && this.workflowSteps.length > 0) {
-      const stepIndex = this.currentStep - 1;
-      if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'price') {
-        this.loadPriceEstimate();
-      }
-      // Auto-fill address and show map when entering location step
-      if (stepIndex >= 0 && stepIndex < this.workflowSteps.length && this.workflowSteps[stepIndex].stepKey === 'location') {
-        this.initLocationStep();
-      }
+      const step = this.getWorkflowStep(this.currentStep);
+      if (step?.stepKey === 'price') this.loadPriceEstimate();
+      if (step?.stepKey === 'location') this.initLocationStep();
     }
 
     // Re-display map if returning to a location step with address already filled
@@ -1144,6 +1187,17 @@ export class DeposerAnnonceComponent implements OnInit {
           });
       });
     }
+  }
+
+  private resolveContactInfo(): { email: string; phone: string } {
+    const email = this.authService.getEmail();
+    const phone = this.authService.getPhone();
+    if (email || phone) return { email, phone };
+    // En mode développement, utiliser les données fictives si non connecté
+    if (!environment.production && environment.devUser) {
+      return { email: environment.devUser.email, phone: environment.devUser.phone };
+    }
+    return { email: '', phone: '' };
   }
 
   isEmploiCategory(): boolean {
@@ -1326,6 +1380,11 @@ export class DeposerAnnonceComponent implements OnInit {
     this.annonceService.submit(payload).subscribe({
       next: (res) => {
         this.submittedAnnonceId = res.id;
+        // Assigner les médias uploadés à l'annonce créée
+        const validMediaIds = this.mediaIds.filter(id => id);
+        if (validMediaIds.length > 0) {
+          this.annonceService.assignMedia(res.id, validMediaIds).subscribe();
+        }
         this.submitting = false;
         sessionStorage.removeItem('deposer_step');
         sessionStorage.removeItem('deposer_data');

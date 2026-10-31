@@ -1,0 +1,37 @@
+﻿Ce que produit chaque log en Staging/Production
+Chaque ligne de log est maintenant un objet JSON autonome sur une seule ligne — le format attendu par Filebeat, Promtail (Loki) et Logstash :
+
+{
+  "timestamp": "2025-01-15T14:32:07.123Z",
+  "level": "info",
+  "service": "listings",
+  "environment": "Production",
+  "logger": "AnnonceController",
+  "message": "Annonce créée avec succès",
+  "trace_id": "0HN8K2VQJP3A4:00000001",
+  "http_method": "POST",
+  "http_url": "/api/annonces",
+  "http_status": "201",
+  "client_ip": "41.225.12.5",
+  "user_id": "ahmed.ben.ali",
+  "duration_ms": "142",
+  "exception": null
+}
+
+Champs clés et leur utilité dans ELK/Loki
+Champ	Utilité
+service	Filtrer par microservice dans Kibana/Grafana
+trace_id	Corréler une requête à travers tous les services
+environment	Séparer Staging vs Production dans le même index
+http_status	Alertes sur les 5xx, dashboards d'erreurs
+duration_ms	Détection des requêtes lentes
+exception	Format @ = objet JSON avec type, message, stackTrace
+includeEventProperties	Capture les propriétés structurées des _logger.LogInformation("Annonce {Id} créée", id)
+
+Différences par environnement
+				Dev (nlog.config)	Staging			Production
+Console colorée		✅					❌			❌
+Fichier JSON		✅ (debug)		✅ (info+)		✅ (warn+)
+Rétention			7 jours				14 jours	30/90 jours
+throwConfigExceptions	true			false			false
+internalLogLevel		Warn			Warn			Error

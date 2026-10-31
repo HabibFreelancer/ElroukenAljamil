@@ -9,9 +9,10 @@ namespace ElroukenAljamil.Listings.Infrastructure.Services;
 public class AiDescriptionService : IAiDescriptionService
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<VehicleService> _logger;
+    private readonly ILogger<AiDescriptionService> _logger;
     private readonly IHuggingFaceService _huggingFaceService;
-    public AiDescriptionService(IHttpClientFactory httpClientFactory, ILogger<VehicleService> logger, IHuggingFaceService huggingFaceService)
+
+    public AiDescriptionService(IHttpClientFactory httpClientFactory, ILogger<AiDescriptionService> logger, IHuggingFaceService huggingFaceService)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
@@ -24,7 +25,7 @@ public class AiDescriptionService : IAiDescriptionService
 
         try
         {
-            // Appel à l'infrastructure avec propagation du token d'annulation
+            // Appel ï¿½ l'infrastructure avec propagation du token d'annulation
             var description = await _huggingFaceService.CallHuggingFaceAsync(prompt, ct);
             if (!string.IsNullOrWhiteSpace(description))
             {
@@ -33,15 +34,15 @@ public class AiDescriptionService : IAiDescriptionService
         }
         catch (OperationCanceledException)
         {
-            _logger.LogInformation("La génération de la description par l'IA a été annulée.");
+            _logger.LogInformation("La gï¿½nï¿½ration de la description par l'IA a ï¿½tï¿½ annulï¿½e.");
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Erreur lors de l'appel à Hugging Face. Bascule sur le mécanisme de fallback.");
+            _logger.LogWarning(ex, "Erreur lors de l'appel ï¿½ Hugging Face. Bascule sur le mï¿½canisme de fallback.");
         }
 
-        // Fallback: génération locale basée sur les templates
+        // Fallback: gï¿½nï¿½ration locale basï¿½e sur les templates
         return GenerateFallback(context);
     }
 
@@ -69,10 +70,10 @@ public class AiDescriptionService : IAiDescriptionService
         var surface = GetValue(context, "surface") ?? "";
         var address = GetValue(context, "address") ?? "";
 
-        sb.Append(!string.IsNullOrEmpty(surface) ? $"Bien de {surface} m² à vendre" : "Bien à vendre");
-        if (!string.IsNullOrEmpty(address)) sb.Append($" à {address}");
+        sb.Append(!string.IsNullOrEmpty(surface) ? $"Bien de {surface} mï¿½ ï¿½ vendre" : "Bien ï¿½ vendre");
+        if (!string.IsNullOrEmpty(address)) sb.Append($" ï¿½ {address}");
         sb.AppendLine(".");
-        sb.AppendLine("N'hésitez pas à me contacter pour plus d'informations !");
+        sb.AppendLine("N'hï¿½sitez pas ï¿½ me contacter pour plus d'informations !");
 
         return sb.ToString().Trim();
     }
@@ -85,11 +86,11 @@ public class AiDescriptionService : IAiDescriptionService
         var bedrooms = GetValue(context, "bedrooms") ?? "";
         var address = GetValue(context, "address") ?? "";
 
-        sb.Append(!string.IsNullOrEmpty(surface) ? $"Belle propriété de {surface} m²" : "Beau bien immobilier");
-        if (!string.IsNullOrEmpty(address)) sb.Append($" située à {address}");
+        sb.Append(!string.IsNullOrEmpty(surface) ? $"Belle propriï¿½tï¿½ de {surface} mï¿½" : "Beau bien immobilier");
+        if (!string.IsNullOrEmpty(address)) sb.Append($" situï¿½e ï¿½ {address}");
         sb.AppendLine(".");
-        if (!string.IsNullOrEmpty(rooms)) sb.AppendLine($"Il comprend {rooms} pièces" + (!string.IsNullOrEmpty(bedrooms) ? $" dont {bedrooms} chambre(s)" : "") + ".");
-        sb.AppendLine("N'hésitez pas à me contacter pour organiser une visite.");
+        if (!string.IsNullOrEmpty(rooms)) sb.AppendLine($"Il comprend {rooms} piï¿½ces" + (!string.IsNullOrEmpty(bedrooms) ? $" dont {bedrooms} chambre(s)" : "") + ".");
+        sb.AppendLine("N'hï¿½sitez pas ï¿½ me contacter pour organiser une visite.");
 
         return sb.ToString().Trim();
     }
@@ -100,10 +101,10 @@ public class AiDescriptionService : IAiDescriptionService
         var surface = GetValue(context, "surface") ?? "";
         var address = GetValue(context, "address") ?? "";
 
-        sb.Append(!string.IsNullOrEmpty(surface) ? $"Local professionnel de {surface} m²" : "Local professionnel");
-        if (!string.IsNullOrEmpty(address)) sb.Append($" à {address}");
+        sb.Append(!string.IsNullOrEmpty(surface) ? $"Local professionnel de {surface} mï¿½" : "Local professionnel");
+        if (!string.IsNullOrEmpty(address)) sb.Append($" ï¿½ {address}");
         sb.AppendLine(".");
-        sb.AppendLine("Idéal pour investisseur ou activité professionnelle. Contactez-nous pour plus de détails.");
+        sb.AppendLine("Idï¿½al pour investisseur ou activitï¿½ professionnelle. Contactez-nous pour plus de dï¿½tails.");
 
         return sb.ToString().Trim();
     }
@@ -124,21 +125,21 @@ public class AiDescriptionService : IAiDescriptionService
         if (isImmobilier) return BuildImmobilierPrompt(context, propertyType);
 
         var sb = new StringBuilder();
-        sb.AppendLine("Génère une description d'annonce de vente en français en te basant sur ces informations :");
+        sb.AppendLine("Gï¿½nï¿½re une description d'annonce de vente en franï¿½ais en te basant sur ces informations :");
 
         foreach (var prop in context.EnumerateObject())
         {
             sb.AppendLine($"- {prop.Name}: {prop.Value}");
         }
 
-        sb.AppendLine("\nRéponds UNIQUEMENT avec la description générée, sans commentaire.");
+        sb.AppendLine("\nRï¿½ponds UNIQUEMENT avec la description gï¿½nï¿½rï¿½e, sans commentaire.");
         return sb.ToString();
     }
 
     private string BuildImmobilierPrompt(JsonElement context, string propertyType)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"Génère une description d'annonce immobilière pour un(e) {propertyType} en français, style professionnel et attractif.");
+        sb.AppendLine($"Gï¿½nï¿½re une description d'annonce immobiliï¿½re pour un(e) {propertyType} en franï¿½ais, style professionnel et attractif.");
         sb.AppendLine("Voici les informations du bien :");
 
         foreach (var prop in context.EnumerateObject())
@@ -146,21 +147,21 @@ public class AiDescriptionService : IAiDescriptionService
             sb.AppendLine($"- {prop.Name}: {prop.Value}");
         }
 
-        sb.AppendLine("\nRéponds UNIQUEMENT avec la description générée.");
+        sb.AppendLine("\nRï¿½ponds UNIQUEMENT avec la description gï¿½nï¿½rï¿½e.");
         return sb.ToString();
     }
 
     private string BuildBureauCommercePrompt(JsonElement context)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Génère une description d'annonce pour un local de type bureau ou commerce en français.");
+        sb.AppendLine("Gï¿½nï¿½re une description d'annonce pour un local de type bureau ou commerce en franï¿½ais.");
 
         foreach (var prop in context.EnumerateObject())
         {
             sb.AppendLine($"- {prop.Name}: {prop.Value}");
         }
 
-        sb.AppendLine("\nRéponds UNIQUEMENT avec la description générée.");
+        sb.AppendLine("\nRï¿½ponds UNIQUEMENT avec la description gï¿½nï¿½rï¿½e.");
         return sb.ToString();
     }
 

@@ -11,6 +11,7 @@ import { CategoryManagementComponent } from './pages/admin/category-management/c
 import { AdtypeManagementComponent } from './pages/admin/adtype-management/adtype-management.component';
 import { WorkflowManagementComponent } from './pages/admin/workflow-management/workflow-management.component';
 import { FeedbackManagementComponent } from './pages/admin/feedback-management/feedback-management.component';
+import { RecetteComponent } from './pages/recette/recette.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'mes-annonces', component: MyAnnoncesComponent },
   { path: 'annonce/:id', component: AnnonceDetailComponent },
   { path: 'auth', component: AuthComponent },
+  { path: 'recette', component: RecetteComponent },
   {
     path: 'admin',
     component: AdminComponent,

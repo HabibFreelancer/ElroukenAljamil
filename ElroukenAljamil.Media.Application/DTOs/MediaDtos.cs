@@ -16,7 +16,7 @@ namespace ElroukenAljamil.Media.Application.DTOs
         public int Height { get; init; }
         public string Status { get; init; } = string.Empty;
         public Guid OwnerId { get; init; }
-        public Guid? ListingId { get; init; }
+        public int? ListingId { get; init; }
         public int SortOrder { get; init; }
         public MediaUrlsDto Urls { get; init; } = null!;
         public DateTime CreatedAt { get; init; }
@@ -41,7 +41,7 @@ namespace ElroukenAljamil.Media.Application.DTOs
 
     public record AssignMediaRequest
     {
-        public Guid ListingId { get; init; }
+        public int ListingId { get; init; }
         public List<Guid> MediaIds { get; init; } = new();
     }
 

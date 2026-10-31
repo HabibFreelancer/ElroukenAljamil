@@ -30,8 +30,7 @@
             "UpstreamHttpMethod": [ "POST" ],
             "DownstreamPathTemplate": "/api/listings/draft",
             "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] }
+            "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ]
         },
         {
             "UpstreamPathTemplate": "/api/listings/price-estimate",
@@ -100,22 +99,6 @@
             }
         },
         {
-            "UpstreamPathTemplate": "/api/listings/{id}",
-            "UpstreamHttpMethod": [ "GET" ],
-            "DownstreamPathTemplate": "/api/listings/{id}",
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 5001
-                }
-            ],
-            "FileCacheOptions": {
-                "TtlSeconds": 15,
-                "Region": "listings-detail"
-            }
-        },
-        {
             "UpstreamPathTemplate": "/api/listings/mine",
             "UpstreamHttpMethod": [ "GET" ],
             "DownstreamPathTemplate": "/api/listings/mine",
@@ -132,6 +115,22 @@
             }
         },
         {
+            "UpstreamPathTemplate": "/api/listings/{id}",
+            "UpstreamHttpMethod": [ "GET" ],
+            "DownstreamPathTemplate": "/api/listings/{id}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 5001
+                }
+            ],
+            "FileCacheOptions": {
+                "TtlSeconds": 15,
+                "Region": "listings-detail"
+            }
+        },
+        {
             "UpstreamPathTemplate": "/api/listings",
             "UpstreamHttpMethod": [ "POST" ],
             "DownstreamPathTemplate": "/api/listings",
@@ -142,10 +141,6 @@
                     "Port": 5001
                 }
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer",
-                "AllowedScopes": []
-            },
             "RateLimitOptions": {
                 "EnableRateLimiting": true,
                 "Period": "1m",
@@ -195,7 +190,6 @@
             "DownstreamPathTemplate": "/api/categories",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
         },
         {
@@ -204,7 +198,6 @@
             "DownstreamPathTemplate": "/api/categories/{id}",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
         },
         {
@@ -213,7 +206,6 @@
             "DownstreamPathTemplate": "/api/categories/by-menu/{menuId}",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
         },
         {
@@ -222,7 +214,6 @@
             "DownstreamPathTemplate": "/api/categories/for-deposit/{menuId}",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
         },
         {
@@ -231,7 +222,6 @@
             "DownstreamPathTemplate": "/api/categories/tree/{menuId}",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 120, "Region": "categories" }
         },
         {
@@ -256,7 +246,6 @@
             "DownstreamPathTemplate": "/api/menus",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 120, "Region": "menus" }
         },
         {
@@ -285,7 +274,6 @@
             "DownstreamPathTemplate": "/api/workflow",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 60, "Region": "workflow" }
         },
         {
@@ -294,7 +282,6 @@
             "DownstreamPathTemplate": "/api/workflow/{categoryId}",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 60, "Region": "workflow" }
         },
         {
@@ -303,7 +290,6 @@
             "DownstreamPathTemplate": "/api/workflow/{workflowId}/steps",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 60, "Region": "workflow" }
         },
         {
@@ -312,7 +298,6 @@
             "DownstreamPathTemplate": "/api/workflow/steps/{stepId}/fields",
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5001 } ],
-            "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer", "AllowedScopes": [] },
             "FileCacheOptions": { "TtlSeconds": 60, "Region": "workflow" }
         },
         {
@@ -547,10 +532,6 @@
                     "Port": 5004
                 }
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer",
-                "AllowedScopes": []
-            },
             "RateLimitOptions": {
                 "EnableRateLimiting": true,
                 "Period": "1m",
@@ -569,10 +550,6 @@
                     "Port": 5004
                 }
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer",
-                "AllowedScopes": []
-            },
             "RateLimitOptions": {
                 "EnableRateLimiting": true,
                 "Period": "1m",
@@ -590,11 +567,7 @@
                     "Host": "localhost",
                     "Port": 5004
                 }
-            ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer",
-                "AllowedScopes": []
-            }
+            ]
         },
         {
             "UpstreamPathTemplate": "/api/media/listing/{listingId}",

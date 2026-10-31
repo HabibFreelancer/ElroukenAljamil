@@ -12,6 +12,7 @@ using ElroukenAljamil.Identity.Application.Queries.GetCurrentUser;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Identity.API.Controllers
 {
@@ -20,7 +21,13 @@ namespace ElroukenAljamil.Identity.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public AuthController(IMediator mediator) => _mediator = mediator;
+        private readonly ILogger<AuthController> _logger;
+
+        public AuthController(IMediator mediator, ILogger<AuthController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
 
         /// <summary>Vérifie si un email existe déjà.</summary>
         [HttpPost("check-email")]
@@ -56,7 +63,12 @@ namespace ElroukenAljamil.Identity.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken ct)
         {
             var result = await _mediator.Send(command, ct);
-            if (!result.IsSuccess) return BadRequest(new { error = result.Error });
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Inscription échouée pour {Email} — {Error}", command.Email, result.Error);
+                return BadRequest(new { error = result.Error });
+            }
+            _logger.LogInformation("Nouvel utilisateur inscrit — {Email}", command.Email);
             return Created(string.Empty, result.Value);
         }
 
@@ -76,7 +88,12 @@ namespace ElroukenAljamil.Identity.API.Controllers
         public async Task<IActionResult> VerifyPhone([FromBody] VerifyCodeRequest request, CancellationToken ct)
         {
             var result = await _mediator.Send(new VerifyPhoneCommand(request.Email, request.Code), ct);
-            if (!result.IsSuccess) return BadRequest(new { error = result.Error });
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Vérification téléphone échouée pour {Email} — {Error}", request.Email, result.Error);
+                return BadRequest(new { error = result.Error });
+            }
+            _logger.LogInformation("Téléphone vérifié et compte activé pour {Email}", request.Email);
             return Ok(result.Value);
         }
 
@@ -86,7 +103,12 @@ namespace ElroukenAljamil.Identity.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken ct)
         {
             var result = await _mediator.Send(command, ct);
-            if (!result.IsSuccess) return Unauthorized(new { error = result.Error });
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Tentative de connexion échouée pour {Email} — {Error}", command.Email, result.Error);
+                return Unauthorized(new { error = result.Error });
+            }
+            _logger.LogInformation("Connexion réussie pour {Email}", command.Email);
             return Ok(result.Value);
         }
 
@@ -96,7 +118,11 @@ namespace ElroukenAljamil.Identity.API.Controllers
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenCommand command, CancellationToken ct)
         {
             var result = await _mediator.Send(command, ct);
-            if (!result.IsSuccess) return Unauthorized(new { error = result.Error });
+            if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Refresh token invalide ou expiré — {Error}", result.Error);
+                return Unauthorized(new { error = result.Error });
+            }
             return Ok(result.Value);
         }
 
@@ -106,10 +132,19 @@ namespace ElroukenAljamil.Identity.API.Controllers
         public async Task<IActionResult> Me(CancellationToken ct)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(userIdStr, out var userId)) return Unauthorized();
+            if (!Guid.TryParse(userIdStr, out var userId))
+            {
+                _logger.LogWarning("GET /me — claim NameIdentifier absent ou invalide");
+                return Unauthorized();
+            }
 
             var profile = await _mediator.Send(new GetCurrentUserQuery(userId), ct);
-            return profile is null ? Unauthorized() : Ok(profile);
+            if (profile is null)
+            {
+                _logger.LogWarning("GET /me — utilisateur {UserId} introuvable en base", userId);
+                return Unauthorized();
+            }
+            return Ok(profile);
         }
     }
 }

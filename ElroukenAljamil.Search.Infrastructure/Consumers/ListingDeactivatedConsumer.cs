@@ -1,4 +1,3 @@
-﻿using ElroukenAljamil.BuildingBlocks.EventBus.Events;
 using ElroukenAljamil.BuildingBlocks.EventBus.Events.Listings;
 using ElroukenAljamil.Search.Domain.Interfaces;
 using MassTransit;
@@ -27,9 +26,10 @@ namespace ElroukenAljamil.Search.Infrastructure.Consumers
             var message = context.Message;
             _logger.LogInformation("Suppression de l'annonce {ListingId} de l'index.", message.ListingId);
 
-            await _searchRepository.DeleteAsync(message.ListingId, context.CancellationToken);
+            var guid = new Guid(message.ListingId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            await _searchRepository.DeleteAsync(guid, cts.Token);
             _logger.LogInformation("Annonce {ListingId} supprimée de l'index.", message.ListingId);
         }
     }
-
 }

@@ -35,8 +35,8 @@ namespace ElroukenAljamil.Media.Infrastructure
                 return new MinioClient()
                     .WithEndpoint(minioConfig["Endpoint"] ?? "localhost:9000")
                     .WithCredentials(
-                        minioConfig["AccessKey"] ?? "minioadmin",
-                        minioConfig["SecretKey"] ?? "minioadmin")
+                        minioConfig["AccessKey"] ?? "minio_dev_access",
+                        minioConfig["SecretKey"] ?? "minio_dev_secret_2024")
                     .WithSSL(bool.Parse(minioConfig["UseSSL"] ?? "false"))
                     .Build();
             });

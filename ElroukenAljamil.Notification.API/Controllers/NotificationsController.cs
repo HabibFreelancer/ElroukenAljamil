@@ -7,6 +7,7 @@ using ElroukenAljamil.Notification.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Notification.API.Controllers
 {
@@ -17,11 +18,13 @@ namespace ElroukenAljamil.Notification.API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ICurrentUserService _currentUser;
+        private readonly ILogger<NotificationsController> _logger;
 
-        public NotificationsController(IMediator mediator, ICurrentUserService currentUser)
+        public NotificationsController(IMediator mediator, ICurrentUserService currentUser, ILogger<NotificationsController> logger)
         {
             _mediator = mediator;
             _currentUser = currentUser;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -37,13 +40,20 @@ namespace ElroukenAljamil.Notification.API.Controllers
         {
             var userId = _currentUser.UserId;
             var success = await _mediator.Send(new MarkAsReadCommand(id, userId), ct);
-            return success ? NoContent() : NotFound();
+            if (!success)
+            {
+                _logger.LogWarning("MarkAsRead notification {NotificationId} — introuvable pour {UserId}", id, userId);
+                return NotFound();
+            }
+            return NoContent();
         }
 
         [HttpPost("send")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Send([FromBody] SendNotificationRequest request, CancellationToken ct = default)
         {
+            _logger.LogInformation("Envoi manuel notification {Type} à {RecipientId} par admin",
+                request.Type, request.RecipientId);
             await _mediator.Send(new SendNotificationCommand(
                 request.RecipientId, request.Type, request.Language, request.TemplateData), ct);
             return Accepted();

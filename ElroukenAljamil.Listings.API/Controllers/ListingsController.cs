@@ -10,11 +10,13 @@ using ElroukenAljamil.Listings.Application.Queries.GetListings;
 using ElroukenAljamil.Listings.Application.Queries.GetMyListings;
 using ElroukenAljamil.Listings.Application.Queries.GetPriceEstimate;
 using ElroukenAljamil.Listings.Domain.Entities;
+using ElroukenAljamil.Listings.Infrastructure.EventPublishing;
 using ElroukenAljamil.Listings.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Listings.API.Controllers
 {
@@ -25,12 +27,21 @@ namespace ElroukenAljamil.Listings.API.Controllers
         private readonly IMediator _mediator;
         private readonly ICurrentUserService _currentUser;
         private readonly ListingsDbContext _db;
+        private readonly ListingIntegrationEventPublisher _eventPublisher;
+        private readonly ILogger<ListingsController> _logger;
 
-        public ListingsController(IMediator mediator, ICurrentUserService currentUser, ListingsDbContext db)
+        public ListingsController(
+            IMediator mediator,
+            ICurrentUserService currentUser,
+            ListingsDbContext db,
+            ListingIntegrationEventPublisher eventPublisher,
+            ILogger<ListingsController> logger)
         {
             _mediator = mediator;
             _currentUser = currentUser;
             _db = db;
+            _eventPublisher = eventPublisher;
+            _logger = logger;
         }
 
         /// <summary>Estimation de prix basée sur les annonces similaires.</summary>
@@ -68,7 +79,12 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> DeleteAnnonce(int id, CancellationToken ct)
         {
             var deleted = await _mediator.Send(new DeleteAnnonceCommand(id), ct);
-            if (!deleted) return NotFound();
+            if (!deleted)
+            {
+                _logger.LogWarning("Suppression annonce {AnnonceId} — introuvable", id);
+                return NotFound();
+            }
+            _logger.LogInformation("Annonce {AnnonceId} supprimée par utilisateur {UserId}", id, _currentUser.UserId);
             return NoContent();
         }
 
@@ -78,7 +94,12 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> PauseAnnonce(int id, CancellationToken ct)
         {
             var status = await _mediator.Send(new PauseAnnonceCommand(id), ct);
-            if (status == null) return NotFound();
+            if (status == null)
+            {
+                _logger.LogWarning("Pause annonce {AnnonceId} — introuvable", id);
+                return NotFound();
+            }
+            _logger.LogInformation("Annonce {AnnonceId} — statut changé en {Status} par {UserId}", id, status, _currentUser.UserId);
             return Ok(new { status });
         }
 
@@ -127,7 +148,7 @@ namespace ElroukenAljamil.Listings.API.Controllers
 
         /// <summary>Crée une annonce publiée.</summary>
         [HttpPost]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateAnnonceRequest request, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(request.Title) || request.CategoryId == 0)
@@ -193,12 +214,72 @@ namespace ElroukenAljamil.Listings.API.Controllers
             _db.Annonces.Add(annonce);
             await _db.SaveChangesAsync(ct);
 
+            _logger.LogInformation("Annonce {AnnonceId} créée par utilisateur {UserId} — {Title}",
+                annonce.Id, annonce.UserId, annonce.Title);
+
+            // Indexation Elasticsearch via RabbitMQ
+            var categoryName = category?.Name ?? "";
+            _ = _eventPublisher.PublishListingPublishedAsync(
+                annonce.Id, annonce.Title, annonce.Description, annonce.Price,
+                categoryName, string.Empty, Guid.TryParse(annonce.UserId, out var sid) ? sid : Guid.Empty,
+                annonce.Location, new List<string>(), ct);
+
             return Ok(new { id = annonce.Id, message = "Annonce déposée avec succès !" });
+        }
+
+        /// <summary>Met à jour une annonce existante et ré-indexe dans Elasticsearch.</summary>
+        [HttpPut("{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateAnnonceRequest request, CancellationToken ct)
+        {
+            var annonce = await _db.Annonces
+                .Include(a => a.Category).ThenInclude(c => c!.Menu)
+                .FirstOrDefaultAsync(a => a.Id == id, ct);
+
+            if (annonce == null)
+            {
+                _logger.LogWarning("Mise à jour annonce {AnnonceId} — introuvable", id);
+                return NotFound();
+            }
+
+            // Vérifier que l'utilisateur est propriétaire
+            if (annonce.UserId != _currentUser.UserId.ToString())
+            {
+                _logger.LogWarning("Mise à jour annonce {AnnonceId} refusée — utilisateur {UserId} n'est pas propriétaire",
+                    id, _currentUser.UserId);
+                return Forbid();
+            }
+
+            annonce.Title       = request.Title.Trim();
+            annonce.Description = request.Description ?? "";
+            annonce.Price       = request.Price;
+            annonce.CategoryId  = request.CategoryId > 0 ? request.CategoryId : annonce.CategoryId;
+            annonce.AdType      = request.AdType      ?? annonce.AdType;
+            annonce.Condition   = request.Condition   ?? annonce.Condition;
+            annonce.Location    = request.Location    ?? annonce.Location;
+            annonce.Phone       = request.Phone       ?? annonce.Phone;
+            annonce.Email       = request.Email       ?? annonce.Email;
+            annonce.HidePhone   = request.HidePhone;
+            if (request.ExtraData != null)
+                annonce.ExtraData = System.Text.Json.JsonSerializer.Serialize(
+                    request.ExtraData, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
+
+            await _db.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Annonce {AnnonceId} mise à jour par utilisateur {UserId}", id, _currentUser.UserId);
+
+            // Ré-indexation Elasticsearch via RabbitMQ
+            var categoryName = annonce.Category?.Name ?? "";
+            _ = _eventPublisher.PublishListingUpdatedAsync(
+                annonce.Id, annonce.Title, annonce.Description, annonce.Price,
+                categoryName, annonce.Location, new List<string>(), ct);
+
+            return Ok(new { id = annonce.Id, message = "Annonce mise à jour avec succès." });
         }
 
         /// <summary>Enregistre un brouillon d'annonce.</summary>
         [HttpPost("draft")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> SaveDraft([FromBody] CreateDraftRequest request, CancellationToken ct)
         {
             var annonce = new Annonce
@@ -224,6 +305,8 @@ namespace ElroukenAljamil.Listings.API.Controllers
 
             _db.Annonces.Add(annonce);
             await _db.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Brouillon {AnnonceId} enregistré par utilisateur {UserId}", annonce.Id, annonce.UserId);
 
             return Ok(new { id = annonce.Id, message = "Brouillon enregistré." });
         }

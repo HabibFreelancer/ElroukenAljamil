@@ -1,0 +1,161 @@
+﻿# 1. Démarrer Vault seul
+docker compose -f docker-compose.yml -f docker-compose.vault.yml up vault -d
+
+# 2. Initialiser Vault et écrire les secrets
+export JWT_SECRET=... RABBITMQ_USER=... # etc.
+bash vault/init-vault.sh
+
+# 3. Récupérer le token et l'ajouter au .env
+echo "VAULT_TOKEN=$(cat vault/service-token.txt)" >> .env
+
+# 4. Démarrer tous les services
+docker compose -f docker-compose.yml -f docker-compose.vault.yml up -d
+
+
+✅ État final de la chaîne de sécurité
+Couche	Statut
+appsettings.json (base)	✅ Valeurs vides
+appsettings.Development.json	✅ Exclu du git
+appsettings.Staging/Production.json	✅ Placeholders #{...}# uniquement
+.env	✅ Exclu du git
+vault/service-token.txt	✅ Exclu du git
+Vault → AddVaultSecrets	✅ Remplace les placeholders au démarrage
+docker-compose.vault.yml	✅ depends_on: vault sur tous les services
+
+
+============================ 'explication complète basée sur ton code réel =================
+
+Comment fonctionne le système de sécurité par environnement
+Vue d'ensemble — les 3 couches
+┌─────────────────────────────────────────────────────────┐
+│  COUCHE 1 : Secrets (où sont stockés les mots de passe) │
+│  COUCHE 2 : Authentification (qui peut appeler les APIs)│
+│  COUCHE 3 : Autorisation (ce que l'utilisateur peut faire)│
+└─────────────────────────────────────────────────────────┘
+COUCHE 1 — Gestion des secrets
+En développement local
+
+appsettings.Development.json  ←  valeurs réelles en clair
+        ↓
+  gitignorée → jamais dans le dépôt
+
+Ton appsettings.Development.json (Identity par exemple) :
+
+{
+  "Jwt": { "Secret": "VotreCleSecreteSuperLongue_MinimUM32Caracteres!" },
+  "ConnectionStrings": {
+    "IdentityDb": "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True"
+  }
+}
+
+Connexion SQL via Windows Authentication ( Trusted_Connection=True) → pas de mot de passe du tout
+
+JWT secret en clair → acceptable car le fichier est dans .gitignore
+
+Vault n'est pas appelé — le Program.cs le confirme :
+
+if (!builder.Environment.IsDevelopment())   // ← Vault ignoré en dev
+    builder.Configuration.AddVaultSecrets(env, "Identity");
+
+
+En Staging et Production
+
+appsettings.Staging.json / appsettings.Production.json
+        ↓
+  contient des placeholders #{...}# (jamais de vraies valeurs)
+        ↓
+  au démarrage → AddVaultSecrets() remplace les placeholders
+        ↓
+  IConfiguration contient les vraies valeurs en mémoire uniquement
+
+Exemple concret pour Identity en Production :
+
+Avant (ce qui est dans le fichier JSON commité) :
+
+"ConnectionStrings": {
+  "IdentityDb": "Server=sql.elrouken.tn;User Id=#{DB_USER}#;Password=#{DB_PASSWORD}#"
+}
+
+Pendant le démarrage — AddVaultSecrets fait ceci :
+
+1. Lit VAULT_ADDR et VAULT_TOKEN depuis les variables d'environnement
+2. Se connecte à Vault : http://vault:8200
+3. Lit secret/elrouken/shared  → JWT_SECRET, RABBITMQ_USER, DB_USER, DB_PASSWORD...
+4. Lit secret/elrouken/identity → (secrets spécifiques à Identity)
+5. Appelle builder.Build() pour lire la connection string avec les placeholders
+6. Remplace #{DB_USER}# → "sa_prod_user", #{DB_PASSWORD}# → "motdepasse_reel"
+7. Injecte la connection string résolue via AddInMemoryCollection
+
+Après (ce que voit l'application en mémoire) :
+ConnectionStrings:IdentityDb = "Server=sql.elrouken.tn;User Id=sa_prod_user;Password=motdepasse_reel"
+
+La priorité des providers de configuration .NET joue en ta faveur :
+AddInMemoryCollection  (priorité haute — Vault)
+    écrase
+appsettings.Production.json  (priorité basse — placeholders)
+
+COUCHE 2 — Authentification JWT
+En développement — DevAuthBypass
+// DevAuthBypassMiddleware.cs
+context.User = new ClaimsPrincipal(new ClaimsIdentity(claims, "DevBypass"));
+await _next(context);
+
+Le middleware injecte un faux utilisateur Admin sur chaque requête avant même que UseAuthentication() soit appelé. Résultat : tous les [Authorize] passent sans token JWT. Tu peux tester tous les endpoints sans te connecter.
+
+L'utilisateur fictif injecté :
+UserId    : 99E120E9-734F-4318-894D-E68B263E3E5F
+Email     : dev@marketplace.local
+Role      : Admin
+
+Ce middleware n'est activé que si ASPNETCORE_ENVIRONMENT == Development :
+// DevAuthBypassExtensions.cs
+if (env.IsDevelopment())
+    app.UseMiddleware<DevAuthBypassMiddleware>();
+
+En Staging et Production — JWT réel :
+
+Client → envoie Header: Authorization: Bearer <token>
+              ↓
+    AddJwtAuthentication() valide :
+      - Signature (avec Jwt:Secret venant de Vault)
+      - Issuer = "Marketplace.Identity"
+      - Audience = "Marketplace.Services"
+      - Expiration (ClockSkew = 1 minute)
+              ↓
+    context.User = ClaimsPrincipal avec les vrais claims
+
+Tous les microservices partagent le même Jwt:Secret stocké dans Vault sous secret/elrouken/shared.
+C'est Identity.API qui émet les tokens, et tous les autres services les valident avec la même clé.
+
+COUCHE 3 — Autorisation
+
+CurrentUserService lit les claims du ClaimsPrincipal injecté (faux en dev, réel en prod) :
+public Guid UserId => User!.GetUserId();       // claim NameIdentifier
+public string Email => User!.GetEmail();        // claim Email
+public bool IsAdmin => User!.IsAdmin();         // claim Role == "Admin"
+
+Les policies définies dans AuthenticationExtensions :
+"RequireAdmin"   → Role == "Admin"
+"RequireSeller"  → Role == "Seller" ou "Admin"
+"RequireBuyer"   → Role == "Buyer", "Seller" ou "Admin"
+
+Schéma complet par environnement
+┌──────────────┬──────────────────────────┬──────────────────────────┐
+│              │      DEVELOPMENT          │   STAGING / PRODUCTION   │
+├──────────────┼──────────────────────────┼──────────────────────────┤
+│ Secrets      │ appsettings.Dev.json      │ Vault (KV v2)            │
+│              │ (gitignorée, en clair)    │ injecté au démarrage     │
+├──────────────┼──────────────────────────┼──────────────────────────┤
+│ Auth         │ DevAuthBypassMiddleware   │ JWT Bearer validé        │
+│              │ faux Admin sans token     │ avec clé depuis Vault    │
+├──────────────┼──────────────────────────┼──────────────────────────┤
+│ DB           │ Trusted_Connection=True   │ User/Password depuis     │
+│              │ (Windows Auth, pas de MDP)│ Vault → connection string│
+├──────────────┼──────────────────────────┼──────────────────────────┤
+│ Vault        │ non démarré              │ docker-compose.vault.yml  │
+│              │ AddVaultSecrets ignoré    │ depends_on: vault healthy │
+├──────────────┼──────────────────────────┼──────────────────────────┤
+│ .env         │ gitignorée, valeurs réelles│ VAULT_TOKEN uniquement  │
+│              │ SA_PASSWORD, JWT_SECRET...│ (les autres viennent     │
+│              │                           │  de Vault lui-même)      │
+└──────────────┴──────────────────────────┴──────────────────────────┘

@@ -5,62 +5,88 @@ using ElroukenAljamil.BuildingBlocks.Security;
 using ElroukenAljamil.Identity.Application;
 using ElroukenAljamil.Identity.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NLog.Web;
 
-var builder = WebApplication.CreateBuilder(args);
+var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+var nlogConfigFile = File.Exists($"nlog.{env}.config") ? $"nlog.{env}.config" : "nlog.config";
+var logger = LogManager.Setup().LoadConfigurationFromFile(nlogConfigFile).GetCurrentClassLogger();
 
-
-// --- Couches applicatives ---
-builder.Services.AddApplication();
-builder.Services.AddIdentityInfrastructure(builder.Configuration);
-
-// --- Authentification JWT (BuildingBlocks) ---
-builder.Services.AddJwtAuthentication(builder.Configuration);
-builder.Services.AddCurrentUserService();
-builder.Services.AddDevAuthBypass(builder.Configuration);
-
-// --- API ---
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+try
 {
-    options.SwaggerDoc("v1", new() { Title = "Marketplace Identity API", Version = "v1" });
-    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    logger.Info("=== Identity.API démarrage — environnement : {0} ===", env);
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    if (!builder.Environment.IsDevelopment())
+        builder.Configuration.AddVaultSecrets(env, "Identity");
+
+    builder.Logging.ClearProviders();
+    builder.Host.UseNLog();
+
+    builder.Services.AddApplication();
+    builder.Services.AddIdentityInfrastructure(builder.Configuration);
+    builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment);
+    builder.Services.AddMarketplaceAuthorization();
+    builder.Services.AddCurrentUserService();
+    builder.Services.AddDevAuthBypass(builder.Configuration);
+
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(options =>
     {
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "Entrez le token JWT : Bearer {token}",
-        Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+        options.SwaggerDoc("v1", new() { Title = "Marketplace Identity API", Version = "v1" });
+        options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Description = "Entrez le token JWT : Bearer {token}",
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
+        });
     });
-});
 
-// --- Health Checks ---
-builder.Services.AddHealthChecks()
-    .AddSqlServer(builder.Configuration.GetConnectionString("IdentityDb")!)
-    .AddRabbitMQ(builder.Configuration.GetConnectionString("RabbitMQ")!, name: "rabbitmq");
+    var rabbitMqCs = builder.Configuration.GetConnectionString("RabbitMQ");
+    var healthChecks = builder.Services.AddHealthChecks()
+        .AddSqlServer(builder.Configuration.GetConnectionString("IdentityDb")!);
+    if (!string.IsNullOrWhiteSpace(rabbitMqCs))
+        healthChecks.AddRabbitMQ(rabbitMqCs, name: "rabbitmq");
 
-var app = builder.Build();
+    var app = builder.Build();
 
-// --- Migration automatique ---
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ElroukenAljamil.Identity.Infrastructure.Persistence.IdentityDbContext>();
-    await db.Database.MigrateAsync();
-    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-    await AdminSeeder.SeedAsync(db, hasher);
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ElroukenAljamil.Identity.Infrastructure.Persistence.IdentityDbContext>();
+        await db.Database.MigrateAsync();
+        var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+        await AdminSeeder.SeedAsync(db, hasher);
+        await TestAccountSeeder.SeedAsync(db, hasher);
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseDevAuthBypass(app.Environment);
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
+    app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        ResponseWriter = HealthChecks.UI.Client.UIResponseWriter.WriteHealthCheckUIResponse
+    });
+
+    app.Run();
+
+    logger.Info("=== Identity.API arrêté proprement ===");
 }
-
-// --- Middleware Pipeline ---
-if (app.Environment.IsDevelopment())
+catch (Exception ex)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    logger.Fatal(ex, "Identity.API arrêté suite à une exception non gérée.");
+    throw;
 }
-
-app.UseDevAuthBypass(app.Environment);
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-app.MapHealthChecks("/health");
-
-app.Run();
+finally
+{
+    LogManager.Shutdown();
+}

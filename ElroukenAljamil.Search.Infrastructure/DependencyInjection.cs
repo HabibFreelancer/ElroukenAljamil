@@ -24,7 +24,9 @@ namespace ElroukenAljamil.Search.Infrastructure
                 var settings = new ConnectionSettings(uri)
                     .DefaultIndex(elasticConfig["DefaultIndex"] ?? "listings")
                     .ThrowExceptions(false)
-                    .RequestTimeout(TimeSpan.FromSeconds(30))
+                    .RequestTimeout(TimeSpan.FromSeconds(60))
+                    .DeadTimeout(TimeSpan.FromSeconds(60))
+                    .MaxDeadTimeout(TimeSpan.FromSeconds(120))
                     .DefaultMappingFor<Domain.Entities.SearchableListingDocument>(m => m
                         .IdProperty(p => p.Id)
                         .IndexName(elasticConfig["DefaultIndex"] ?? "listings"));

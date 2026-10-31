@@ -31,10 +31,15 @@ namespace ElroukenAljamil.Search.Infrastructure.Consumers
             var message = context.Message;
             _logger.LogInformation("Indexation de l'annonce {ListingId}: {Title}", message.ListingId, message.Title);
 
+            // Utiliser un token indépendant pour Elasticsearch
+            // Le CancellationToken de MassTransit ne doit pas annuler les appels ES
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            var ct = cts.Token;
+
             // S'assurer que l'index existe
-            if (!await _indexManagement.IndexExistsAsync(context.CancellationToken))
+            if (!await _indexManagement.IndexExistsAsync(ct))
             {
-                await _indexManagement.CreateIndexAsync(context.CancellationToken);
+                await _indexManagement.CreateIndexAsync(ct);
             }
 
             var document = new SearchableListingDocument
@@ -56,7 +61,7 @@ namespace ElroukenAljamil.Search.Infrastructure.Consumers
                 PublishedAt = message.PublishedAt
             };
 
-            await _searchRepository.IndexAsync(document, context.CancellationToken);
+            await _searchRepository.IndexAsync(document, ct);
             _logger.LogInformation("Annonce {ListingId} indexée avec succès.", message.ListingId);
         }
     }

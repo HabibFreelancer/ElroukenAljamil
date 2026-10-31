@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ElroukenAljamil.ApiGateway.Middleware;
@@ -19,7 +20,14 @@ public class DevAdminTokenMiddleware
     public async Task InvokeAsync(HttpContext context)
     {
         if (!context.Request.Headers.ContainsKey("Authorization"))
-            context.Request.Headers["Authorization"] = $"Bearer {_token}";
+        {
+            var requestFeature = context.Features.Get<IHttpRequestFeature>()!;
+            var headers = new HeaderDictionary();
+            foreach (var h in context.Request.Headers)
+                headers[h.Key] = h.Value;
+            headers["Authorization"] = $"Bearer {_token}";
+            requestFeature.Headers = headers;
+        }
 
         await _next(context);
     }
@@ -32,7 +40,7 @@ public class DevAdminTokenMiddleware
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, "00000000-0000-0000-0000-000000000001"),
+            new Claim(ClaimTypes.NameIdentifier, "99E120E9-734F-4318-894D-E68B263E3E5F"),
             new Claim(ClaimTypes.Email,          "admin@elrouken.local"),
             new Claim(ClaimTypes.Name,           "admin"),
             new Claim(ClaimTypes.GivenName,      "Admin"),

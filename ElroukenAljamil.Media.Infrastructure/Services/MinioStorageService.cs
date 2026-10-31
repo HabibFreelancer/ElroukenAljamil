@@ -41,6 +41,7 @@ namespace ElroukenAljamil.Media.Infrastructure.Services
         public async Task<Stream> DownloadAsync(
             string bucketName, string objectName, CancellationToken ct = default)
         {
+            _logger.LogDebug("Téléchargement fichier : {Bucket}/{Object}", bucketName, objectName);
             var memoryStream = new MemoryStream();
 
             var getArgs = new GetObjectArgs()
@@ -79,6 +80,7 @@ namespace ElroukenAljamil.Media.Infrastructure.Services
             }
             catch
             {
+                _logger.LogDebug("Fichier introuvable dans MinIO : {Bucket}/{Object}", bucketName, objectName);
                 return false;
             }
         }
@@ -96,14 +98,26 @@ namespace ElroukenAljamil.Media.Infrastructure.Services
 
         public async Task EnsureBucketExistsAsync(string bucketName, CancellationToken ct = default)
         {
-            var existsArgs = new BucketExistsArgs().WithBucket(bucketName);
-            var exists = await _minioClient.BucketExistsAsync(existsArgs, ct);
-
-            if (!exists)
+            try
             {
-                var makeArgs = new MakeBucketArgs().WithBucket(bucketName);
-                await _minioClient.MakeBucketAsync(makeArgs, ct);
-                _logger.LogInformation("Bucket créé : {Bucket}", bucketName);
+                var existsArgs = new BucketExistsArgs().WithBucket(bucketName);
+                var exists = await _minioClient.BucketExistsAsync(existsArgs, ct);
+
+                if (!exists)
+                {
+                    var makeArgs = new MakeBucketArgs().WithBucket(bucketName);
+                    await _minioClient.MakeBucketAsync(makeArgs, ct);
+                    _logger.LogInformation("Bucket créé : {Bucket}", bucketName);
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                // Le bucket existe déjà (création concurrente) ou erreur transitoire — on vérifie une dernière fois
+                var existsArgs = new BucketExistsArgs().WithBucket(bucketName);
+                var exists = await _minioClient.BucketExistsAsync(existsArgs, ct);
+                if (!exists)
+                    throw;
+                _logger.LogDebug("Bucket déjà existant (création concurrente ignorée) : {Bucket}", bucketName);
             }
         }
     }

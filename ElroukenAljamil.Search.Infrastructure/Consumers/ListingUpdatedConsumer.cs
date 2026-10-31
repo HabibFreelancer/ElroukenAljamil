@@ -45,7 +45,8 @@ namespace ElroukenAljamil.Search.Infrastructure.Consumers
                 UpdatedAt = message.UpdatedAt
             };
 
-            await _searchRepository.UpdateAsync(document, context.CancellationToken);
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            await _searchRepository.UpdateAsync(document, cts.Token);
             _logger.LogInformation("Annonce {ListingId} mise à jour dans l'index.", message.ListingId);
         }
     }

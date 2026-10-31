@@ -17,7 +17,7 @@ namespace ElroukenAljamil.Media.Domain.Entities
         public ImageDimensions Dimensions { get; private set; } = null!;
         public MediaStatus Status { get; private set; } = MediaStatus.Uploaded;
         public Guid OwnerId { get; private set; }
-        public Guid? ListingId { get; private set; }
+        public int? ListingId { get; private set; }
         public string BucketName { get; private set; } = string.Empty;
         public MediaVariants Variants { get; private set; } = null!;
         public int SortOrder { get; private set; }
@@ -117,9 +117,9 @@ namespace ElroukenAljamil.Media.Domain.Entities
         /// <summary>
         /// Assigne le média à une annonce.
         /// </summary>
-        public void AssignToListing(Guid listingId, int sortOrder)
+        public void AssignToListing(int listingId, int sortOrder)
         {
-            if (listingId == Guid.Empty)
+            if (listingId <= 0)
                 throw new ArgumentException("L'identifiant de l'annonce est obligatoire.", nameof(listingId));
 
             ListingId = listingId;

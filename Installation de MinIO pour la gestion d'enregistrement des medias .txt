@@ -7,14 +7,17 @@ docker run -d \
   -p 9000:9000 \
   -p 9001:9001 \
   -v minio_data:/data \
-  -e MINIO_ROOT_USER=minioadmin \
-  -e MINIO_ROOT_PASSWORD=minioadmin \
+  -e MINIO_ROOT_USER=minio_dev_access \
+  -e MINIO_ROOT_PASSWORD=minio_dev_secret_2024 \
   minio/minio:latest server /data --console-address ":9001"
+
+
+    
 
 Après exécution :
 API S3 (pour le code C#) : http://localhost:9000
 Console web (interface graphique) : http://localhost:9001
-Login : minioadmin / minioadmin
+Login : minio_dev_access / minio_dev_secret_2024
 Option 2 — Docker Compose (intégré à l'architecture marketplace)
 C'est déjà inclus dans le docker-compose.yml de notre architecture. Il suffit de lancer :
 docker-compose up -d minio
@@ -35,8 +38,8 @@ Invoke-WebRequest -Uri "https://dl.min.io/server/minio/release/windows-amd64/min
 New-Item -ItemType Directory -Path "C:\minio\data" -Force
 
 # 3. Définir les credentials
-$env:MINIO_ROOT_USER = "minioadmin"
-$env:MINIO_ROOT_PASSWORD = "minioadmin"
+$env:MINIO_ROOT_USER = "minio_dev_access"
+$env:MINIO_ROOT_PASSWORD = "minio_dev_secret_2024"
 
 # 4. Lancer le serveur
 C:\minio\minio.exe server C:\minio\data --console-address ":9001"
@@ -49,7 +52,7 @@ nssm set MinIO AppEnvironmentExtra "MINIO_ROOT_USER=minioadmin" "MINIO_ROOT_PASS
 nssm start MinIO
 Après installation — Premier test
 1. Accéder à la console web
-Ouvrez http://localhost:9001 dans votre navigateur. Connectez-vous avec minioadmin / minioadmin.
+Ouvrez http://localhost:9001 dans votre navigateur. Connectez-vous avec minio_dev_access / minio_dev_secret_2024   .
 2. Créer le bucket manuellement (optionnel)
 Le code C# le crée automatiquement via EnsureBucketExistsAsync, mais vous pouvez aussi le faire via la console web : cliquez sur Buckets → Create Bucket → nommez-le marketplace-media.
 3. Tester avec le client MinIO (mc)
@@ -65,7 +68,7 @@ chmod +x mc
 sudo mv mc /usr/local/bin/
 
 # Configurer la connexion
-mc alias set local http://localhost:9000 minioadmin minioadmin
+mc alias set local http://localhost:9000 minio_dev_access   minio_dev_secret_2024   
 
 # Vérifier la connexion
 mc admin info local
@@ -136,3 +139,72 @@ Production Windows     Service NSSM                               5 minutes
 L'installation la plus rapide pour commencer à développer reste Docker. Une fois le conteneur lancé, le Media.Service s'y connecte immédiatement via le SDK Minio et vous pouvez uploader vos premières images.
 
 
+===================
+
+Angular (base64 local) → POST /api/media/upload → Gateway (port 5000) → Media API (port 5004)
+                                                                              ↓
+                                                                    ImageSharp valide + lit dimensions
+                                                                              ↓
+                                                                    MinIO stocke le fichier binaire
+                                                                              ↓
+                                                                    SQL Server stocke les métadonnées
+                                                                              ↓
+                                                                    RabbitMQ publie MediaUploadedEvent
+                                                                              ↓
+                                                                    Consumer génère variantes (thumb/medium/large/webp)
+
+
+Où sont stockées les images
+Deux endroits distincts :
+
+MinIO (S3-compatible, port 9000) — le fichier binaire réel
+
+Bucket : marketplace-media
+
+Chemin : {userId}/{année}/{mois}/{guid}.{ext} — ex: 99e120e9-.../2025/07/abc123.jpg
+
+URL publique : http://localhost:9000/marketplace-media/{storagePath}
+
+SQL Server (base ElroukenAljamilMediaDb) — les métadonnées
+
+Table MediaFiles : Id, OriginalFileName, StoragePath, ContentType, FileSize, OwnerId, ListingId, BucketName, Status, Variants, SortOrder
+
+Ce que retourne l'upload :
+
+{
+  "mediaId": "guid",
+  "originalFileName": "photo.jpg",
+  "url": "http://localhost:9000/marketplace-media/{userId}/{année}/{mois}/{guid}.jpg",
+  "status": "Uploaded"
+}
+
+
+============
+
+Le flux en deux phases distinctes
+Phase 1 — Upload synchrone (dans UploadMediaCommandHandler)
+
+1. Valider l'image
+2. Uploader le fichier original → MinIO
+3. Sauvegarder les métadonnées → SQL Server (status = "Uploaded")
+4. Publier MediaUploadedEvent → RabbitMQ
+5. Retourner { mediaId, url } à Angular ✅
+
+Copy
+L'API répond ici. RabbitMQ n'est pas encore impliqué dans le résultat.
+
+Phase 2 — Traitement asynchrone (dans MediaUploadedConsumer, déclenché par RabbitMQ)
+
+1. Recevoir MediaUploadedEvent depuis RabbitMQ
+2. Télécharger l'original depuis MinIO
+3. Générer thumbnail (150px) + medium (600px) + large (1200px) + webp (2000px)
+4. Uploader les 4 variantes → MinIO
+5. Mettre à jour status → "Processed" en SQL Server
+
+Copy
+Ce que ça veut dire concrètement
+Sans RabbitMQ : la phase 1 réussit, Angular reçoit son mediaId et l'URL de l'original. Mais l'événement MediaUploadedEvent ne peut pas être publié (ou est perdu), donc la phase 2 ne démarre jamais. L'image reste en status Uploaded dans la base, et les variantes _thumb.webp, _medium.webp, _large.webp, _full.webp n'existent jamais dans MinIO.
+
+Avec RabbitMQ : les deux phases s'enchaînent, l'image passe en status Processed et les 4 variantes sont disponibles pour l'affichage optimisé (thumbnail pour les listes, medium pour les cards, etc.).
+
+En dev, si tu n'as pas RabbitMQ, l'upload fonctionne et l'annonce peut être créée — tu auras juste l'image originale sans les variantes redimensionnées.

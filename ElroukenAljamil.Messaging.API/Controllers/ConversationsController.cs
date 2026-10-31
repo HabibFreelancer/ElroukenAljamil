@@ -9,6 +9,7 @@ using ElroukenAljamil.Messaging.Application.Queries.GetConversations;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Messaging.API.Controllers
 {
@@ -18,10 +19,12 @@ namespace ElroukenAljamil.Messaging.API.Controllers
     public class ConversationsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<ConversationsController> _logger;
 
-        public ConversationsController(IMediator mediator)
+        public ConversationsController(IMediator mediator, ILogger<ConversationsController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         /// <summary>
@@ -56,7 +59,10 @@ namespace ElroukenAljamil.Messaging.API.Controllers
             if (!result.IsSuccess)
             {
                 if (result.Error!.Contains("introuvable"))
+                {
+                    _logger.LogWarning("Conversation {ConversationId} introuvable", conversationId);
                     return NotFound(new { error = result.Error });
+                }
                 return BadRequest(new { error = result.Error });
             }
 
@@ -75,8 +81,13 @@ namespace ElroukenAljamil.Messaging.API.Controllers
             var result = await _mediator.Send(command, ct);
 
             if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Démarrage conversation échoué — {Error}", result.Error);
                 return BadRequest(new { error = result.Error });
+            }
 
+            _logger.LogInformation("Conversation {ConversationId} démarrée pour annonce {ListingId}",
+                result.Value, command.ListingId);
             return CreatedAtAction(
                 nameof(GetConversation),
                 new { conversationId = result.Value },
@@ -103,8 +114,14 @@ namespace ElroukenAljamil.Messaging.API.Controllers
             var result = await _mediator.Send(command, ct);
 
             if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Envoi message échoué dans conversation {ConversationId} — {Error}",
+                    conversationId, result.Error);
                 return BadRequest(new { error = result.Error });
+            }
 
+            _logger.LogInformation("Message {MessageId} envoyé dans conversation {ConversationId}",
+                result.Value?.Id, conversationId);
             return Created(string.Empty, result.Value);
         }
 
@@ -145,8 +162,13 @@ namespace ElroukenAljamil.Messaging.API.Controllers
             var result = await _mediator.Send(command, ct);
 
             if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Modification message {MessageId} échouée — {Error}", messageId, result.Error);
                 return BadRequest(new { error = result.Error });
+            }
 
+            _logger.LogInformation("Message {MessageId} modifié dans conversation {ConversationId}",
+                messageId, conversationId);
             return NoContent();
         }
 
@@ -170,8 +192,13 @@ namespace ElroukenAljamil.Messaging.API.Controllers
             var result = await _mediator.Send(command, ct);
 
             if (!result.IsSuccess)
+            {
+                _logger.LogWarning("Suppression message {MessageId} échouée — {Error}", messageId, result.Error);
                 return BadRequest(new { error = result.Error });
+            }
 
+            _logger.LogInformation("Message {MessageId} supprimé dans conversation {ConversationId}",
+                messageId, conversationId);
             return NoContent();
         }
     }

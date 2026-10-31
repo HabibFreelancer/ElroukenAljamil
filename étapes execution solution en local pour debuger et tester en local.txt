@@ -1,0 +1,40 @@
+﻿Étape 1 — Lancer l'infrastructure (Docker)
+cd c:\Users\X280\source\repos\leboncoin
+docker compose up sqlserver rabbitmq elasticsearch redis minio -d
+
+Attendre ~30 secondes puis vérifier que tout est healthy :
+
+docker compose ps
+
+
+Étape 2 — Lancer les microservices depuis Visual Studio
+Dans VS : clic droit sur la solution → Set Startup Projects → Multiple startup projects → mettre en Start dans cet ordre :
+
+Projet	Port
+Identity.API	5002
+Listings.API	5001
+Messaging.API	5003
+Media.API	5004
+Search.API	5005
+Notification.API	5006
+ApiGateway	5000
+Puis appuyer sur F5.
+
+Étape 3 — Vérifier que tout tourne
+Swagger de chaque service :
+
+Identity → http://localhost:5002/swagger
+
+Listings → http://localhost:5001/swagger
+
+Gateway → http://localhost:5000/swagger
+
+Interfaces infra :
+
+RabbitMQ → http://localhost:15672 (marketplace / marketplace_dev_2024)
+
+MinIO → http://localhost:9001 (minio_dev_access / minio_dev_secret_2024)
+
+Elasticsearch → http://localhost:9200/_cluster/health
+
+

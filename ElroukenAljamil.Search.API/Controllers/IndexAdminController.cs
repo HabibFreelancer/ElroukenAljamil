@@ -1,22 +1,22 @@
 ﻿using ElroukenAljamil.Search.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Search.API.Controllers
 {
-    /// <summary>
-    /// Endpoints d'administration de l'index (réservés aux admins).
-    /// </summary>
     [ApiController]
     [Route("api/search/admin")]
     [Authorize(Roles = "Admin")]
     public class IndexAdminController : ControllerBase
     {
         private readonly IIndexManagementService _indexManagement;
+        private readonly ILogger<IndexAdminController> _logger;
 
-        public IndexAdminController(IIndexManagementService indexManagement)
+        public IndexAdminController(IIndexManagementService indexManagement, ILogger<IndexAdminController> logger)
         {
             _indexManagement = indexManagement;
+            _logger = logger;
         }
 
         /// <summary>
@@ -38,7 +38,9 @@ namespace ElroukenAljamil.Search.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Reindex(CancellationToken ct)
         {
+            _logger.LogWarning("Reindex demandé par admin — suppression et recréation de l'index Elasticsearch");
             await _indexManagement.ReindexAsync(ct);
+            _logger.LogInformation("Reindex terminé avec succès");
             return Ok(new { message = "Index recréé. Les données seront re-populées via les événements." });
         }
     }

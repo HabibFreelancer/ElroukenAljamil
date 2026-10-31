@@ -10,6 +10,7 @@ using ElroukenAljamil.Listings.Application.Queries.GetCategoryTree;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Listings.API.Controllers
 {
@@ -18,8 +19,13 @@ namespace ElroukenAljamil.Listings.API.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<CategoriesController> _logger;
 
-        public CategoriesController(IMediator mediator) => _mediator = mediator;
+        public CategoriesController(IMediator mediator, ILogger<CategoriesController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
 
         /// <summary>Toutes les catégories avec leur menu.</summary>
         [HttpGet]
@@ -72,6 +78,7 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> Create([FromBody] CreateCategoryRequest request, CancellationToken ct)
         {
             var result = await _mediator.Send(new CreateCategoryCommand(request), ct);
+            _logger.LogInformation("Catégorie {CategoryId} créée — {Name}", result.Id, result.Name);
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
@@ -81,6 +88,8 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCategoryRequest request, CancellationToken ct)
         {
             var success = await _mediator.Send(new UpdateCategoryCommand(id, request), ct);
+            if (!success) _logger.LogWarning("Mise à jour catégorie {CategoryId} — introuvable", id);
+            else _logger.LogInformation("Catégorie {CategoryId} mise à jour", id);
             return success ? NoContent() : NotFound();
         }
 
@@ -90,6 +99,8 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> Delete(int id, CancellationToken ct)
         {
             var success = await _mediator.Send(new DeleteCategoryCommand(id), ct);
+            if (!success) _logger.LogWarning("Suppression catégorie {CategoryId} — introuvable", id);
+            else _logger.LogInformation("Catégorie {CategoryId} supprimée", id);
             return success ? NoContent() : NotFound();
         }
     }

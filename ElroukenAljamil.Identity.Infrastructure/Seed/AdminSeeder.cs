@@ -8,13 +8,13 @@ namespace ElroukenAljamil.Identity.Infrastructure.Seed;
 
 public static class AdminSeeder
 {
-    public static readonly Guid AdminId = new("00000000-0000-0000-0000-000000000001");
+    public static readonly Guid AdminId = new("99E120E9-734F-4318-894D-E68B263E3E5F");
     public const string AdminEmail = "admin@elrouken.local";
     public const string AdminPassword = "Admin@1234";
 
     public static async Task SeedAsync(IdentityDbContext db, IPasswordHasher hasher)
     {
-        if (await db.Users.AnyAsync(u => u.Id == AdminId))
+        if (await db.Users.AnyAsync(u => u.Id == AdminId || u.Email == AdminEmail))
             return;
 
         var admin = ApplicationUser.Create(

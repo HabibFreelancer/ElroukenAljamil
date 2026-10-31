@@ -5,8 +5,11 @@
 **/bin/
 **/obj/
 
-# Secrets (local dev only)
+# Secrets (local dev only — NE JAMAIS COMMITER)
 **/appsettings.Development.json
+.env
+vault/service-token.txt
+vault/unseal-keys.txt
 
 # Angular
 elrouken-aljamil-client/node_modules/

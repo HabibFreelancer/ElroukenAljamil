@@ -1,26 +1,29 @@
-﻿using System.Text;
+using System.Text;
 using ElroukenAljamil.BuildingBlocks.Security.Configuration;
 using ElroukenAljamil.BuildingBlocks.Security.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ElroukenAljamil.BuildingBlocks.Security.Extensions
 {
     public static class AuthenticationExtensions
     {
-        /// <summary>
-        /// Configure l'authentification JWT Bearer pour un microservice.
-        /// Tous les services partagent la même clé de validation.
-        /// </summary>
         public static IServiceCollection AddJwtAuthentication(
             this IServiceCollection services,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IWebHostEnvironment? environment = null)
         {
             var jwtSettings = configuration
                 .GetSection(JwtSettings.SectionName)
                 .Get<JwtSettings>() ?? new JwtSettings();
+
+            if (string.IsNullOrWhiteSpace(jwtSettings.Secret))
+                throw new InvalidOperationException(
+                    "JWT Secret is not configured. Add 'Jwt:Secret' to appsettings.Development.json.");
 
             services.Configure<JwtSettings>(
                 configuration.GetSection(JwtSettings.SectionName));
@@ -34,7 +37,7 @@ namespace ElroukenAljamil.BuildingBlocks.Security.Extensions
             })
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = false; // true en production
+                options.RequireHttpsMetadata = environment?.IsProduction() ?? false;
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {

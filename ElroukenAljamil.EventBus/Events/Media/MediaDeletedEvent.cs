@@ -23,7 +23,7 @@ namespace ElroukenAljamil.BuildingBlocks.EventBus.Events.Media
         /// <summary>
         /// Annonce associée (null si le média était orphelin).
         /// </summary>
-        public Guid? ListingId { get; init; }
+        public int? ListingId { get; init; }
 
         /// <summary>
         /// Propriétaire du fichier.

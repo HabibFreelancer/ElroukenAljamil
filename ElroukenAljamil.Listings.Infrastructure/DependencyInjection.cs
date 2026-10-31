@@ -34,6 +34,7 @@ namespace ElroukenAljamil.Listings.Infrastructure
             services.AddScoped<IStepFieldRepository, StepFieldRepository>();
             services.AddScoped<IAnnonceRepository, AnnonceRepository>();
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IBugReportRepository, BugReportRepository>();
             services.AddScoped<IVehicleService, VehicleService>();
             services.AddScoped<IAiDescriptionService, AiDescriptionService>();
             services.AddScoped<IHuggingFaceService, HuggingFaceService>();

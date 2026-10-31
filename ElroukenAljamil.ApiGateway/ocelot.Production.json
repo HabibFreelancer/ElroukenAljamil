@@ -1,11 +1,5 @@
 {
     "GlobalConfiguration": {
-        "BaseUrl": "https://api.marketplace.com",
-        "RateLimitOptions": {
-            "ClientIdHeader": "X-ClientId",
-            "HttpStatusCode": 429,
-            "QuotaExceededMessage": "Rate limit exceeded. Please retry later.",
-            "DisableRateLimitHeaders": false
-        }
+        "BaseUrl": "https://gateway.elrouken.tn"
     }
 }

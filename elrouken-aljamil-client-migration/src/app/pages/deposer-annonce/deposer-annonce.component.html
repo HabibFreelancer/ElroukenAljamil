@@ -101,9 +101,10 @@
 
     <!-- Dynamic Workflow Steps (when workflow loaded from API) -->
     <ng-container *ngIf="workflow && workflowSteps.length > 0">
-      <ng-container *ngFor="let step of workflowSteps; let i = index">
+      <ng-container *ngFor="let step of workflowSteps; let i = index" >
+        <ng-container *ngIf="step.stepKey !== 'title'">
         <!-- Photos step (special handling) -->
-        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey === 'photos'">
+        <div class="form-card" *ngIf="currentStep === (i + 2) && step.stepKey === 'photos'">
           <h2 style="margin-bottom: 10px;">{{ step.title }}</h2>
           <p class="drag-hint" *ngIf="isVehiculeCategory">Faites glisser vos photos pour changer leur ordre</p>
           <p class="sub-title" style="margin-bottom: 20px; display: block;">{{ step.subtitle || 'Vos photos' }}</p>
@@ -121,12 +122,16 @@
                 <span class="edit-btn" (click)="openEditor(slot)"><i class="fa-solid fa-pencil"></i></span>
                 <span class="close-btn" (click)="removePhoto(slot)"><i class="fa-solid fa-xmark"></i></span>
                 <span class="drag-icon" *ngIf="isVehiculeCategory"><i class="fa-solid fa-grip-vertical"></i></span>
+                <span class="upload-overlay" *ngIf="uploadingSlot === slot">
+                  <i class="fa-solid fa-spinner fa-spin"></i>
+                </span>
               </div>
               <div class="box-empty" *ngIf="!photos[slot]" (click)="selectSlot(slot)">
                 <span class="cover-label" *ngIf="slot === 0">Photo de couverture</span>
                 <i class="fa-solid fa-camera"></i>
                 <span>Photo n° {{ slot + 1 }}</span>
               </div>
+              <p class="error-text" *ngIf="uploadErrors[slot]">{{ uploadErrors[slot] }}</p>
             </div>
           </div>
 
@@ -147,7 +152,7 @@
         </div>
 
         <!-- Details step for Immobilier: property type icons + "Les critères indispensables" -->
-        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey === 'details' && isImmobilierCategory()">
+        <div class="form-card" *ngIf="currentStep === (i + 2) && step.stepKey === 'details' && isImmobilierCategory()">
           <h2 class="step-title">{{ step.title }}</h2>
           <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
 
@@ -288,7 +293,7 @@
         </div>
 
         <!-- Price step for Location immobilier: loyer + dépôt de garantie -->
-        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey === 'price' && isLocationCategory()">
+        <div class="form-card" *ngIf="currentStep === (i + 2) && step.stepKey === 'price' && isLocationCategory()">
           <h2 class="step-title">{{ step.title }}</h2>
           <p class="step-subtitle location-price-intro">
             Vous le savez, le prix est important. Soyez juste, mais ayez en tête une marge de négociation si besoin.
@@ -313,7 +318,7 @@
         </div>
 
         <!-- Generic dynamic step (not title, not photos, not immobilier details, not location price) -->
-        <div class="form-card" *ngIf="currentStep === (i + 1) && step.stepKey !== 'title' && step.stepKey !== 'photos' && !(step.stepKey === 'details' && isImmobilierCategory()) && !(step.stepKey === 'price' && isLocationCategory())">
+        <div class="form-card" *ngIf="currentStep === (i + 2) && step.stepKey !== 'title' && step.stepKey !== 'photos' && !(step.stepKey === 'details' && isImmobilierCategory()) && !(step.stepKey === 'price' && isLocationCategory())">
           <h2 class="step-title">{{ step.title }}</h2>
           <p class="step-subtitle" *ngIf="step.subtitle">{{ step.subtitle }}</p>
 
@@ -357,11 +362,15 @@
             <div class="field-group spaced" *ngIf="field.fieldType === 'dependent_select'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
               <div class="searchable-select" [class.disabled]="getDependentOptions(field).length === 0">
-                <input type="text" class="select-search" [placeholder]="'Rechercher...'" [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" [disabled]="getDependentOptions(field).length === 0" />
-                <div class="selected-value" *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]" (click)="openSelectDropdown(field.fieldKey)">
-                  {{ getSelectedDependentLabel(field) }}
-                  <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
-                </div>
+                <ng-container *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]; else depSearchTpl">
+                  <div class="selected-value" (click)="openSelectDropdown(field.fieldKey)">
+                    {{ getSelectedDependentLabel(field) }}
+                    <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
+                  </div>
+                </ng-container>
+                <ng-template #depSearchTpl>
+                  <input type="text" class="select-search" placeholder="Rechercher..." [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" [disabled]="getDependentOptions(field).length === 0" />
+                </ng-template>
                 <div class="select-dropdown" *ngIf="fieldDropdownOpen[field.fieldKey]">
                   <div class="select-option" *ngFor="let opt of getFilteredDependentOptions(field)" (click)="selectOption(field.fieldKey, opt.value); clearFieldError(field.fieldKey)">
                     {{ opt.label }}
@@ -467,15 +476,34 @@
               <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
             </div>
 
+            <!-- Year input (AAAA — 4 digits) -->
+            <div class="field-group spaced" *ngIf="field.fieldType === 'year'">
+              <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
+              <div class="year-input" [class.input-error]="fieldErrors[field.fieldKey]">
+                <input type="text" [(ngModel)]="formData[field.fieldKey]" placeholder="AAAA" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" (input)="onYearInput(field.fieldKey); clearFieldError(field.fieldKey)" />
+              </div>
+              <p class="error-text" *ngIf="fieldErrors[field.fieldKey]">Ce champ est obligatoire.</p>
+              <p class="helper-text" *ngIf="field.helperText">{{ field.helperText }}</p>
+            </div>
+
+            <!-- Section title divider -->
+            <div class="criteres-section-divider" *ngIf="field.fieldType === 'section_title'">
+              <h3 class="criteres-title">{{ field.label }}</h3>
+            </div>
+
             <!-- Select -->
             <div class="field-group spaced" *ngIf="field.fieldType === 'select'">
               <label>{{ field.label }} <span *ngIf="field.isRequired">*</span></label>
               <div class="searchable-select">
-                <input type="text" class="select-search" [placeholder]="'Rechercher...'" [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" />
-                <div class="selected-value" *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]" (click)="openSelectDropdown(field.fieldKey)">
-                  {{ getSelectedLabel(field) }}
-                  <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
-                </div>
+                <ng-container *ngIf="formData[field.fieldKey] && !fieldDropdownOpen[field.fieldKey]; else selectSearchTpl">
+                  <div class="selected-value" (click)="openSelectDropdown(field.fieldKey)">
+                    {{ getSelectedLabel(field) }}
+                    <i class="fa-solid fa-xmark clear-select" (click)="formData[field.fieldKey] = ''; $event.stopPropagation()"></i>
+                  </div>
+                </ng-container>
+                <ng-template #selectSearchTpl>
+                  <input type="text" class="select-search" placeholder="Rechercher..." [(ngModel)]="fieldSearchTerms[field.fieldKey]" (input)="onSelectSearch(field.fieldKey)" (focus)="openSelectDropdown(field.fieldKey)" />
+                </ng-template>
                 <div class="select-dropdown" *ngIf="fieldDropdownOpen[field.fieldKey]">
                   <div class="select-option" *ngFor="let opt of getFilteredOptions(field)" (click)="selectOption(field.fieldKey, opt.value); clearFieldError(field.fieldKey)">
                     {{ opt.label }}
@@ -591,6 +619,7 @@
           <!-- Legal text on contact step -->
           <p class="legal-text" *ngIf="step.stepKey === 'contact'">En validant la diffusion de mon annonce, j'accepte les conditions générales d'utilisation et les règles de diffusion du site ElroukenAljamil et j'autorise ElroukenAljamil à diffuser mon annonce.</p>
         </div>
+        </ng-container>
       </ng-container>
     </ng-container>
 
@@ -672,12 +701,16 @@
             <span class="edit-btn" (click)="openEditor(slot)"><i class="fa-solid fa-pencil"></i></span>
             <span class="close-btn" (click)="removePhoto(slot)"><i class="fa-solid fa-xmark"></i></span>
             <span class="drag-icon" *ngIf="isVehiculeCategory"><i class="fa-solid fa-grip-vertical"></i></span>
+            <span class="upload-overlay" *ngIf="uploadingSlot === slot">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            </span>
           </div>
           <div class="box-empty" *ngIf="!photos[slot]" (click)="selectSlot(slot)">
             <span class="cover-label" *ngIf="slot === 0">Photo de couverture</span>
             <i class="fa-solid fa-camera"></i>
             <span>Photo n° {{ slot + 1 }}</span>
           </div>
+          <p class="error-text" *ngIf="uploadErrors[slot]">{{ uploadErrors[slot] }}</p>
         </div>
       </div>
 

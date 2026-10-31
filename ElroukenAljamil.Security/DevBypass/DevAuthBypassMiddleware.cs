@@ -10,7 +10,7 @@ namespace ElroukenAljamil.BuildingBlocks.Security.DevBypass
     public class DevUserOptions
     {
         public const string SectionName = "DevUser";
-        public string UserId { get; set; } = "00000000-0000-0000-0000-000000000001";
+        public string UserId { get; set; } = "99E120E9-734F-4318-894D-E68B263E3E5F";
         public string Email { get; set; } = "dev@marketplace.local";
         public string UserName { get; set; } = "devuser";
         public string FirstName { get; set; } = "Dev";

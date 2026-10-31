@@ -1,4 +1,4 @@
-﻿using ElroukenAljamil.BuildingBlocks.Common.Results;
+using ElroukenAljamil.BuildingBlocks.Common.Results;
 using ElroukenAljamil.BuildingBlocks.Security;
 using ElroukenAljamil.BuildingBlocks.Security.Services;
 using ElroukenAljamil.Notification.Application.DTOs;
@@ -7,13 +7,10 @@ using ElroukenAljamil.Notification.Domain.Enums;
 using ElroukenAljamil.Notification.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Notification.API.Controllers
 {
-    /// <summary>
-    /// Contrôleur pour la gestion des digest emails de l'utilisateur.
-    /// Permet de configurer la fréquence et les préférences de résumé.
-    /// </summary>
     [ApiController]
     [Route("api/notifications/digest")]
     [Authorize]
@@ -21,13 +18,16 @@ namespace ElroukenAljamil.Notification.API.Controllers
     {
         private readonly IDigestScheduleRepository _digestRepository;
         private readonly ICurrentUserService _currentUser;
+        private readonly ILogger<DigestController> _logger;
 
         public DigestController(
             IDigestScheduleRepository digestRepository,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            ILogger<DigestController> logger)
         {
             _digestRepository = digestRepository;
             _currentUser = currentUser;
+            _logger = logger;
         }
 
         /// <summary>
@@ -72,10 +72,16 @@ namespace ElroukenAljamil.Notification.API.Controllers
             [FromBody] DigestConfigDto request, CancellationToken ct)
         {
             if (!Enum.TryParse<DigestFrequency>(request.Frequency, true, out var frequency))
+            {
+                _logger.LogWarning("UpdateDigestConfig — fréquence invalide : {Frequency}", request.Frequency);
                 return BadRequest(new { error = "Fréquence invalide. Valeurs possibles : Daily, Weekly." });
+            }
 
             if (!Enum.TryParse<DayOfWeek>(request.PreferredDay, true, out var preferredDay))
+            {
+                _logger.LogWarning("UpdateDigestConfig — jour invalide : {Day}", request.PreferredDay);
                 return BadRequest(new { error = "Jour invalide." });
+            }
 
             var existing = await _digestRepository.GetByUserIdAsync(_currentUser.UserId, ct);
 
@@ -102,6 +108,8 @@ namespace ElroukenAljamil.Notification.API.Controllers
                 await _digestRepository.AddAsync(schedule, ct);
             }
 
+            _logger.LogInformation("Config digest mise à jour pour {UserId} — {Frequency} actif={IsActive}",
+                _currentUser.UserId, frequency, request.IsActive);
             return NoContent();
         }
     }

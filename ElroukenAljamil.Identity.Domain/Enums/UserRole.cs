@@ -10,6 +10,7 @@ namespace ElroukenAljamil.Identity.Domain.Enums
     {
         Buyer = 0,
         Seller = 1,
-        Admin = 2
+        Admin = 2,
+        Tester = 3
     }
 }

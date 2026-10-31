@@ -6,6 +6,7 @@ using ElroukenAljamil.Listings.Application.Queries.GetMenus;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace ElroukenAljamil.Listings.API.Controllers
 {
@@ -14,8 +15,13 @@ namespace ElroukenAljamil.Listings.API.Controllers
     public class MenusController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<MenusController> _logger;
 
-        public MenusController(IMediator mediator) => _mediator = mediator;
+        public MenusController(IMediator mediator, ILogger<MenusController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
 
         /// <summary>Tous les menus actifs.</summary>
         [HttpGet]
@@ -32,6 +38,7 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> Create([FromBody] CreateMenuRequest request, CancellationToken ct)
         {
             var result = await _mediator.Send(new CreateMenuCommand(request), ct);
+            _logger.LogInformation("Menu {MenuId} créé — {Name}", result.Id, result.Name);
             return CreatedAtAction(nameof(GetAll), new { id = result.Id }, result);
         }
 
@@ -41,6 +48,8 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateMenuRequest request, CancellationToken ct)
         {
             var success = await _mediator.Send(new UpdateMenuCommand(id, request), ct);
+            if (!success) _logger.LogWarning("Mise à jour menu {MenuId} — introuvable", id);
+            else _logger.LogInformation("Menu {MenuId} mis à jour", id);
             return success ? NoContent() : NotFound();
         }
 
@@ -50,6 +59,8 @@ namespace ElroukenAljamil.Listings.API.Controllers
         public async Task<IActionResult> Delete(int id, CancellationToken ct)
         {
             var success = await _mediator.Send(new DeleteMenuCommand(id), ct);
+            if (!success) _logger.LogWarning("Suppression menu {MenuId} — introuvable", id);
+            else _logger.LogInformation("Menu {MenuId} supprimé", id);
             return success ? NoContent() : NotFound();
         }
     }

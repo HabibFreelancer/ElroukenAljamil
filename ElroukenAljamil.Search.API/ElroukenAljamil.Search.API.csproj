@@ -7,9 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.*" />
     <PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="8.0.*" />
     <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.*" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.*" />
   </ItemGroup>
 
   <ItemGroup>

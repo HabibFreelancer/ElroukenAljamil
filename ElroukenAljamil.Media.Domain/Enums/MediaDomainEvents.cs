@@ -14,7 +14,7 @@ namespace ElroukenAljamil.Media.Domain.Enums
         Guid MediaId, Guid OwnerId, string Reason) : BaseDomainEvent;
 
     public record MediaAssignedToListingDomainEvent(
-        Guid MediaId, Guid ListingId, Guid OwnerId) : BaseDomainEvent;
+        Guid MediaId, int ListingId, Guid OwnerId) : BaseDomainEvent;
 
     public record MediaMarkedForDeletionDomainEvent(
         Guid MediaId, Guid OwnerId, string StoragePath, string BucketName) : BaseDomainEvent;
